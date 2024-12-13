@@ -1,10 +1,11 @@
 import { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
-import { Search, SlidersHorizontal, X } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Search } from 'lucide-react';
 import { FilterContent } from './FilterContent';
+import { FilterSheet } from './FilterSheet';
+import { ActiveFilters } from './ActiveFilters';
 import type { Filters, FilterKey } from '@/types/filters';
 
 const CATEGORIES = [
@@ -39,20 +40,14 @@ export const SearchAndFilter = ({ onSearch, onFiltersChange }: SearchAndFilterPr
   };
 
   const handlePriceChange = (value: [number, number]) => {
-    const newFilters = {
-      ...filters,
-      priceRange: value
-    };
+    const newFilters = { ...filters, priceRange: value };
     setFilters(newFilters);
     setIsFilterActive(true);
     onFiltersChange(newFilters);
   };
 
   const handleCheckboxChange = (key: FilterKey, checked: boolean) => {
-    const newFilters = {
-      ...filters,
-      [key]: checked
-    };
+    const newFilters = { ...filters, [key]: checked };
     setFilters(newFilters);
     setIsFilterActive(true);
     onFiltersChange(newFilters);
@@ -71,10 +66,7 @@ export const SearchAndFilter = ({ onSearch, onFiltersChange }: SearchAndFilterPr
   };
 
   const handleLocationChange = (location: string) => {
-    const newFilters = {
-      ...filters,
-      location
-    };
+    const newFilters = { ...filters, location };
     setFilters(newFilters);
     setIsFilterActive(true);
     onFiltersChange(newFilters);
@@ -142,74 +134,25 @@ export const SearchAndFilter = ({ onSearch, onFiltersChange }: SearchAndFilterPr
               onChange={(e) => handleSearch(e.target.value)}
             />
           </div>
-          <Sheet>
-            <SheetTrigger asChild>
-              <Button variant="outline" size="icon">
-                <SlidersHorizontal className="h-4 w-4" />
-              </Button>
-            </SheetTrigger>
-            <SheetContent side="right" className="w-full sm:w-96">
-              <SheetHeader>
-                <SheetTitle>Filters</SheetTitle>
-              </SheetHeader>
-              <div className="mt-4">
-                <FilterContent 
-                  filters={filters}
-                  categories={CATEGORIES}
-                  isFilterActive={isFilterActive}
-                  onPriceChange={handlePriceChange}
-                  onCheckboxChange={handleCheckboxChange}
-                  onCategoryChange={handleCategoryChange}
-                  onLocationChange={handleLocationChange}
-                  onClearFilters={clearFilters}
-                />
-              </div>
-            </SheetContent>
-          </Sheet>
+          <FilterSheet
+            filters={filters}
+            categories={CATEGORIES}
+            isFilterActive={isFilterActive}
+            onPriceChange={handlePriceChange}
+            onCheckboxChange={handleCheckboxChange}
+            onCategoryChange={handleCategoryChange}
+            onLocationChange={handleLocationChange}
+            onClearFilters={clearFilters}
+          />
         </div>
 
         {isFilterActive && (
-          <div className="flex items-center gap-2 overflow-x-auto pb-2">
-            <Button 
-              variant="secondary" 
-              size="sm"
-              onClick={clearFilters}
-            >
-              <X className="w-4 h-4 mr-1" />
-              Clear All
-            </Button>
-            {filters.categories.map(category => (
-              <Button
-                key={category}
-                variant="outline"
-                size="sm"
-                onClick={() => handleCategoryChange(category, false)}
-              >
-                {category}
-                <X className="w-4 h-4 ml-1" />
-              </Button>
-            ))}
-            {filters.inStock && (
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => handleCheckboxChange('inStock', false)}
-              >
-                In Stock
-                <X className="w-4 h-4 ml-1" />
-              </Button>
-            )}
-            {filters.endingSoon && (
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => handleCheckboxChange('endingSoon', false)}
-              >
-                Ending Soon
-                <X className="w-4 h-4 ml-1" />
-              </Button>
-            )}
-          </div>
+          <ActiveFilters
+            filters={filters}
+            onClearFilters={clearFilters}
+            onCategoryChange={handleCategoryChange}
+            onCheckboxChange={handleCheckboxChange}
+          />
         )}
       </div>
     </div>
