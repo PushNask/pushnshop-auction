@@ -1,35 +1,23 @@
-import type { Currency } from '@/types/product';
-import { IMAGE_CONFIG } from '@/config/constants';
+import type { Product } from '@/types/product';
+import type { Database } from '@/integrations/supabase/types';
 
-const ACCEPTED_TYPES = ['image/jpeg', 'image/png', 'image/webp'] as const;
-type AcceptedImageType = typeof ACCEPTED_TYPES[number];
+type DbProduct = Database['public']['Tables']['products']['Row'];
 
-export const validateImage = (file: File): string | null => {
-  if (!ACCEPTED_TYPES.includes(file.type as AcceptedImageType)) {
-    return 'Invalid file type. Please upload JPEG, PNG, or WebP images.';
-  }
-  if (file.size > IMAGE_CONFIG.MAX_SIZE) {
-    return 'File too large. Maximum size is 2MB.';
-  }
-  return null;
-};
-
-export const formatCurrency = (amount: number, currency: Currency): string => {
-  if (currency === 'XAF') {
-    return `XAF ${amount.toLocaleString()}`;
-  }
-  return `$${amount.toFixed(2)}`;
-};
-
-export const getTimeRemaining = (expiresAt: string): string => {
-  const now = new Date();
-  const expiry = new Date(expiresAt);
-  const diff = expiry.getTime() - now.getTime();
-
-  if (diff <= 0) return 'Ended';
-
-  const hours = Math.floor(diff / (1000 * 60 * 60));
-  const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
-
-  return `${hours}h ${minutes}m`;
+export const mapDbProductToProduct = (dbProduct: DbProduct): Product => {
+  return {
+    id: dbProduct.id,
+    permanentLinkId: undefined, // This will be set by the listing if available
+    title: dbProduct.title,
+    description: dbProduct.description,
+    price: Number(dbProduct.price), // Convert from numeric to number
+    currency: dbProduct.currency || 'XAF',
+    quantity: dbProduct.quantity,
+    images: [], // Will be populated separately
+    status: dbProduct.status || 'draft',
+    sellerId: dbProduct.seller_id,
+    sellerWhatsApp: '', // Will be populated from user data
+    createdAt: dbProduct.created_at || new Date().toISOString(),
+    expiresAt: dbProduct.end_time || new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(),
+    viewCount: 0 // Will be populated from analytics
+  };
 };

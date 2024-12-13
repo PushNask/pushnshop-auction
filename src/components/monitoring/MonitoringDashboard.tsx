@@ -6,7 +6,8 @@ import {
   BarChart3,
   Activity,
   Users,
-  Timer
+  Timer,
+  Loader2
 } from 'lucide-react';
 import { useMetrics } from '@/hooks/useMetrics';
 import { useAuthCheck } from '@/hooks/useAuthCheck';

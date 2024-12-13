@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Loader2, AlertCircle } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
+import { mapDbProductToProduct } from '@/utils/product';
 import type { Product } from '@/types/product';
 
 interface ProductProviderProps {
@@ -16,13 +17,37 @@ export const ProductProvider = ({ children }: ProductProviderProps) => {
   useEffect(() => {
     const fetchProducts = async () => {
       try {
-        const { data, error } = await supabase
+        const { data: productsData, error: productsError } = await supabase
           .from('products')
-          .select('*')
+          .select(`
+            *,
+            product_images (
+              id,
+              url,
+              alt,
+              order_number
+            ),
+            users!products_seller_id_fkey (
+              whatsapp_number
+            )
+          `)
           .order('created_at', { ascending: false });
 
-        if (error) throw error;
-        setProducts(data);
+        if (productsError) throw productsError;
+
+        const mappedProducts = productsData.map(productData => {
+          const mappedProduct = mapDbProductToProduct(productData);
+          mappedProduct.images = (productData.product_images || []).map(img => ({
+            id: img.id,
+            url: img.url,
+            alt: img.alt || '',
+            order: img.order_number
+          }));
+          mappedProduct.sellerWhatsApp = productData.users?.whatsapp_number || '';
+          return mappedProduct;
+        });
+
+        setProducts(mappedProducts);
       } catch (err) {
         setError(err instanceof Error ? err.message : 'An error occurred');
       } finally {
