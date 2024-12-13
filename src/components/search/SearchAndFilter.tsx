@@ -1,28 +1,11 @@
 import { useState } from 'react';
-import { 
-  Card, 
-  CardContent, 
-  CardHeader, 
-  CardTitle 
-} from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
-import { 
-  Search,
-  SlidersHorizontal,
-  X,
-} from 'lucide-react';
+import { Search, SlidersHorizontal, X } from 'lucide-react';
 import { FilterContent } from './FilterContent';
 import type { Filters, FilterKey } from '@/types/filters';
-
-const INITIAL_FILTERS: Filters = {
-  priceRange: [0, 1000000],
-  inStock: false,
-  endingSoon: false,
-  categories: [],
-  location: ''
-};
 
 const CATEGORIES = [
   'Electronics',
@@ -32,53 +15,75 @@ const CATEGORIES = [
   'Others'
 ];
 
-export const SearchAndFilter = () => {
+const INITIAL_FILTERS: Filters = {
+  priceRange: [0, 1000000],
+  inStock: false,
+  endingSoon: false,
+  categories: [],
+  location: ''
+};
+
+interface SearchAndFilterProps {
+  onSearch: (query: string) => void;
+  onFiltersChange: (filters: Filters) => void;
+}
+
+export const SearchAndFilter = ({ onSearch, onFiltersChange }: SearchAndFilterProps) => {
   const [searchQuery, setSearchQuery] = useState('');
   const [filters, setFilters] = useState<Filters>(INITIAL_FILTERS);
   const [isFilterActive, setIsFilterActive] = useState(false);
 
   const handleSearch = (value: string) => {
     setSearchQuery(value);
-    // Implement search logic
+    onSearch(value);
   };
 
   const handlePriceChange = (value: [number, number]) => {
-    setFilters(prev => ({
-      ...prev,
+    const newFilters = {
+      ...filters,
       priceRange: value
-    }));
+    };
+    setFilters(newFilters);
     setIsFilterActive(true);
+    onFiltersChange(newFilters);
   };
 
   const handleCheckboxChange = (key: FilterKey, checked: boolean) => {
-    setFilters(prev => ({
-      ...prev,
+    const newFilters = {
+      ...filters,
       [key]: checked
-    }));
+    };
+    setFilters(newFilters);
     setIsFilterActive(true);
+    onFiltersChange(newFilters);
   };
 
   const handleCategoryChange = (category: string, checked: boolean) => {
-    setFilters(prev => ({
-      ...prev,
+    const newFilters = {
+      ...filters,
       categories: checked 
-        ? [...prev.categories, category]
-        : prev.categories.filter(c => c !== category)
-    }));
+        ? [...filters.categories, category]
+        : filters.categories.filter(c => c !== category)
+    };
+    setFilters(newFilters);
     setIsFilterActive(true);
+    onFiltersChange(newFilters);
   };
 
   const handleLocationChange = (location: string) => {
-    setFilters(prev => ({
-      ...prev,
+    const newFilters = {
+      ...filters,
       location
-    }));
+    };
+    setFilters(newFilters);
     setIsFilterActive(true);
+    onFiltersChange(newFilters);
   };
 
   const clearFilters = () => {
     setFilters(INITIAL_FILTERS);
     setIsFilterActive(false);
+    onFiltersChange(INITIAL_FILTERS);
   };
 
   return (

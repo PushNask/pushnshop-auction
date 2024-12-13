@@ -1,13 +1,10 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
-import { SlidersHorizontal } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
-import { SearchAndFilter } from '@/components/search/SearchAndFilter';
 import { Header } from '@/components/Header';
+import { SearchAndFilter } from '@/components/search/SearchAndFilter';
 import { ProductGrid } from '@/components/ProductGrid';
 import { fetchProducts } from '@/services/api';
-import type { Product, Filters, SortOption } from '@/types/product';
+import type { Product } from '@/types/product';
+import type { Filters } from '@/types/filters';
 
 const HomePage = () => {
   const [products, setProducts] = useState<Product[]>([]);
@@ -15,38 +12,23 @@ const HomePage = () => {
   const [hasMore, setHasMore] = useState(true);
   const [isLoading, setIsLoading] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
-  const [debouncedSearch, setDebouncedSearch] = useState('');
   const [filters, setFilters] = useState<Filters>({
-    minPrice: 0,
-    maxPrice: 1000,
+    priceRange: [0, 1000000],
     inStock: false,
-    endingSoon: false
+    endingSoon: false,
+    categories: [],
+    location: ''
   });
-  const [sortBy, setSortBy] = useState<SortOption>('newest');
   
   const loadingRef = useRef<HTMLDivElement>(null);
   const observer = useRef<IntersectionObserver | null>(null);
 
-  // Debounce search query
-  useEffect(() => {
-    const timer = setTimeout(() => setDebouncedSearch(searchQuery), 300);
-    return () => clearTimeout(timer);
-  }, [searchQuery]);
-
-  // Reset products when search/filters/sort change
-  useEffect(() => {
-    setProducts([]);
-    setPage(0);
-    setHasMore(true);
-  }, [debouncedSearch, filters, sortBy]);
-
-  // Fetch products
   const loadProducts = useCallback(async () => {
     if (isLoading || !hasMore) return;
 
     setIsLoading(true);
     try {
-      const result = await fetchProducts(page, debouncedSearch, filters, sortBy);
+      const result = await fetchProducts(page, searchQuery, filters);
       setProducts(prev => [...prev, ...result.products]);
       setHasMore(result.hasMore);
       setPage(prev => prev + 1);
@@ -54,9 +36,8 @@ const HomePage = () => {
       console.error('Error loading products:', error);
     }
     setIsLoading(false);
-  }, [page, debouncedSearch, filters, sortBy, hasMore, isLoading]);
+  }, [page, searchQuery, filters, hasMore, isLoading]);
 
-  // Set up intersection observer
   useEffect(() => {
     if (loadingRef.current) {
       observer.current = new IntersectionObserver(
@@ -80,24 +61,34 @@ const HomePage = () => {
 
   const handleSearch = useCallback((query: string) => {
     setSearchQuery(query);
+    setProducts([]);
+    setPage(0);
+    setHasMore(true);
   }, []);
 
   const handleFiltersChange = useCallback((newFilters: Filters) => {
     setFilters(newFilters);
+    setProducts([]);
+    setPage(0);
+    setHasMore(true);
   }, []);
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <Header searchQuery={searchQuery} setSearchQuery={setSearchQuery} />
-      <SearchAndFilter 
-        onSearch={handleSearch}
-        onFiltersChange={handleFiltersChange}
-      />
-      <ProductGrid 
-        products={products}
-        isLoading={isLoading}
-        loadingRef={loadingRef}
-      />
+      <Header />
+      <main className="container mx-auto px-4 py-8">
+        <SearchAndFilter 
+          onSearch={handleSearch}
+          onFiltersChange={handleFiltersChange}
+        />
+        <div className="mt-8">
+          <ProductGrid 
+            products={products}
+            isLoading={isLoading}
+            loadingRef={loadingRef}
+          />
+        </div>
+      </main>
     </div>
   );
 };
