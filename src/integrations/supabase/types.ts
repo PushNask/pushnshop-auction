@@ -55,6 +55,8 @@ export type Database = {
           status: string
           title: string
           updated_at: string
+          view_count: number
+          whatsapp_clicks: number
         }
         Insert: {
           created_at?: string
@@ -69,6 +71,8 @@ export type Database = {
           status?: string
           title: string
           updated_at?: string
+          view_count?: number
+          whatsapp_clicks?: number
         }
         Update: {
           created_at?: string
@@ -83,6 +87,8 @@ export type Database = {
           status?: string
           title?: string
           updated_at?: string
+          view_count?: number
+          whatsapp_clicks?: number
         }
         Relationships: []
       }

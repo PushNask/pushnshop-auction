@@ -11,6 +11,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { ProductImageGallery } from './ProductImageGallery';
 import { uploadProductImage } from '@/utils/image-upload';
 import type { ProductFormData } from '@/types/product-form';
+import type { Currency } from '@/types/product';
 
 interface ProductEditFormProps {
   productId?: string;
@@ -57,6 +58,7 @@ const ProductEditForm = ({ productId }: ProductEditFormProps) => {
 
         setProduct({
           ...productData,
+          currency: productData.currency as Currency,
           images: imagesData.map(img => ({
             id: img.id,
             url: img.url

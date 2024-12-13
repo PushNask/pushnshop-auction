@@ -1,5 +1,6 @@
 import { supabase } from '@/integrations/supabase/client';
 import type { ManagedProduct } from '@/types/product-management';
+import type { Currency, ListingStatus } from '@/types/product';
 
 export const fetchUserProducts = async (userId: string): Promise<ManagedProduct[]> => {
   const { data, error } = await supabase
