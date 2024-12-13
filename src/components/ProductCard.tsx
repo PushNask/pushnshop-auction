@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Card, CardContent, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { MessageCircle } from 'lucide-react';
@@ -37,6 +38,7 @@ interface ProductCardProps {
 }
 
 export const ProductCard = ({ product, className, onQuantityChange }: ProductCardProps) => {
+  const { t } = useTranslation();
   const [currentProduct, setCurrentProduct] = useState<Product>({
     ...DEFAULT_PRODUCT,
     ...product
@@ -72,7 +74,10 @@ export const ProductCard = ({ product, className, onQuantityChange }: ProductCar
 
   const handleContactSeller = () => {
     const message = encodeURIComponent(
-      `Hi, I'm interested in your product: ${currentProduct.title} (${window.location.href})`
+      t('products.whatsappMessage', {
+        title: currentProduct.title,
+        url: window.location.href
+      })
     );
     window.open(
       `https://wa.me/${currentProduct.sellerWhatsApp}?text=${message}`,
@@ -85,12 +90,12 @@ export const ProductCard = ({ product, className, onQuantityChange }: ProductCar
     const expiry = new Date(currentProduct.expiresAt);
     const diff = expiry.getTime() - now.getTime();
 
-    if (diff <= 0) return 'Ended';
+    if (diff <= 0) return t('products.ended');
 
     const hours = Math.floor(diff / (1000 * 60 * 60));
     const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
 
-    return `${hours}h ${minutes}m`;
+    return t('products.timeRemaining', { hours, minutes });
   };
 
   return (
@@ -113,7 +118,7 @@ export const ProductCard = ({ product, className, onQuantityChange }: ProductCar
           )}
           {currentProduct.quantity === 0 && (
             <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
-              <span className="text-white text-xl font-bold">Sold Out</span>
+              <span className="text-white text-xl font-bold">{t('products.soldOut')}</span>
             </div>
           )}
         </div>
@@ -125,10 +130,12 @@ export const ProductCard = ({ product, className, onQuantityChange }: ProductCar
           
           <div className="flex justify-between items-center mb-3">
             <span className="text-xl font-bold text-primary">
-              ${currentProduct.price.toFixed(2)}
+              {currentProduct.currency === 'XAF' 
+                ? t('products.priceXAF', { price: currentProduct.price.toLocaleString() })
+                : t('products.priceUSD', { price: currentProduct.price.toFixed(2) })}
             </span>
             <span className="text-sm text-gray-500">
-              {currentProduct.quantity} available
+              {t('products.available', { count: currentProduct.quantity })}
             </span>
           </div>
           
@@ -144,7 +151,7 @@ export const ProductCard = ({ product, className, onQuantityChange }: ProductCar
             disabled={currentProduct.quantity === 0}
           >
             <MessageCircle size={20} />
-            Contact Seller
+            {t('products.contactSeller')}
           </Button>
         </CardFooter>
       </Card>

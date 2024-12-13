@@ -1,9 +1,12 @@
 import { useState } from 'react';
 import { Menu, X, ShoppingBag, User } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
+import { LanguageSwitcher } from './LanguageSwitcher';
 
 export const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
+  const { t } = useTranslation();
 
   return (
     <nav className="fixed w-full top-0 z-50 glass-card">
@@ -16,10 +19,10 @@ export const Navbar = () => {
           </div>
           
           <div className="hidden md:flex items-center space-x-8">
-            <Link to="/" className="nav-link">Home</Link>
-            <Link to="/products" className="nav-link">Products</Link>
-            <Link to="/sell" className="nav-link">Sell</Link>
-            <Link to="/about" className="nav-link">About</Link>
+            <Link to="/" className="nav-link">{t('nav.home')}</Link>
+            <Link to="/products" className="nav-link">{t('nav.products')}</Link>
+            <Link to="/sell" className="nav-link">{t('nav.sell')}</Link>
+            <Link to="/about" className="nav-link">{t('nav.about')}</Link>
           </div>
 
           <div className="hidden md:flex items-center space-x-4">
@@ -29,6 +32,7 @@ export const Navbar = () => {
             <button className="p-2 hover:text-primary transition-colors">
               <User className="h-6 w-6" />
             </button>
+            <LanguageSwitcher />
           </div>
 
           <div className="md:hidden">
@@ -51,29 +55,32 @@ export const Navbar = () => {
               className="block px-3 py-2 rounded-md text-base font-medium hover:text-primary transition-colors"
               onClick={() => setIsOpen(false)}
             >
-              Home
+              {t('nav.home')}
             </Link>
             <Link
               to="/products"
               className="block px-3 py-2 rounded-md text-base font-medium hover:text-primary transition-colors"
               onClick={() => setIsOpen(false)}
             >
-              Products
+              {t('nav.products')}
             </Link>
             <Link
               to="/sell"
               className="block px-3 py-2 rounded-md text-base font-medium hover:text-primary transition-colors"
               onClick={() => setIsOpen(false)}
             >
-              Sell
+              {t('nav.sell')}
             </Link>
             <Link
               to="/about"
               className="block px-3 py-2 rounded-md text-base font-medium hover:text-primary transition-colors"
               onClick={() => setIsOpen(false)}
             >
-              About
+              {t('nav.about')}
             </Link>
+            <div className="px-3 py-2">
+              <LanguageSwitcher />
+            </div>
           </div>
         </div>
       )}
