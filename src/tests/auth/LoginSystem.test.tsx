@@ -5,7 +5,7 @@ import AuthForm from '@/components/auth/AuthForm';
 import { supabase } from '@/integrations/supabase/client';
 import { AuthError, Session, User } from '@supabase/supabase-js';
 
-// Mock supabase
+// Mock supabase client
 vi.mock('@/integrations/supabase/client', () => ({
   supabase: {
     auth: {
@@ -68,6 +68,7 @@ describe('LoginSystem', () => {
       access_token: 'mock-token',
       refresh_token: 'mock-refresh',
       expires_in: 3600,
+      expires_at: undefined,
       token_type: 'bearer',
       user: mockUser,
     };
