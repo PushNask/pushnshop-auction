@@ -46,7 +46,19 @@ export const SignupForm = () => {
         }
       });
 
-      if (signUpError) throw signUpError;
+      if (signUpError) {
+        if (signUpError.message.includes('already registered')) {
+          setError('This email is already registered. Please try logging in instead.');
+          toast({
+            variant: "destructive",
+            title: "Registration Failed",
+            description: "This email is already registered. Please try logging in.",
+          });
+        } else {
+          throw signUpError;
+        }
+        return;
+      }
 
       if (data?.user) {
         toast({
