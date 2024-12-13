@@ -18,6 +18,21 @@ export const fetchAdminStats = async (): Promise<AdminStats> => {
   };
 };
 
+interface SellerResponse {
+  id: string;
+  email: string;
+}
+
+interface PendingProductResponse {
+  id: string;
+  title: string;
+  price: number;
+  currency: string;
+  status: string;
+  seller_id: string;
+  seller: SellerResponse | null;
+}
+
 export const fetchPendingProducts = async (): Promise<PendingProduct[]> => {
   const { data, error } = await supabase
     .from('products')
@@ -33,7 +48,8 @@ export const fetchPendingProducts = async (): Promise<PendingProduct[]> => {
         email
       )
     `)
-    .eq('status', 'pending_approval');
+    .eq('status', 'pending_approval')
+    .returns<PendingProductResponse[]>();
 
   if (error) throw error;
 
@@ -46,6 +62,16 @@ export const fetchPendingProducts = async (): Promise<PendingProduct[]> => {
     status: product.status
   }));
 };
+
+interface PendingPaymentResponse {
+  id: string;
+  title: string;
+  price: number;
+  currency: string;
+  payment_status: string;
+  seller_id: string;
+  seller: SellerResponse | null;
+}
 
 export const fetchPendingPayments = async (): Promise<PendingPayment[]> => {
   const { data, error } = await supabase
@@ -62,7 +88,8 @@ export const fetchPendingPayments = async (): Promise<PendingPayment[]> => {
         email
       )
     `)
-    .eq('payment_status', 'pending');
+    .eq('payment_status', 'pending')
+    .returns<PendingPaymentResponse[]>();
 
   if (error) throw error;
 
