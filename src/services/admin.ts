@@ -9,17 +9,20 @@ export const fetchAdminStats = async (): Promise<AdminStats> => {
       id,
       price,
       seller_id,
-      status,
-      payment_status
+      listings!inner (
+        status,
+        payment_status
+      )
     `);
 
   if (error) throw error;
 
-  // Calculate stats from products data
   const stats = {
     totalProducts: data.length,
     activeSellers: new Set(data.map(p => p.seller_id)).size,
-    totalRevenue: data.reduce((sum, p) => sum + (p.payment_status === 'verified' ? p.price : 0), 0),
+    totalRevenue: data.reduce((sum, p) => 
+      sum + (p.listings?.[0]?.payment_status === 'verified' ? p.price : 0), 0
+    ),
     currency: 'XAF' as Currency
   };
 
