@@ -2,6 +2,13 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 
+interface ProductStats {
+  status: string;
+  payment_status: string;
+  price: number;
+  seller_id: string;
+}
+
 export const StatsOverview = () => {
   const { data: stats, isLoading } = useQuery({
     queryKey: ['admin-stats'],
@@ -13,11 +20,13 @@ export const StatsOverview = () => {
       
       if (error) throw error;
       
+      const typedData = data as ProductStats[];
+      
       return {
-        totalProducts: data.length,
-        totalRevenue: data.reduce((acc, curr) => 
-          curr.payment_status === 'verified' ? acc + Number(curr.price) : acc, 0),
-        activeSellers: new Set(data.map(p => p.seller_id)).size
+        totalProducts: typedData.length,
+        totalRevenue: typedData.reduce((acc, curr) => 
+          curr.payment_status === 'verified' ? acc + curr.price : acc, 0),
+        activeSellers: new Set(typedData.map(p => p.seller_id)).size
       };
     }
   });

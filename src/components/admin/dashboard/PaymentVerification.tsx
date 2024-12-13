@@ -11,6 +11,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { useToast } from "@/components/ui/use-toast";
+import type { PaymentStatus } from "@/types/payment";
 
 export const PaymentVerification = () => {
   const { toast } = useToast();
@@ -46,7 +47,7 @@ export const PaymentVerification = () => {
     try {
       const { error } = await supabase
         .from('payments')
-        .update({ status: 'completed' }) // Changed from 'verified' to 'completed'
+        .update({ status: 'completed' as PaymentStatus })
         .eq('id', paymentId);
 
       if (error) throw error;
