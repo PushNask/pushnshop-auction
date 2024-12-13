@@ -47,31 +47,33 @@ describe('LoginSystem', () => {
   });
 
   it('should handle successful login', async () => {
+    const mockUser: User = {
+      id: 'mock-user-id',
+      aud: 'authenticated',
+      email: 'test@example.com',
+      role: 'authenticated',
+      email_confirmed_at: new Date().toISOString(),
+      phone: '',
+      confirmation_sent_at: null,
+      confirmed_at: new Date().toISOString(),
+      last_sign_in_at: new Date().toISOString(),
+      app_metadata: { provider: 'email' },
+      user_metadata: {},
+      identities: [],
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
+    };
+
     const mockSession: Session = {
       access_token: 'mock-token',
       refresh_token: 'mock-refresh',
       expires_in: 3600,
       token_type: 'bearer',
-      user: {
-        id: 'mock-user-id',
-        aud: 'authenticated',
-        email: 'test@example.com',
-        role: 'authenticated',
-        email_confirmed_at: new Date().toISOString(),
-        phone: '',
-        confirmation_sent_at: null,
-        confirmed_at: new Date().toISOString(),
-        last_sign_in_at: new Date().toISOString(),
-        app_metadata: { provider: 'email' },
-        user_metadata: {},
-        identities: [],
-        created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString(),
-      },
+      user: mockUser,
     };
 
     vi.mocked(supabase.auth.signInWithPassword).mockResolvedValueOnce({
-      data: { user: mockSession.user, session: mockSession },
+      data: { user: mockUser, session: mockSession },
       error: null,
     });
 
@@ -98,11 +100,9 @@ describe('LoginSystem', () => {
   });
 
   it('should handle failed login attempts', async () => {
-    const mockAuthError = new AuthError('Invalid credentials');
-
     vi.mocked(supabase.auth.signInWithPassword).mockResolvedValueOnce({
       data: { user: null, session: null },
-      error: mockAuthError,
+      error: new AuthError('Invalid credentials', 400),
     });
 
     render(
@@ -125,13 +125,11 @@ describe('LoginSystem', () => {
   });
 
   it('should implement account lockout after multiple failed attempts', async () => {
-    const mockAuthError = new AuthError('Invalid credentials');
-
     // Simulate 5 failed attempts
     for (let i = 0; i < 5; i++) {
       vi.mocked(supabase.auth.signInWithPassword).mockResolvedValueOnce({
         data: { user: null, session: null },
-        error: mockAuthError,
+        error: new AuthError('Invalid credentials', 400),
       });
     }
 
