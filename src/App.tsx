@@ -5,6 +5,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { ErrorBoundaryWrapper } from "./components/monitoring/ErrorBoundaryWrapper";
+import { MetricsProvider } from "./hooks/useMetrics";
 import "@/i18n/config";
 
 // Lazy load route components
@@ -44,7 +45,14 @@ const App = () => (
                 <Route path="/auth" element={<AuthForm />} />
                 <Route path="/admin" element={<AdminDashboard />} />
                 <Route path="/sell" element={<ProductListingForm />} />
-                <Route path="/monitoring" element={<MonitoringDashboard />} />
+                <Route 
+                  path="/monitoring" 
+                  element={
+                    <MetricsProvider>
+                      <MonitoringDashboard />
+                    </MetricsProvider>
+                  } 
+                />
               </Routes>
             </Suspense>
           </BrowserRouter>
