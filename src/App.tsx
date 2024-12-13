@@ -4,17 +4,17 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-import { ErrorBoundaryWrapper } from "./components/monitoring/ErrorBoundaryWrapper";
-import { MetricsProvider } from "./hooks/useMetrics";
+import { ErrorBoundaryWrapper } from "@/components/monitoring/ErrorBoundaryWrapper";
+import { MetricsProvider } from "@/hooks/useMetrics";
 import "@/i18n/config";
 
 // Lazy load route components
-const Index = lazy(() => import("./pages/Index"));
-const PermanentLinks = lazy(() => import("./pages/PermanentLinks"));
-const AuthForm = lazy(() => import("./components/auth/AuthForm"));
-const AdminDashboard = lazy(() => import("./components/admin/AdminDashboard"));
-const ProductListingForm = lazy(() => import("./components/ProductListingForm"));
-const MonitoringDashboard = lazy(() => import("./components/monitoring/MonitoringDashboard"));
+const HomePage = lazy(() => import("@/pages/HomePage"));
+const PermanentLinks = lazy(() => import("@/pages/PermanentLinks"));
+const AuthForm = lazy(() => import("@/components/auth/AuthForm"));
+const AdminDashboard = lazy(() => import("@/components/admin/AdminDashboard"));
+const ProductListingForm = lazy(() => import("@/components/ProductListingForm"));
+const MonitoringDashboard = lazy(() => import("@/components/monitoring/MonitoringDashboard"));
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -40,7 +40,7 @@ const App = () => (
               </div>
             }>
               <Routes>
-                <Route path="/" element={<Index />} />
+                <Route path="/" element={<HomePage />} />
                 <Route path="/permanent-links" element={<PermanentLinks />} />
                 <Route path="/auth" element={<AuthForm />} />
                 <Route path="/admin" element={<AdminDashboard />} />
