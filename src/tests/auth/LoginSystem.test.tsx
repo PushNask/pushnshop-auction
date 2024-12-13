@@ -62,13 +62,14 @@ describe('LoginSystem', () => {
       identities: [],
       created_at: new Date().toISOString(),
       updated_at: new Date().toISOString(),
+      factors: null,
     };
 
     const mockSession: Session = {
       access_token: 'mock-token',
       refresh_token: 'mock-refresh',
       expires_in: 3600,
-      expires_at: undefined,
+      expires_at: Math.floor(Date.now() / 1000) + 3600,
       token_type: 'bearer',
       user: mockUser,
     };
