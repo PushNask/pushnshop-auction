@@ -1,4 +1,6 @@
-import type { Product, Filters, SortOption } from '@/types/product';
+import type { Product } from '@/types/product';
+import type { Filters } from '@/types/filters';
+import type { SortOption } from '@/types/product';
 
 export const fetchProducts = async (
   page = 0, 

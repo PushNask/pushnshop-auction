@@ -1,9 +1,11 @@
-export interface Filters {
-  priceRange: [number, number];
-  inStock: boolean;
-  endingSoon: boolean;
-  categories: string[];
-  location: string;
-}
+import type { Currency, ListingStatus } from './product';
 
-export type FilterKey = keyof Filters;
+export interface Filters {
+  search?: string;
+  minPrice?: number;
+  maxPrice?: number;
+  currency?: Currency;
+  status?: ListingStatus;
+  inStock?: boolean;
+  endingSoon?: boolean;
+}

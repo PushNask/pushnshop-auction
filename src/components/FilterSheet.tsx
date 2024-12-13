@@ -1,6 +1,6 @@
 import { Checkbox } from "@/components/ui/checkbox"
 import { Slider } from "@/components/ui/slider"
-import { Filters } from "@/types/product"
+import { type Filters } from "@/types/filters"
 import { type CheckedState } from "@radix-ui/react-checkbox"
 
 interface FilterSheetProps {
