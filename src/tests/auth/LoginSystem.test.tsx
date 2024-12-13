@@ -36,7 +36,7 @@ describe('LoginSystem', () => {
     vi.resetAllMocks();
   });
 
-  it('should render login form', () => {
+  it('renders login form', () => {
     render(
       <BrowserRouter>
         <AuthForm />
@@ -46,7 +46,7 @@ describe('LoginSystem', () => {
     expect(screen.getByRole('tabpanel', { name: /login/i })).toBeInTheDocument();
   });
 
-  it('should handle successful login', async () => {
+  it('handles successful login', async () => {
     const mockUser: User = {
       id: 'mock-user-id',
       aud: 'authenticated',
@@ -101,10 +101,11 @@ describe('LoginSystem', () => {
     });
   });
 
-  it('should handle failed login attempts', async () => {
+  it('handles failed login attempts', async () => {
+    const authError = new AuthError('Invalid credentials', 400);
     vi.mocked(supabase.auth.signInWithPassword).mockResolvedValueOnce({
       data: { user: null, session: null },
-      error: new AuthError('Invalid credentials', 400),
+      error: authError,
     });
 
     render(
@@ -126,7 +127,7 @@ describe('LoginSystem', () => {
     });
   });
 
-  it('should implement account lockout after multiple failed attempts', async () => {
+  it('implements account lockout after multiple failed attempts', async () => {
     // Simulate 5 failed attempts
     for (let i = 0; i < 5; i++) {
       vi.mocked(supabase.auth.signInWithPassword).mockResolvedValueOnce({
