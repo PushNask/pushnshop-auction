@@ -13,10 +13,21 @@ export type Product = {
   price: number;
   quantity: number;
   images: ProductImage[];
-  status: 'active' | 'sold' | 'ended' | 'pending';
+  status: ProductStatus;
   sellerId: string;
   sellerWhatsApp: string;
   createdAt: string;
   expiresAt: string;
   viewCount: number;
 };
+
+export type ProductStatus = 'active' | 'sold' | 'ended' | 'pending';
+
+export type Filters = {
+  status?: ProductStatus;
+  minPrice?: number;
+  maxPrice?: number;
+  sellerId?: string;
+};
+
+export type SortOption = 'newest' | 'oldest' | 'price-asc' | 'price-desc';
