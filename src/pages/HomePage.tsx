@@ -6,6 +6,7 @@ import { fetchProducts } from "@/services/api";
 import type { Filters } from "@/types/filters";
 
 const INITIAL_FILTERS: Filters = {
+  search: '',
   minPrice: 0,
   maxPrice: 1000000,
   inStock: false,

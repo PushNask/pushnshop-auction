@@ -1,7 +1,7 @@
 import type { Currency, ListingStatus } from './product';
 
 export interface Filters {
-  search?: string;
+  search: string;
   minPrice?: number;
   maxPrice?: number;
   currency?: Currency;
