@@ -3,26 +3,29 @@ import { supabase } from '@/integrations/supabase/client';
 import { withQueryTracking } from '@/lib/monitoring/middleware';
 
 const fetchPermanentLinks = async () => {
-  return withQueryTracking(
-    supabase
-      .from('listings')
-      .select(`
-        *,
-        products (
-          id,
-          title,
-          description,
-          price,
-          currency
-        )
-      `)
-      .order('created_at', { ascending: false }),
-    'fetchPermanentLinks'
-  );
+  const { data, error } = await supabase
+    .from('listings')
+    .select(`
+      *,
+      products (
+        id,
+        title,
+        description,
+        price,
+        currency
+      )
+    `)
+    .order('created_at', { ascending: false });
+
+  if (error) throw error;
+  return data;
 };
 
 const PermanentLinks = () => {
-  const { data, error, isLoading } = useQuery(['permanentLinks'], fetchPermanentLinks);
+  const { data, error, isLoading } = useQuery({
+    queryKey: ['permanentLinks'],
+    queryFn: fetchPermanentLinks
+  });
 
   if (isLoading) return <div>Loading...</div>;
   if (error) return <div>Error loading permanent links</div>;
@@ -31,11 +34,11 @@ const PermanentLinks = () => {
     <div>
       <h1>Permanent Links</h1>
       <ul>
-        {data.map(link => (
+        {data?.map(link => (
           <li key={link.id}>
-            <h2>{link.title}</h2>
-            <p>{link.description}</p>
-            <p>{link.price} {link.currency}</p>
+            <h2>{link.products?.title}</h2>
+            <p>{link.products?.description}</p>
+            <p>{link.products?.price} {link.products?.currency}</p>
           </li>
         ))}
       </ul>

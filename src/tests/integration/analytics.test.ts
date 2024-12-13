@@ -1,39 +1,41 @@
 import { describe, it, expect, beforeEach, afterEach } from 'vitest';
-import { createTestClient, generateTestData, cleanupTestData } from '../utils/testSetup';
-import type { SupabaseClient } from '@supabase/supabase-js';
-import type { Database } from '@/integrations/supabase/types';
+import { supabase } from '@/integrations/supabase/client';
 
 describe('Analytics Tests', () => {
-  let supabase: SupabaseClient<Database>;
-  let testListing: Database['public']['Tables']['listings']['Row'];
+  let testUser;
+  let testProduct;
 
   beforeEach(async () => {
-    supabase = createTestClient();
-    const { product } = generateTestData();
-    
-    // Create test product and listing
-    const { data: createdProduct } = await supabase
+    // Create test user
+    const { data: { user }, error: userError } = await supabase.auth.signUp({
+      email: 'test@example.com',
+      password: 'testpassword123'
+    });
+    if (userError) throw userError;
+    testUser = user;
+
+    // Create test product
+    const { data: product, error: productError } = await supabase
       .from('products')
-      .insert(product)
-      .select()
-      .single();
-
-    const { data: listing } = await supabase
-      .from('listings')
       .insert({
-        product_id: createdProduct!.id,
-        duration_hours: 24,
-        price_paid: 5000,
+        title: 'Test Product',
+        description: 'Test Description',
+        price: 1000,
+        currency: 'XAF',
+        quantity: 5,
+        seller_id: testUser.id
       })
-      .select()
       .single();
-
-    testListing = listing!;
+    if (productError) throw productError;
+    testProduct = product;
   });
 
   afterEach(async () => {
-    if (testListing) {
-      await cleanupTestData(supabase, { listingId: testListing.id });
+    if (testProduct?.id) {
+      await supabase.from('products').delete().eq('id', testProduct.id);
+    }
+    if (testUser?.id) {
+      await supabase.auth.admin.deleteUser(testUser.id);
     }
   });
 
@@ -41,15 +43,14 @@ describe('Analytics Tests', () => {
     const { data: analytics, error } = await supabase
       .from('analytics')
       .insert({
-        listing_id: testListing.id,
+        listing_id: testProduct.id,
         views: 1,
         whatsapp_clicks: 1,
       })
-      .select()
       .single();
 
     expect(error).toBeNull();
-    expect(analytics?.views).toBe(1);
-    expect(analytics?.whatsapp_clicks).toBe(1);
+    expect(analytics.views).toBe(1);
+    expect(analytics.whatsapp_clicks).toBe(1);
   });
 });
