@@ -9,7 +9,83 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
-      [_ in never]: never
+      product_images: {
+        Row: {
+          created_at: string
+          id: string
+          order_index: number
+          product_id: string | null
+          url: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          order_index?: number
+          product_id?: string | null
+          url: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          order_index?: number
+          product_id?: string | null
+          url?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "product_images_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      products: {
+        Row: {
+          created_at: string
+          currency: string
+          description: string | null
+          expires_at: string | null
+          id: string
+          permanent_link_id: number | null
+          price: number
+          quantity: number
+          seller_id: string | null
+          status: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          currency?: string
+          description?: string | null
+          expires_at?: string | null
+          id?: string
+          permanent_link_id?: number | null
+          price: number
+          quantity?: number
+          seller_id?: string | null
+          status?: string
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          currency?: string
+          description?: string | null
+          expires_at?: string | null
+          id?: string
+          permanent_link_id?: number | null
+          price?: number
+          quantity?: number
+          seller_id?: string | null
+          status?: string
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never

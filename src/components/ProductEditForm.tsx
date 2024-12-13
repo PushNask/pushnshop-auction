@@ -5,33 +5,23 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { ImagePlus, Trash2, Loader2, AlertCircle } from 'lucide-react';
-import { supabase } from '@/integrations/supabase/client';
+import { Loader2, AlertCircle } from 'lucide-react';
 import { useToast } from '@/components/ui/use-toast';
+import { supabase } from '@/integrations/supabase/client';
+import { ProductImageGallery } from './ProductImageGallery';
+import { uploadProductImage } from '@/utils/image-upload';
+import type { ProductFormData } from '@/types/product-form';
 
-interface ProductImage {
-  id: string;
-  url: string;
-  isNew?: boolean;
-  file?: File;
+interface ProductEditFormProps {
+  productId?: string;
 }
 
-interface Product {
-  id: string;
-  title: string;
-  description: string;
-  price: number;
-  currency: 'XAF' | 'USD';
-  quantity: number;
-  images: ProductImage[];
-}
-
-const ProductEditForm = ({ productId }: { productId?: string }) => {
+const ProductEditForm = ({ productId }: ProductEditFormProps) => {
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
   const [error, setError] = useState('');
-  const [product, setProduct] = useState<Product>({
+  const [product, setProduct] = useState<ProductFormData>({
     id: '',
     title: '',
     description: '',
@@ -86,24 +76,6 @@ const ProductEditForm = ({ productId }: { productId?: string }) => {
 
     fetchProduct();
   }, [productId, toast]);
-
-  const uploadImage = async (file: File) => {
-    const fileExt = file.name.split('.').pop();
-    const fileName = `${Math.random().toString(36).substring(7)}.${fileExt}`;
-    const filePath = `${product.id}/${fileName}`;
-
-    const { error: uploadError } = await supabase.storage
-      .from('product-images')
-      .upload(filePath, file);
-
-    if (uploadError) throw uploadError;
-
-    const { data: { publicUrl } } = supabase.storage
-      .from('product-images')
-      .getPublicUrl(filePath);
-
-    return publicUrl;
-  };
 
   const handleImageAdd = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(event.target.files || []);
@@ -175,7 +147,7 @@ const ProductEditForm = ({ productId }: { productId?: string }) => {
       const newImages = product.images.filter(img => img.isNew && img.file);
       const uploadPromises = newImages.map(async (img) => {
         if (!img.file) return null;
-        const publicUrl = await uploadImage(img.file);
+        const publicUrl = await uploadProductImage(product.id, img.file);
         return {
           url: publicUrl,
           order_index: product.images.indexOf(img)
@@ -306,49 +278,11 @@ const ProductEditForm = ({ productId }: { productId?: string }) => {
               </div>
             </div>
 
-            <div>
-              <Label>Product Images ({product.images.length}/7)</Label>
-              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4 mt-2">
-                {product.images.map((image) => (
-                  <div key={image.id} className="relative aspect-square">
-                    <img
-                      src={image.url}
-                      alt="Product"
-                      className="w-full h-full object-cover rounded-lg"
-                    />
-                    <Button
-                      type="button"
-                      variant="destructive"
-                      size="icon"
-                      className="absolute top-2 right-2"
-                      onClick={() => handleImageRemove(image.id)}
-                    >
-                      <Trash2 className="h-4 w-4" />
-                    </Button>
-                  </div>
-                ))}
-                
-                {product.images.length < 7 && (
-                  <div className="aspect-square border-2 border-dashed rounded-lg flex items-center justify-center">
-                    <Label
-                      htmlFor="image-upload"
-                      className="cursor-pointer flex flex-col items-center p-4"
-                    >
-                      <ImagePlus className="h-8 w-8 mb-2" />
-                      <span className="text-sm text-center">Add Image</span>
-                      <Input
-                        id="image-upload"
-                        type="file"
-                        accept="image/jpeg,image/png,image/webp"
-                        className="hidden"
-                        onChange={handleImageAdd}
-                        multiple
-                      />
-                    </Label>
-                  </div>
-                )}
-              </div>
-            </div>
+            <ProductImageGallery
+              images={product.images}
+              onImageAdd={handleImageAdd}
+              onImageRemove={handleImageRemove}
+            />
           </div>
         </CardContent>
 
