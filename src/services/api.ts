@@ -5,7 +5,14 @@ import type { SortOption } from '@/types/product';
 export const fetchProducts = async (
   page = 0, 
   searchQuery = '', 
-  filters: Filters = {}, 
+  filters: Filters = {
+    minPrice: 0,
+    maxPrice: 1000000,
+    inStock: false,
+    endingSoon: false,
+    categories: [], // Add the required categories array with empty default
+    location: ''
+  }, 
   sortBy: SortOption = 'newest'
 ): Promise<{ products: Product[], hasMore: boolean }> => {
   await new Promise(resolve => setTimeout(resolve, 1000));
