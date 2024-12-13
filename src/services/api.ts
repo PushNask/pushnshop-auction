@@ -6,6 +6,7 @@ export const fetchProducts = async (
   page = 0, 
   searchQuery = '', 
   filters: Filters = {
+    search: '',
     minPrice: 0,
     maxPrice: 1000000,
     inStock: false,
