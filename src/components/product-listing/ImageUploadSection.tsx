@@ -3,34 +3,32 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Plus, X } from 'lucide-react';
-import { IMAGE_CONFIG } from '@/config/constants';
-
-interface ProductImage {
-  id: string;
-  file: File;
-  preview: string;
-}
+import type { ProductImage } from '@/types/product-form';
 
 interface ImageUploadSectionProps {
   images: ProductImage[];
   onImagesChange: (images: ProductImage[]) => void;
+  maxImages?: number;
   error?: string;
 }
 
 export const ImageUploadSection = ({
   images,
   onImagesChange,
+  maxImages = 7,
   error
 }: ImageUploadSectionProps) => {
   const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(event.target.files || []);
     
-    if (images.length + files.length > IMAGE_CONFIG.MAX_IMAGES) {
+    if (images.length + files.length > maxImages) {
       return;
     }
 
-    const newImages = files.map(file => ({
+    const newImages: ProductImage[] = files.map(file => ({
       id: Math.random().toString(36).substring(7),
+      url: URL.createObjectURL(file),
+      alt: file.name,
       file,
       preview: URL.createObjectURL(file)
     }));
@@ -44,13 +42,13 @@ export const ImageUploadSection = ({
 
   return (
     <div className="space-y-2">
-      <Label>Product Images ({images.length}/{IMAGE_CONFIG.MAX_IMAGES})</Label>
+      <Label>Product Images ({images.length}/{maxImages})</Label>
       <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
         {images.map(image => (
           <div key={image.id} className="relative aspect-square">
             <img
-              src={image.preview}
-              alt="Product preview"
+              src={image.preview || image.url}
+              alt={image.alt || "Product preview"}
               className="w-full h-full object-cover rounded-lg"
             />
             <Button
@@ -65,7 +63,7 @@ export const ImageUploadSection = ({
           </div>
         ))}
 
-        {images.length < IMAGE_CONFIG.MAX_IMAGES && (
+        {images.length < maxImages && (
           <div className="aspect-square border-2 border-dashed rounded-lg flex items-center justify-center hover:bg-gray-50 transition-colors">
             <Label
               htmlFor="image-upload"
@@ -75,12 +73,12 @@ export const ImageUploadSection = ({
               <span className="text-sm text-center">
                 Add Image
                 <br />
-                (max {IMAGE_CONFIG.MAX_SIZE / (1024 * 1024)}MB)
+                (max 2MB)
               </span>
               <Input
                 id="image-upload"
                 type="file"
-                accept={IMAGE_CONFIG.ACCEPTED_TYPES.join(',')}
+                accept="image/*"
                 className="hidden"
                 onChange={handleImageUpload}
                 multiple

@@ -1,18 +1,20 @@
-import type { Currency } from './product';
-
 export interface ProductImage {
   id: string;
   url: string;
+  alt?: string;
+  order?: number;
   isNew?: boolean;
   file?: File;
+  preview?: string;
 }
 
-export interface ProductFormData {
-  id: string;
+export interface FormData {
   title: string;
   description: string;
-  price: number;
-  currency: Currency;
+  price: string;
+  currency: 'XAF' | 'USD';
   quantity: number;
-  images: ProductImage[];
+  category: string;
+  duration: '24' | '48' | '72' | '96' | '120';
+  condition?: 'new' | 'used';
 }
