@@ -33,25 +33,32 @@ export const SignupForm = () => {
     }
 
     try {
-      const { error } = await supabase.auth.signUp({
+      const { data, error: signUpError } = await supabase.auth.signUp({
         email: formData.email,
         password: formData.password,
         options: {
           data: {
             full_name: formData.fullName,
             whatsapp_number: formData.whatsappNumber
-          }
+          },
+          emailRedirectTo: `${window.location.origin}/auth/callback`
         }
       });
 
-      if (error) throw error;
+      if (signUpError) {
+        console.error('Signup error:', signUpError);
+        throw signUpError;
+      }
 
-      toast({
-        title: "Success",
-        description: "Account created successfully. Please check your email for verification.",
-      });
+      if (data?.user) {
+        toast({
+          title: "Success",
+          description: "Account created successfully. Please check your email for verification.",
+        });
+      }
     } catch (err: any) {
-      setError(err.message || 'Failed to create account');
+      console.error('Error details:', err);
+      setError(err.message || 'Failed to create account. Please try again.');
       toast({
         variant: "destructive",
         title: "Error",
