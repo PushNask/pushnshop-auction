@@ -14,7 +14,7 @@ const PermanentLinks = () => {
           current_listing_id,
           listings!inner (
             id,
-            product:products!inner (
+            products!inner (
               title,
               end_time
             )
@@ -30,9 +30,9 @@ const PermanentLinks = () => {
         id: link.id,
         url: link.url_path,
         status: link.current_listing_id ? 'active' : 'available',
-        product: link.listings?.product ? {
-          title: link.listings.product.title,
-          expires_at: link.listings.product.end_time
+        product: link.listings?.products ? {
+          title: link.listings.products.title,
+          expires_at: link.listings.products.end_time
         } : null
       }));
     }
@@ -52,7 +52,7 @@ const PermanentLinks = () => {
     <div>
       <h1>Permanent Links</h1>
       <ul>
-        {links.map(link => (
+        {links?.map(link => (
           <li key={link.id}>
             <a href={link.url}>{link.url}</a> - Status: {link.status}
             {link.product && (
