@@ -6,18 +6,29 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import { ImagePlus, Trash2, AlertCircle } from 'lucide-react';
 import type { ProductImage } from '@/types/product';
 import { IMAGE_CONFIG } from '@/config/constants';
-import { validateImage } from '@/utils/product';
 
 interface ImageUploadProps {
-  images: ProductImage[];
+  images?: ProductImage[];
   onChange: (images: ProductImage[]) => void;
   error?: string;
 }
 
-const ImageUpload = ({ images, onChange, error }: ImageUploadProps) => {
+const validateImage = (file: File): string | null => {
+  if (!IMAGE_CONFIG.ACCEPTED_TYPES.includes(file.type as "image/jpeg" | "image/png" | "image/webp")) {
+    return 'Invalid file type. Please upload JPEG, PNG, or WebP images.';
+  }
+  if (file.size > IMAGE_CONFIG.MAX_SIZE) {
+    return 'File too large. Maximum size is 2MB.';
+  }
+  return null;
+};
+
+const ImageUpload = ({ images = [], onChange, error }: ImageUploadProps) => {
   const [dragActive, setDragActive] = useState(false);
 
-  const handleFiles = (files: FileList) => {
+  const handleFiles = (files: FileList | null) => {
+    if (!files) return;
+
     const fileArray = Array.from(files);
     const totalImages = images.length + fileArray.length;
 
@@ -32,7 +43,7 @@ const ImageUpload = ({ images, onChange, error }: ImageUploadProps) => {
         acc.push({
           id: Math.random().toString(36).substring(7),
           url: URL.createObjectURL(file),
-          alt: file.name,
+          alt: file.name || 'Product image',
           order: images.length + acc.length,
           isNew: true,
           file
@@ -44,18 +55,18 @@ const ImageUpload = ({ images, onChange, error }: ImageUploadProps) => {
     onChange([...images, ...validFiles]);
   };
 
-  const handleDrop = (e: React.DragEvent) => {
+  const handleDrop = (e: React.DragEvent<HTMLDivElement>) => {
     e.preventDefault();
     setDragActive(false);
     handleFiles(e.dataTransfer.files);
   };
 
-  const handleDragOver = (e: React.DragEvent) => {
+  const handleDragOver = (e: React.DragEvent<HTMLDivElement>) => {
     e.preventDefault();
     setDragActive(true);
   };
 
-  const handleDragLeave = (e: React.DragEvent) => {
+  const handleDragLeave = (e: React.DragEvent<HTMLDivElement>) => {
     e.preventDefault();
     setDragActive(false);
   };
@@ -66,18 +77,22 @@ const ImageUpload = ({ images, onChange, error }: ImageUploadProps) => {
     onChange(newImages);
   };
 
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    handleFiles(e.target.files);
+  };
+
   return (
     <div className="space-y-4">
       <div
         className={`border-2 border-dashed rounded-lg p-4 transition-colors
           ${dragActive ? 'border-primary bg-primary/10' : 'border-gray-300'}
-          ${error ? 'border-red-500' : ''}`}
+          ${error ? 'border-destructive' : ''}`}
         onDrop={handleDrop}
         onDragOver={handleDragOver}
         onDragLeave={handleDragLeave}
       >
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
-          {images.map((image) => (
+          {Array.isArray(images) && images.map((image) => (
             <div key={image.id} className="relative aspect-square">
               <img
                 src={image.url}
@@ -96,7 +111,7 @@ const ImageUpload = ({ images, onChange, error }: ImageUploadProps) => {
             </div>
           ))}
 
-          {images.length < IMAGE_CONFIG.MAX_IMAGES && (
+          {(!images || images.length < IMAGE_CONFIG.MAX_IMAGES) && (
             <div className="aspect-square border-2 border-dashed rounded-lg flex items-center justify-center">
               <Label
                 htmlFor="image-upload"
@@ -106,14 +121,14 @@ const ImageUpload = ({ images, onChange, error }: ImageUploadProps) => {
                 <span className="text-sm text-center">
                   Drop images here or click to upload
                   <br />
-                  ({images.length}/{IMAGE_CONFIG.MAX_IMAGES})
+                  ({images?.length || 0}/{IMAGE_CONFIG.MAX_IMAGES})
                 </span>
                 <Input
                   id="image-upload"
                   type="file"
                   accept={IMAGE_CONFIG.ACCEPTED_TYPES.join(',')}
                   className="hidden"
-                  onChange={(e) => handleFiles(e.target.files!)}
+                  onChange={handleInputChange}
                   multiple
                 />
               </Label>

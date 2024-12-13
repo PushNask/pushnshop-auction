@@ -29,13 +29,15 @@ export interface Product {
   viewCount: number;
 }
 
-export interface Invoice {
-  id: string;
-  productId: string;
-  amount: number;
-  currency: Currency;
-  dueDate: string;
-  status: PaymentStatus;
-  listingDuration: number;
-  paymentMethod?: PaymentMethod;
+export interface Filters {
+  search?: string;
+  minPrice?: number;
+  maxPrice?: number;
+  currency?: Currency;
+  status?: ListingStatus;
+}
+
+export interface SortOption {
+  field: keyof Product;
+  direction: 'asc' | 'desc';
 }
