@@ -1,70 +1,34 @@
 import { supabase } from '@/integrations/supabase/client';
 
-interface FileUploadOptions {
-  maxSizeMB?: number;
-  allowedTypes?: string[];
-}
-
-export class FileStorage {
-  private defaultOptions: FileUploadOptions = {
-    maxSizeMB: 2,
-    allowedTypes: ['image/jpeg', 'image/png', 'image/webp']
-  };
-
-  async uploadProductImage(
-    file: File,
-    productId: string,
-    options: FileUploadOptions = {}
-  ) {
-    const opts = { ...this.defaultOptions, ...options };
-
-    if (!opts.allowedTypes?.includes(file.type)) {
-      throw new Error('Invalid file type');
-    }
-
-    if (file.size > (opts.maxSizeMB || 2) * 1024 * 1024) {
-      throw new Error('File too large');
-    }
-
-    const extension = file.name.split('.').pop();
-    const filename = `${productId}/${Date.now()}.${extension}`;
-
-    const { data, error } = await supabase
-      .storage
-      .from('product-images')
-      .upload(filename, file, {
-        cacheControl: '3600',
-        upsert: false
-      });
-
-    if (error) throw error;
-
-    const { data: { publicUrl } } = supabase
-      .storage
-      .from('product-images')
-      .getPublicUrl(filename);
-
-    return publicUrl;
+export const uploadProductImage = async (productId: string, file: File): Promise<string> => {
+  // Validate file
+  if (!['image/jpeg', 'image/png', 'image/webp'].includes(file.type)) {
+    throw new Error('Invalid file type');
   }
 
-  async deleteProductImages(productId: string) {
-    const { data, error } = await supabase
-      .storage
-      .from('product-images')
-      .list(productId);
-
-    if (error) throw error;
-
-    if (data.length > 0) {
-      const filesToRemove = data.map(file => `${productId}/${file.name}`);
-      const { error: deleteError } = await supabase
-        .storage
-        .from('product-images')
-        .remove(filesToRemove);
-
-      if (deleteError) throw deleteError;
-    }
+  if (file.size > 2 * 1024 * 1024) { // 2MB
+    throw new Error('File too large');
   }
-}
 
-export const fileStorage = new FileStorage();
+  // Generate unique filename
+  const extension = file.name.split('.').pop();
+  const filename = `${productId}/${Date.now()}.${extension}`;
+
+  const { error: uploadError } = await supabase
+    .storage
+    .from('product-images')
+    .upload(filename, file, {
+      cacheControl: '3600',
+      upsert: false
+    });
+
+  if (uploadError) throw uploadError;
+
+  // Get public URL
+  const { data: { publicUrl } } = supabase
+    .storage
+    .from('product-images')
+    .getPublicUrl(filename);
+
+  return publicUrl;
+};

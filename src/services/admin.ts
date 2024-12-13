@@ -5,13 +5,7 @@ import type { Currency } from '@/types/product';
 export const fetchAdminStats = async (): Promise<AdminStats> => {
   const { data, error } = await supabase
     .from('products')
-    .select(`
-      id,
-      price,
-      seller_id,
-      status,
-      payment_status
-    `);
+    .select('*');
 
   if (error) throw error;
 
@@ -31,13 +25,8 @@ export const fetchPendingProducts = async (): Promise<PendingProduct[]> => {
   const { data, error } = await supabase
     .from('products')
     .select(`
-      id,
-      title,
-      price,
-      currency,
-      status,
-      seller_id,
-      users!seller_id (
+      *,
+      users!inner (
         email
       )
     `)
@@ -52,6 +41,30 @@ export const fetchPendingProducts = async (): Promise<PendingProduct[]> => {
     price: product.price,
     currency: product.currency as Currency,
     status: product.status
+  }));
+};
+
+export const fetchPendingPayments = async (): Promise<PendingPayment[]> => {
+  const { data, error } = await supabase
+    .from('products')
+    .select(`
+      *,
+      users!inner (
+        email
+      )
+    `)
+    .eq('payment_status', 'pending');
+
+  if (error) throw error;
+
+  return data.map(product => ({
+    id: product.id,
+    reference: `PAY-${product.id.slice(0, 8)}`,
+    amount: product.price,
+    currency: product.currency as Currency,
+    seller: product.users?.email || 'Unknown',
+    method: 'bank',
+    status: 'pending'
   }));
 };
 

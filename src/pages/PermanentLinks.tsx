@@ -1,6 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
-import { useEffect } from 'react';
 
 const PermanentLinks = () => {
   const { data: links, isLoading, error } = useQuery({
@@ -9,11 +8,9 @@ const PermanentLinks = () => {
       const { data, error } = await supabase
         .from('permanent_links')
         .select(`
-          id,
-          url_path,
-          current_listing_id,
+          *,
           listings!inner (
-            id,
+            *,
             products!inner (
               title,
               end_time

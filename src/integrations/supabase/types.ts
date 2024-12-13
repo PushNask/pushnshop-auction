@@ -206,10 +206,13 @@ export type Database = {
           created_at: string | null
           currency: Database["public"]["Enums"]["currency_type"] | null
           description: string
+          end_time: string | null
           id: string
+          payment_status: string | null
           price: number
           quantity: number
           seller_id: string
+          status: string | null
           title: string
           updated_at: string | null
         }
@@ -217,10 +220,13 @@ export type Database = {
           created_at?: string | null
           currency?: Database["public"]["Enums"]["currency_type"] | null
           description: string
+          end_time?: string | null
           id?: string
+          payment_status?: string | null
           price: number
           quantity: number
           seller_id: string
+          status?: string | null
           title: string
           updated_at?: string | null
         }
@@ -228,10 +234,13 @@ export type Database = {
           created_at?: string | null
           currency?: Database["public"]["Enums"]["currency_type"] | null
           description?: string
+          end_time?: string | null
           id?: string
+          payment_status?: string | null
           price?: number
           quantity?: number
           seller_id?: string
+          status?: string | null
           title?: string
           updated_at?: string | null
         }
