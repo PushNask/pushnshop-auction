@@ -85,11 +85,7 @@ describe('Login System', () => {
   });
 
   it('should handle failed login attempts', async () => {
-    const mockAuthError = new AuthError('Invalid credentials', {
-      message: 'Invalid credentials',
-      code: 'invalid_credentials',
-      status: 400,
-    });
+    const mockAuthError = new AuthError('Invalid credentials', 400);
 
     vi.mocked(supabase.auth.signInWithPassword).mockResolvedValueOnce({
       data: { user: null, session: null },
@@ -112,11 +108,7 @@ describe('Login System', () => {
   });
 
   it('should implement account lockout after multiple failed attempts', async () => {
-    const mockAuthError = new AuthError('Invalid credentials', {
-      message: 'Invalid credentials',
-      code: 'invalid_credentials',
-      status: 400,
-    });
+    const mockAuthError = new AuthError('Invalid credentials', 400);
 
     // Simulate 5 failed attempts
     for (let i = 0; i < 5; i++) {
