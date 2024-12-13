@@ -33,6 +33,7 @@ export const LoginForm = () => {
 
       if (error) {
         if (error.message.includes('Email not confirmed')) {
+          // Automatically resend confirmation email
           const { error: resendError } = await supabase.auth.resend({
             type: 'signup',
             email: formData.email,
@@ -46,10 +47,12 @@ export const LoginForm = () => {
             title: "Email Not Confirmed",
             description: "Please check your email for the confirmation link. We've sent a new confirmation email.",
           });
-        } else {
-          throw error;
+          return;
         }
-      } else if (data?.user) {
+        throw error;
+      }
+
+      if (data?.user) {
         toast({
           title: "Success",
           description: "Logged in successfully",
