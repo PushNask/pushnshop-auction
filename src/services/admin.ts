@@ -10,9 +10,10 @@ export const fetchAdminStats = async (): Promise<AdminStats> => {
       id,
       price,
       currency,
-      seller:users!products_seller_id_fkey(id)
+      seller:users!products_seller_id_fkey (id)
     `)
-    .eq('status', 'active');
+    .eq('status', 'active')
+    .throwOnError();
 
   if (error) throw error;
 
@@ -39,17 +40,18 @@ export const fetchPendingProducts = async (): Promise<PendingProduct[]> => {
         full_name
       )
     `)
-    .eq('status', 'pending');
+    .eq('status', 'pending')
+    .throwOnError();
 
   if (error) throw error;
 
-  return (data || []).map(p => ({
-    id: p.id || '',
-    title: p.title || '',
-    price: p.price || 0,
-    currency: (p.currency || 'XAF') as Currency,
-    status: p.status || 'pending',
-    seller: p.seller?.full_name || 'Unknown'
+  return (data || []).map(product => ({
+    id: product.id || '',
+    title: product.title || '',
+    price: product.price || 0,
+    currency: (product.currency || 'XAF') as Currency,
+    status: product.status || 'pending',
+    seller: product.seller?.full_name || 'Unknown'
   }));
 };
 
@@ -71,18 +73,19 @@ export const fetchPendingPayments = async (): Promise<PendingPayment[]> => {
         )
       )
     `)
-    .eq('status', 'pending');
+    .eq('status', 'pending')
+    .throwOnError();
 
   if (error) throw error;
 
-  return (data || []).map(p => ({
-    id: p.id || '',
-    amount: p.amount || 0,
-    currency: (p.currency || 'XAF') as Currency,
-    reference: p.reference_number || '',
-    seller: p.listing?.product?.seller?.full_name || 'Unknown',
-    method: (p.payment_method || 'cash') as PaymentMethod,
-    status: (p.status || 'pending') as PaymentStatus
+  return (data || []).map(payment => ({
+    id: payment.id || '',
+    amount: payment.amount || 0,
+    currency: (payment.currency || 'XAF') as Currency,
+    reference: payment.reference_number || '',
+    seller: payment.listing?.product?.seller?.full_name || 'Unknown',
+    method: (payment.payment_method || 'cash') as PaymentMethod,
+    status: (payment.status || 'pending') as PaymentStatus
   }));
 };
 
@@ -90,7 +93,8 @@ export const approveProduct = async (productId: string) => {
   const { error } = await supabase
     .from('products')
     .update({ status: 'active' })
-    .eq('id', productId);
+    .eq('id', productId)
+    .throwOnError();
 
   if (error) throw error;
 };
@@ -99,7 +103,8 @@ export const rejectProduct = async (productId: string) => {
   const { error } = await supabase
     .from('products')
     .update({ status: 'rejected' })
-    .eq('id', productId);
+    .eq('id', productId)
+    .throwOnError();
 
   if (error) throw error;
 };
@@ -108,7 +113,8 @@ export const verifyPayment = async (paymentId: string) => {
   const { error } = await supabase
     .from('payments')
     .update({ status: 'completed' })
-    .eq('id', paymentId);
+    .eq('id', paymentId)
+    .throwOnError();
 
   if (error) throw error;
 };
