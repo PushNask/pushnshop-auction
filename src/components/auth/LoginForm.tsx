@@ -31,14 +31,32 @@ export const LoginForm = () => {
         password: formData.password,
       });
 
-      if (error) throw error;
+      if (error) {
+        if (error.message.includes('Email not confirmed')) {
+          // Handle email not confirmed error
+          const { error: resendError } = await supabase.auth.resend({
+            type: 'signup',
+            email: formData.email,
+          });
 
-      toast({
-        title: "Success",
-        description: "Logged in successfully",
-      });
-      
-      navigate('/');
+          if (resendError) {
+            throw resendError;
+          }
+
+          toast({
+            title: "Email Not Confirmed",
+            description: "Please check your email for the confirmation link. We've sent a new confirmation email.",
+          });
+        } else {
+          throw error;
+        }
+      } else {
+        toast({
+          title: "Success",
+          description: "Logged in successfully",
+        });
+        navigate('/');
+      }
     } catch (err: any) {
       setError(err.message || 'Failed to login');
       toast({
