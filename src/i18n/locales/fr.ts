@@ -79,4 +79,20 @@ export default {
     forgotPassword: 'Mot de passe oublié ?',
     whatsapp: 'Numéro WhatsApp',
   },
+  monitoring: {
+    title: 'Surveillance du Système',
+    unauthorized: "Vous n'êtes pas autorisé à voir ce tableau de bord.",
+    loadError: 'Échec du chargement des métriques',
+    activeUsers: 'Utilisateurs Actifs',
+    activeListings: 'Annonces Actives',
+    responseTime: 'Temps de Réponse',
+    errorRate: "Taux d'Erreur",
+    msValue: '{{value}} ms',
+    percentValue: '{{value}} %',
+    noErrors: "Aucune erreur récente à afficher",
+    tabs: {
+      errors: 'Erreurs Récentes',
+      performance: 'Performance'
+    }
+  }
 };

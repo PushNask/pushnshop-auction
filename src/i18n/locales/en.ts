@@ -79,4 +79,20 @@ export default {
     forgotPassword: 'Forgot Password?',
     whatsapp: 'WhatsApp Number',
   },
+  monitoring: {
+    title: 'System Monitoring',
+    unauthorized: 'You are not authorized to view this dashboard.',
+    loadError: 'Failed to load metrics',
+    activeUsers: 'Active Users',
+    activeListings: 'Active Listings',
+    responseTime: 'Response Time',
+    errorRate: 'Error Rate',
+    msValue: '{{value}}ms',
+    percentValue: '{{value}}%',
+    noErrors: 'No recent errors to display',
+    tabs: {
+      errors: 'Recent Errors',
+      performance: 'Performance'
+    }
+  }
 };

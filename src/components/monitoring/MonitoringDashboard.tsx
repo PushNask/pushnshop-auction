@@ -12,10 +12,12 @@ import {
 import { useMetrics } from '@/hooks/useMetrics';
 import { useAuthCheck } from '@/hooks/useAuthCheck';
 import { PerformanceChart } from './PerformanceChart';
+import { useTranslation } from 'react-i18next';
 
 const MonitoringDashboard = () => {
   const { metrics, isLoading, error } = useMetrics();
   const { isAuthorized, isChecking } = useAuthCheck();
+  const { t } = useTranslation();
 
   if (isLoading || isChecking) {
     return (
@@ -30,7 +32,7 @@ const MonitoringDashboard = () => {
       <Alert variant="destructive">
         <AlertCircle className="h-4 w-4" />
         <AlertDescription>
-          You are not authorized to view this dashboard.
+          {t('monitoring.unauthorized')}
         </AlertDescription>
       </Alert>
     );
@@ -41,7 +43,7 @@ const MonitoringDashboard = () => {
       <Alert variant="destructive">
         <AlertCircle className="h-4 w-4" />
         <AlertDescription>
-          {error?.message || 'Failed to load metrics'}
+          {error?.message || t('monitoring.loadError')}
         </AlertDescription>
       </Alert>
     );
@@ -49,13 +51,13 @@ const MonitoringDashboard = () => {
 
   return (
     <div className="p-6 space-y-6">
-      <h1 className="text-2xl font-bold">System Monitoring</h1>
+      <h1 className="text-2xl font-bold">{t('monitoring.title')}</h1>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between pb-2">
             <CardTitle className="text-sm font-medium">
-              Active Users
+              {t('monitoring.activeUsers')}
             </CardTitle>
             <Users className="h-4 w-4 text-gray-500" />
           </CardHeader>
@@ -67,7 +69,7 @@ const MonitoringDashboard = () => {
         <Card>
           <CardHeader className="flex flex-row items-center justify-between pb-2">
             <CardTitle className="text-sm font-medium">
-              Active Listings
+              {t('monitoring.activeListings')}
             </CardTitle>
             <BarChart3 className="h-4 w-4 text-gray-500" />
           </CardHeader>
@@ -79,13 +81,13 @@ const MonitoringDashboard = () => {
         <Card>
           <CardHeader className="flex flex-row items-center justify-between pb-2">
             <CardTitle className="text-sm font-medium">
-              Response Time
+              {t('monitoring.responseTime')}
             </CardTitle>
             <Timer className="h-4 w-4 text-gray-500" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              {Math.round(metrics.averageResponseTime)}ms
+              {t('monitoring.msValue', { value: Math.round(metrics.averageResponseTime) })}
             </div>
           </CardContent>
         </Card>
@@ -93,13 +95,13 @@ const MonitoringDashboard = () => {
         <Card>
           <CardHeader className="flex flex-row items-center justify-between pb-2">
             <CardTitle className="text-sm font-medium">
-              Error Rate
+              {t('monitoring.errorRate')}
             </CardTitle>
             <Activity className="h-4 w-4 text-gray-500" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              {metrics.errorRate.toFixed(2)}%
+              {t('monitoring.percentValue', { value: metrics.errorRate.toFixed(2) })}
             </div>
           </CardContent>
         </Card>
@@ -107,8 +109,8 @@ const MonitoringDashboard = () => {
 
       <Tabs defaultValue="errors">
         <TabsList>
-          <TabsTrigger value="errors">Recent Errors</TabsTrigger>
-          <TabsTrigger value="performance">Performance</TabsTrigger>
+          <TabsTrigger value="errors">{t('monitoring.tabs.errors')}</TabsTrigger>
+          <TabsTrigger value="performance">{t('monitoring.tabs.performance')}</TabsTrigger>
         </TabsList>
 
         <TabsContent value="errors">
@@ -116,7 +118,7 @@ const MonitoringDashboard = () => {
             <CardContent className="p-4 space-y-4">
               {metrics.recentErrors.length === 0 ? (
                 <p className="text-gray-500 text-center py-4">
-                  No recent errors to display
+                  {t('monitoring.noErrors')}
                 </p>
               ) : (
                 metrics.recentErrors.map((error) => (
