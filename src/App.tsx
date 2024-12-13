@@ -5,7 +5,6 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { ErrorBoundaryWrapper } from "@/components/monitoring/ErrorBoundaryWrapper";
-import { MetricsProvider } from "@/hooks/useMetrics";
 import { ThemeProvider } from "next-themes";
 import { Header } from "@/components/Header";
 import "@/i18n/config";
