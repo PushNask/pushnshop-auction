@@ -60,6 +60,30 @@ export type Database = {
         }
         Relationships: []
       }
+      permanent_links: {
+        Row: {
+          created_at: string
+          id: number
+          status: string
+          updated_at: string
+          url: string
+        }
+        Insert: {
+          created_at?: string
+          id: number
+          status?: string
+          updated_at?: string
+          url: string
+        }
+        Update: {
+          created_at?: string
+          id?: number
+          status?: string
+          updated_at?: string
+          url?: string
+        }
+        Relationships: []
+      }
       product_images: {
         Row: {
           created_at: string
