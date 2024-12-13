@@ -1,10 +1,9 @@
 const AboutPage = () => {
   return (
-    <div className="container mx-auto p-4">
-      <h1 className="text-2xl font-bold mb-4">About PushNshop</h1>
-      <p className="text-gray-600">
-        PushNshop is a mobile-first ecommerce auction platform featuring product listings
-        and direct buyer-seller communication via WhatsApp.
+    <div className="container mx-auto px-4 py-8">
+      <h1 className="text-3xl font-bold mb-6">About PushNshop</h1>
+      <p className="text-lg mb-4">
+        PushNshop is an innovative ecommerce platform that connects buyers and sellers through a unique permanent link system.
       </p>
     </div>
   );
