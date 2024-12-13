@@ -9,100 +9,185 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
-      admin_roles: {
+      analytics: {
         Row: {
-          created_at: string
+          created_at: string | null
           id: string
-          role: string
-          user_id: string
+          listing_id: string
+          updated_at: string | null
+          views: number | null
+          whatsapp_clicks: number | null
         }
         Insert: {
-          created_at?: string
+          created_at?: string | null
           id?: string
-          role?: string
-          user_id: string
+          listing_id: string
+          updated_at?: string | null
+          views?: number | null
+          whatsapp_clicks?: number | null
         }
         Update: {
-          created_at?: string
+          created_at?: string | null
           id?: string
-          role?: string
-          user_id?: string
+          listing_id?: string
+          updated_at?: string | null
+          views?: number | null
+          whatsapp_clicks?: number | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "analytics_listing_id_fkey"
+            columns: ["listing_id"]
+            isOneToOne: false
+            referencedRelation: "listings"
+            referencedColumns: ["id"]
+          },
+        ]
       }
-      admin_stats: {
+      listings: {
         Row: {
-          active_sellers: number
-          created_at: string
-          currency: string
+          created_at: string | null
+          duration_hours: number
+          end_time: string | null
           id: string
-          total_products: number
-          total_revenue: number
-          updated_at: string
+          permanent_link_id: number | null
+          price_paid: number
+          product_id: string
+          start_time: string | null
+          status: Database["public"]["Enums"]["listing_status"] | null
+          updated_at: string | null
         }
         Insert: {
-          active_sellers?: number
-          created_at?: string
-          currency?: string
+          created_at?: string | null
+          duration_hours: number
+          end_time?: string | null
           id?: string
-          total_products?: number
-          total_revenue?: number
-          updated_at?: string
+          permanent_link_id?: number | null
+          price_paid: number
+          product_id: string
+          start_time?: string | null
+          status?: Database["public"]["Enums"]["listing_status"] | null
+          updated_at?: string | null
         }
         Update: {
-          active_sellers?: number
-          created_at?: string
-          currency?: string
+          created_at?: string | null
+          duration_hours?: number
+          end_time?: string | null
           id?: string
-          total_products?: number
-          total_revenue?: number
-          updated_at?: string
+          permanent_link_id?: number | null
+          price_paid?: number
+          product_id?: string
+          start_time?: string | null
+          status?: Database["public"]["Enums"]["listing_status"] | null
+          updated_at?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "listings_permanent_link_id_fkey"
+            columns: ["permanent_link_id"]
+            isOneToOne: false
+            referencedRelation: "permanent_links"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "listings_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      payments: {
+        Row: {
+          amount: number
+          created_at: string | null
+          currency: Database["public"]["Enums"]["currency_type"] | null
+          id: string
+          listing_id: string
+          payment_method: string | null
+          reference_number: string | null
+          status: Database["public"]["Enums"]["payment_status"] | null
+          updated_at: string | null
+        }
+        Insert: {
+          amount: number
+          created_at?: string | null
+          currency?: Database["public"]["Enums"]["currency_type"] | null
+          id?: string
+          listing_id: string
+          payment_method?: string | null
+          reference_number?: string | null
+          status?: Database["public"]["Enums"]["payment_status"] | null
+          updated_at?: string | null
+        }
+        Update: {
+          amount?: number
+          created_at?: string | null
+          currency?: Database["public"]["Enums"]["currency_type"] | null
+          id?: string
+          listing_id?: string
+          payment_method?: string | null
+          reference_number?: string | null
+          status?: Database["public"]["Enums"]["payment_status"] | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "payments_listing_id_fkey"
+            columns: ["listing_id"]
+            isOneToOne: false
+            referencedRelation: "listings"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       permanent_links: {
         Row: {
-          created_at: string
+          created_at: string | null
+          current_listing_id: string | null
           id: number
-          status: string
-          updated_at: string
-          url: string
+          last_assigned_at: string | null
+          url_path: string
         }
         Insert: {
-          created_at?: string
-          id: number
-          status?: string
-          updated_at?: string
-          url: string
+          created_at?: string | null
+          current_listing_id?: string | null
+          id?: number
+          last_assigned_at?: string | null
+          url_path: string
         }
         Update: {
-          created_at?: string
+          created_at?: string | null
+          current_listing_id?: string | null
           id?: number
-          status?: string
-          updated_at?: string
-          url?: string
+          last_assigned_at?: string | null
+          url_path?: string
         }
         Relationships: []
       }
       product_images: {
         Row: {
-          created_at: string
+          alt: string | null
+          created_at: string | null
           id: string
-          order_index: number
+          order_number: number
           product_id: string | null
           url: string
         }
         Insert: {
-          created_at?: string
+          alt?: string | null
+          created_at?: string | null
           id?: string
-          order_index?: number
+          order_number: number
           product_id?: string | null
           url: string
         }
         Update: {
-          created_at?: string
+          alt?: string | null
+          created_at?: string | null
           id?: string
-          order_index?: number
+          order_number?: number
           product_id?: string | null
           url?: string
         }
@@ -118,78 +203,80 @@ export type Database = {
       }
       products: {
         Row: {
-          created_at: string
-          currency: string
-          description: string | null
-          expires_at: string | null
+          created_at: string | null
+          currency: Database["public"]["Enums"]["currency_type"] | null
+          description: string
           id: string
-          payment_status: string | null
-          permanent_link_id: number | null
           price: number
           quantity: number
-          seller_id: string | null
-          status: string
+          seller_id: string
           title: string
-          updated_at: string
-          view_count: number
-          whatsapp_clicks: number
+          updated_at: string | null
         }
         Insert: {
-          created_at?: string
-          currency?: string
-          description?: string | null
-          expires_at?: string | null
+          created_at?: string | null
+          currency?: Database["public"]["Enums"]["currency_type"] | null
+          description: string
           id?: string
-          payment_status?: string | null
-          permanent_link_id?: number | null
           price: number
-          quantity?: number
-          seller_id?: string | null
-          status?: string
+          quantity: number
+          seller_id: string
           title: string
-          updated_at?: string
-          view_count?: number
-          whatsapp_clicks?: number
+          updated_at?: string | null
         }
         Update: {
-          created_at?: string
-          currency?: string
-          description?: string | null
-          expires_at?: string | null
+          created_at?: string | null
+          currency?: Database["public"]["Enums"]["currency_type"] | null
+          description?: string
           id?: string
-          payment_status?: string | null
-          permanent_link_id?: number | null
           price?: number
           quantity?: number
-          seller_id?: string | null
-          status?: string
+          seller_id?: string
           title?: string
-          updated_at?: string
-          view_count?: number
-          whatsapp_clicks?: number
+          updated_at?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "products_seller_id_fkey"
+            columns: ["seller_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
       }
-      profiles: {
+      users: {
         Row: {
-          created_at: string
+          created_at: string | null
+          email: string
           full_name: string | null
           id: string
-          updated_at: string
+          phone: string | null
+          role: Database["public"]["Enums"]["user_role"] | null
+          updated_at: string | null
+          website_url: string | null
           whatsapp_number: string | null
         }
         Insert: {
-          created_at?: string
+          created_at?: string | null
+          email: string
           full_name?: string | null
-          id: string
-          updated_at?: string
+          id?: string
+          phone?: string | null
+          role?: Database["public"]["Enums"]["user_role"] | null
+          updated_at?: string | null
+          website_url?: string | null
           whatsapp_number?: string | null
         }
         Update: {
-          created_at?: string
+          created_at?: string | null
+          email?: string
           full_name?: string | null
           id?: string
-          updated_at?: string
+          phone?: string | null
+          role?: Database["public"]["Enums"]["user_role"] | null
+          updated_at?: string | null
+          website_url?: string | null
           whatsapp_number?: string | null
         }
         Relationships: []
@@ -202,7 +289,16 @@ export type Database = {
       [_ in never]: never
     }
     Enums: {
-      [_ in never]: never
+      currency_type: "XAF" | "USD"
+      listing_status:
+        | "draft"
+        | "pending_payment"
+        | "pending_approval"
+        | "active"
+        | "expired"
+        | "rejected"
+      payment_status: "pending" | "processing" | "completed" | "failed"
+      user_role: "seller" | "buyer" | "admin"
     }
     CompositeTypes: {
       [_ in never]: never
