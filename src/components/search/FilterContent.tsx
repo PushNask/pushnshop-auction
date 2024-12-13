@@ -33,24 +33,24 @@ export const FilterContent = ({
   return (
     <div className="space-y-6">
       <PriceRangeFilter 
-        value={filters.priceRange}
+        value={[filters.minPrice || 0, filters.maxPrice || 1000000]}
         onChange={onPriceChange}
       />
 
       <AvailabilityFilter 
-        inStock={filters.inStock}
-        endingSoon={filters.endingSoon}
+        inStock={filters.inStock || false}
+        endingSoon={filters.endingSoon || false}
         onCheckboxChange={onCheckboxChange}
       />
 
       <CategoryFilter 
         categories={categories}
-        selectedCategories={filters.categories}
+        selectedCategories={filters.categories || []}
         onCategoryChange={onCategoryChange}
       />
 
       <LocationFilter 
-        value={filters.location}
+        value={filters.location || ''}
         onChange={onLocationChange}
       />
 
