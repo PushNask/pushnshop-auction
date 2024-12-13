@@ -7,17 +7,12 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { ErrorBoundaryWrapper } from "@/components/monitoring/ErrorBoundaryWrapper";
 import { MetricsProvider } from "@/hooks/useMetrics";
 import { ThemeProvider } from "next-themes";
-import { Navbar } from "@/components/Navbar";
+import { Header } from "@/components/Header";
 import "@/i18n/config";
 
 // Lazy load route components
 const HomePage = lazy(() => import("@/pages/HomePage"));
-const PermanentLinks = lazy(() => import("@/pages/PermanentLinks"));
 const AuthForm = lazy(() => import("@/components/auth/AuthForm"));
-const AdminDashboard = lazy(() => import("@/components/admin/AdminDashboard"));
-const ProductListingForm = lazy(() => import("@/components/ProductListingForm"));
-const MonitoringDashboard = lazy(() => import("@/components/monitoring/MonitoringDashboard"));
-const ProfilePage = lazy(() => import("@/pages/ProfilePage"));
 const AboutPage = lazy(() => import("@/pages/AboutPage"));
 
 const queryClient = new QueryClient({
@@ -39,8 +34,8 @@ const App = () => (
             <Toaster />
             <Sonner />
             <BrowserRouter>
-              <Navbar />
-              <div className="pt-16"> {/* Add padding to account for fixed navbar */}
+              <Header />
+              <div className="pt-16">
                 <Suspense fallback={
                   <div className="flex items-center justify-center min-h-screen">
                     <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
@@ -48,20 +43,8 @@ const App = () => (
                 }>
                   <Routes>
                     <Route path="/" element={<HomePage />} />
-                    <Route path="/permanent-links" element={<PermanentLinks />} />
                     <Route path="/auth" element={<AuthForm />} />
-                    <Route path="/admin" element={<AdminDashboard />} />
-                    <Route path="/sell" element={<ProductListingForm />} />
-                    <Route path="/profile" element={<ProfilePage />} />
                     <Route path="/about" element={<AboutPage />} />
-                    <Route 
-                      path="/monitoring" 
-                      element={
-                        <MetricsProvider>
-                          <MonitoringDashboard />
-                        </MetricsProvider>
-                      } 
-                    />
                   </Routes>
                 </Suspense>
               </div>

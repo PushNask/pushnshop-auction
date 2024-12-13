@@ -8,9 +8,10 @@ export const Header = () => {
   const { t } = useTranslation();
 
   return (
-    <header className="sticky top-0 z-50 bg-white border-b">
+    <header className="sticky top-0 z-50 bg-background border-b">
       <div className="container mx-auto px-4">
         <div className="flex items-center justify-between h-16">
+          {/* Mobile Menu */}
           <Sheet>
             <SheetTrigger asChild>
               <Button variant="ghost" size="icon" className="lg:hidden">
@@ -43,8 +44,10 @@ export const Header = () => {
             </SheetContent>
           </Sheet>
 
+          {/* Logo */}
           <Link to="/" className="text-xl font-bold">PushNshop</Link>
 
+          {/* Desktop Navigation */}
           <nav className="hidden lg:flex items-center space-x-4">
             <Link to="/">
               <Button variant="ghost">{t('nav.home')}</Button>
