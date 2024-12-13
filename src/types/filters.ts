@@ -6,10 +6,10 @@ export interface Filters {
   maxPrice?: number;
   currency?: Currency;
   status?: ListingStatus;
-  inStock?: boolean;
-  endingSoon?: boolean;
+  inStock: boolean;
+  endingSoon: boolean;
   categories: string[];
-  location?: string;
+  location: string;
 }
 
 export type FilterKey = keyof Filters;

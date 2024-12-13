@@ -17,6 +17,7 @@ const CATEGORIES = [
 ];
 
 const INITIAL_FILTERS: Filters = {
+  search: '',
   minPrice: 0,
   maxPrice: 1000000,
   inStock: false,
@@ -48,10 +49,12 @@ export const SearchAndFilter = ({ onSearch, onFiltersChange }: SearchAndFilterPr
   };
 
   const handleCheckboxChange = (key: FilterKey, checked: boolean) => {
-    const newFilters = { ...filters, [key]: checked };
-    setFilters(newFilters);
-    setIsFilterActive(true);
-    onFiltersChange(newFilters);
+    if (key === 'inStock' || key === 'endingSoon') {
+      const newFilters = { ...filters, [key]: checked };
+      setFilters(newFilters);
+      setIsFilterActive(true);
+      onFiltersChange(newFilters);
+    }
   };
 
   const handleCategoryChange = (category: string, checked: boolean) => {

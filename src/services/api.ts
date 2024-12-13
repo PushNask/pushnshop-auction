@@ -10,7 +10,7 @@ export const fetchProducts = async (
     maxPrice: 1000000,
     inStock: false,
     endingSoon: false,
-    categories: [], 
+    categories: [],
     location: ''
   }, 
   sortBy: SortOption = 'newest'
