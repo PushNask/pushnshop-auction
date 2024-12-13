@@ -3,7 +3,7 @@ import { SlidersHorizontal } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
-import { FilterSheet } from '@/components/FilterSheet';
+import { SearchAndFilter } from '@/components/search/SearchAndFilter';
 import { Header } from '@/components/Header';
 import { ProductGrid } from '@/components/ProductGrid';
 import { fetchProducts } from '@/services/api';
@@ -78,41 +78,21 @@ const HomePage = () => {
     };
   }, [loadProducts]);
 
+  const handleSearch = useCallback((query: string) => {
+    setSearchQuery(query);
+  }, []);
+
+  const handleFiltersChange = useCallback((newFilters: Filters) => {
+    setFilters(newFilters);
+  }, []);
+
   return (
     <div className="min-h-screen bg-gray-50">
       <Header searchQuery={searchQuery} setSearchQuery={setSearchQuery} />
-
-      <div className="container mx-auto px-4 py-4">
-        <div className="flex items-center justify-between gap-4">
-          <Sheet>
-            <SheetTrigger asChild>
-              <Button variant="outline" className="flex items-center gap-2">
-                <SlidersHorizontal size={20} />
-                Filters
-              </Button>
-            </SheetTrigger>
-            <SheetContent>
-              <SheetHeader>
-                <SheetTitle>Filters</SheetTitle>
-              </SheetHeader>
-              <FilterSheet filters={filters} setFilters={setFilters} />
-            </SheetContent>
-          </Sheet>
-
-          <Select value={sortBy} onValueChange={(value: SortOption) => setSortBy(value)}>
-            <SelectTrigger className="w-[180px]">
-              <SelectValue placeholder="Sort by" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="newest">Newest First</SelectItem>
-              <SelectItem value="ending-soon">Ending Soon</SelectItem>
-              <SelectItem value="price-low">Price: Low to High</SelectItem>
-              <SelectItem value="price-high">Price: High to Low</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
-      </div>
-
+      <SearchAndFilter 
+        onSearch={handleSearch}
+        onFiltersChange={handleFiltersChange}
+      />
       <ProductGrid 
         products={products}
         isLoading={isLoading}
