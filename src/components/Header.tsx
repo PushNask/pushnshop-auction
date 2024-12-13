@@ -30,13 +30,13 @@ export const Header = () => {
                     </Link>
                   </li>
                   <li>
-                    <Link to="/auth?mode=signup">
-                      <Button variant="ghost" className="w-full justify-start">{t('nav.signup')}</Button>
+                    <Link to="/auth?mode=login">
+                      <Button variant="ghost" className="w-full justify-start">{t('nav.login')}</Button>
                     </Link>
                   </li>
                   <li>
-                    <Link to="/auth?mode=login">
-                      <Button variant="ghost" className="w-full justify-start">{t('nav.login')}</Button>
+                    <Link to="/auth?mode=signup">
+                      <Button variant="ghost" className="w-full justify-start">{t('nav.signup')}</Button>
                     </Link>
                   </li>
                 </ul>
@@ -44,19 +44,18 @@ export const Header = () => {
             </SheetContent>
           </Sheet>
 
-          {/* Logo */}
-          <Link to="/" className="text-xl font-bold">PushNshop</Link>
+          {/* Logo/Home Link */}
+          <Link to="/" className="text-xl font-bold">
+            <Button variant="ghost">{t('nav.home')}</Button>
+          </Link>
 
           {/* Desktop Navigation */}
           <nav className="hidden lg:flex items-center space-x-4">
-            <Link to="/">
-              <Button variant="ghost">{t('nav.home')}</Button>
+            <Link to="/auth?mode=login">
+              <Button variant="ghost">{t('nav.login')}</Button>
             </Link>
             <Link to="/auth?mode=signup">
               <Button variant="ghost">{t('nav.signup')}</Button>
-            </Link>
-            <Link to="/auth?mode=login">
-              <Button variant="ghost">{t('nav.login')}</Button>
             </Link>
           </nav>
         </div>
