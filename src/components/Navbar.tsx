@@ -1,16 +1,20 @@
 import { useState, useEffect } from 'react';
-import { Menu, X, ShoppingBag, User } from 'lucide-react';
+import { Menu, X, ShoppingBag, User, Sun, Moon } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { LanguageSwitcher } from './LanguageSwitcher';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from './ui/button';
+import { useToast } from '@/hooks/use-toast';
+import { useTheme } from 'next-themes';
 
 export const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [session, setSession] = useState(null);
   const { t } = useTranslation();
   const navigate = useNavigate();
+  const { toast } = useToast();
+  const { theme, setTheme } = useTheme();
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
@@ -26,7 +30,15 @@ export const Navbar = () => {
 
   const handleLogout = async () => {
     await supabase.auth.signOut();
+    toast({
+      title: t('auth.logoutSuccess'),
+      description: t('auth.logoutMessage'),
+    });
     navigate('/');
+  };
+
+  const toggleTheme = () => {
+    setTheme(theme === 'dark' ? 'light' : 'dark');
   };
 
   return (
@@ -42,7 +54,8 @@ export const Navbar = () => {
           <div className="hidden md:flex items-center space-x-8">
             <Link to="/" className="nav-link">{t('nav.home')}</Link>
             <Link to="/products" className="nav-link">{t('nav.products')}</Link>
-            <Link to="/sell" className="nav-link">{t('nav.sell')}</Link>
+            <Link to="/permanent-links" className="nav-link">{t('nav.permanentLinks')}</Link>
+            {session && <Link to="/sell" className="nav-link">{t('nav.sell')}</Link>}
             {session?.user.user_metadata.role === 'admin' && (
               <Link to="/admin" className="nav-link">{t('nav.admin')}</Link>
             )}
@@ -50,6 +63,10 @@ export const Navbar = () => {
           </div>
 
           <div className="hidden md:flex items-center space-x-4">
+            <Button variant="ghost" size="icon" onClick={toggleTheme}>
+              {theme === 'dark' ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
+            </Button>
+            <LanguageSwitcher />
             <button className="p-2 hover:text-primary transition-colors">
               <ShoppingBag className="h-6 w-6" />
             </button>
@@ -71,7 +88,6 @@ export const Navbar = () => {
                 </Link>
               </div>
             )}
-            <LanguageSwitcher />
           </div>
 
           <div className="md:hidden">
@@ -104,12 +120,21 @@ export const Navbar = () => {
               {t('nav.products')}
             </Link>
             <Link
-              to="/sell"
+              to="/permanent-links"
               className="block px-3 py-2 rounded-md text-base font-medium hover:text-primary transition-colors"
               onClick={() => setIsOpen(false)}
             >
-              {t('nav.sell')}
+              {t('nav.permanentLinks')}
             </Link>
+            {session && (
+              <Link
+                to="/sell"
+                className="block px-3 py-2 rounded-md text-base font-medium hover:text-primary transition-colors"
+                onClick={() => setIsOpen(false)}
+              >
+                {t('nav.sell')}
+              </Link>
+            )}
             {session?.user.user_metadata.role === 'admin' && (
               <Link
                 to="/admin"
@@ -155,8 +180,11 @@ export const Navbar = () => {
                 </button>
               </>
             )}
-            <div className="px-3 py-2">
+            <div className="px-3 py-2 flex items-center justify-between">
               <LanguageSwitcher />
+              <Button variant="ghost" size="icon" onClick={toggleTheme}>
+                {theme === 'dark' ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
+              </Button>
             </div>
           </div>
         </div>
