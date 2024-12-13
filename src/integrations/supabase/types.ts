@@ -9,6 +9,57 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      admin_roles: {
+        Row: {
+          created_at: string
+          id: string
+          role: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          role?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          role?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      admin_stats: {
+        Row: {
+          active_sellers: number
+          created_at: string
+          currency: string
+          id: string
+          total_products: number
+          total_revenue: number
+          updated_at: string
+        }
+        Insert: {
+          active_sellers?: number
+          created_at?: string
+          currency?: string
+          id?: string
+          total_products?: number
+          total_revenue?: number
+          updated_at?: string
+        }
+        Update: {
+          active_sellers?: number
+          created_at?: string
+          currency?: string
+          id?: string
+          total_products?: number
+          total_revenue?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
       product_images: {
         Row: {
           created_at: string
@@ -48,6 +99,7 @@ export type Database = {
           description: string | null
           expires_at: string | null
           id: string
+          payment_status: string | null
           permanent_link_id: number | null
           price: number
           quantity: number
@@ -64,6 +116,7 @@ export type Database = {
           description?: string | null
           expires_at?: string | null
           id?: string
+          payment_status?: string | null
           permanent_link_id?: number | null
           price: number
           quantity?: number
@@ -80,6 +133,7 @@ export type Database = {
           description?: string | null
           expires_at?: string | null
           id?: string
+          payment_status?: string | null
           permanent_link_id?: number | null
           price?: number
           quantity?: number

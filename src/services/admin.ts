@@ -38,7 +38,7 @@ export const fetchPendingProducts = async (): Promise<PendingProduct[]> => {
   return data.map(product => ({
     id: product.id,
     title: product.title,
-    seller: product.seller.email,
+    seller: product.seller?.email || 'Unknown',
     price: product.price,
     currency: product.currency as Currency,
     status: product.status
@@ -67,7 +67,7 @@ export const fetchPendingPayments = async (): Promise<PendingPayment[]> => {
     reference: `PAY-${product.id.slice(0, 8)}`,
     amount: product.price,
     currency: product.currency as Currency,
-    seller: product.seller.email,
+    seller: product.seller?.email || 'Unknown',
     method: 'bank',
     status: 'pending'
   }));
