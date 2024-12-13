@@ -5,16 +5,18 @@ import { useQuery } from "@tanstack/react-query";
 import { fetchProducts } from "@/services/api";
 import type { Filters } from "@/types/filters";
 
+const INITIAL_FILTERS: Filters = {
+  minPrice: 0,
+  maxPrice: 1000000,
+  inStock: false,
+  endingSoon: false,
+  categories: [],
+  location: ""
+};
+
 const HomePage = () => {
   const [searchQuery, setSearchQuery] = useState("");
-  const [filters, setFilters] = useState<Filters>({
-    minPrice: 0,
-    maxPrice: 1000000,
-    inStock: false,
-    endingSoon: false,
-    categories: [],
-    location: ""
-  });
+  const [filters, setFilters] = useState<Filters>(INITIAL_FILTERS);
   
   const loadingRef = useRef<HTMLDivElement>(null);
 
