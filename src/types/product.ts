@@ -1,35 +1,41 @@
-export type ProductImage = {
+export type Currency = 'XAF' | 'USD';
+export type PaymentMethod = 'cash' | 'transfer';
+export type PaymentStatus = 'pending' | 'processing' | 'confirmed' | 'failed';
+export type ListingStatus = 'draft' | 'pending_payment' | 'pending_approval' | 'active' | 'inactive' | 'expired';
+
+export interface ProductImage {
   id: string;
   url: string;
   alt: string;
   order: number;
-};
+  isNew?: boolean;
+  file?: File;
+}
 
-export type ProductStatus = 'active' | 'sold' | 'ended' | 'pending';
-
-export type Product = {
+export interface Product {
   id: string;
-  permanentLinkId: number;
+  permanentLinkId?: number;
   title: string;
   description: string;
   price: number;
+  currency: Currency;
   quantity: number;
   images: ProductImage[];
-  status: ProductStatus;
+  status: ListingStatus;
   sellerId: string;
   sellerWhatsApp: string;
   createdAt: string;
   expiresAt: string;
   viewCount: number;
-};
+}
 
-export type Filters = {
-  status?: ProductStatus;
-  minPrice?: number;
-  maxPrice?: number;
-  sellerId?: string;
-  inStock?: boolean;
-  endingSoon?: boolean;
-};
-
-export type SortOption = 'newest' | 'ending-soon' | 'price-low' | 'price-high';
+export interface Invoice {
+  id: string;
+  productId: string;
+  amount: number;
+  currency: Currency;
+  dueDate: string;
+  status: PaymentStatus;
+  listingDuration: number;
+  paymentMethod?: PaymentMethod;
+}
