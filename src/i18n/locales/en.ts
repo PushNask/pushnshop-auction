@@ -45,6 +45,16 @@ export default {
     currency: 'Currency',
     contactSeller: 'Contact Seller',
     whatsappMessage: "Hi, I'm interested in your product: {{title}} ({{url}})",
+    filters: {
+      priceRange: 'Price Range',
+      categories: 'Categories',
+      availability: 'Availability',
+      sortBy: 'Sort By',
+      location: 'Location',
+      inStock: 'In Stock',
+      endingSoon: 'Ending Soon',
+      clearFilters: 'Clear Filters'
+    }
   },
   filters: {
     priceRange: 'Price Range',

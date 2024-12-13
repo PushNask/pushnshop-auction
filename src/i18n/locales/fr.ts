@@ -45,6 +45,16 @@ export default {
     currency: 'Devise',
     contactSeller: 'Contacter le vendeur',
     whatsappMessage: "Bonjour, je suis intéressé par votre produit : {{title}} ({{url}})",
+    filters: {
+      priceRange: 'Fourchette de prix',
+      categories: 'Catégories',
+      availability: 'Disponibilité',
+      sortBy: 'Trier par',
+      location: 'Emplacement',
+      inStock: 'En stock',
+      endingSoon: 'Se termine bientôt',
+      clearFilters: 'Effacer les filtres'
+    }
   },
   filters: {
     priceRange: 'Fourchette de prix',
