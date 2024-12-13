@@ -8,16 +8,7 @@ import { useToast } from '@/components/ui/use-toast';
 import { Search, AlertCircle, ArrowRight, Hash } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useQuery } from '@tanstack/react-query';
-
-interface PermanentLink {
-  id: number;
-  url: string;
-  status: 'available' | 'active';
-  product?: {
-    title: string;
-    expires_at: string;
-  } | null;
-}
+import type { PermanentLink } from '@/types/permanent-links';
 
 const PermanentLinkSystem = () => {
   const [searchQuery, setSearchQuery] = useState('');
@@ -51,7 +42,7 @@ const PermanentLinkSystem = () => {
       return data.map(link => ({
         ...link,
         product: link.products?.[0] || null
-      }));
+      })) as PermanentLink[];
     }
   });
 
