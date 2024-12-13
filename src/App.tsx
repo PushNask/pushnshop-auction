@@ -5,6 +5,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { ErrorBoundaryWrapper } from "./components/monitoring/ErrorBoundaryWrapper";
+import "@/i18n/config";
 
 // Lazy load route components
 const Index = lazy(() => import("./pages/Index"));
