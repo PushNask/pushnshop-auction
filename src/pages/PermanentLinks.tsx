@@ -21,11 +21,13 @@ const PermanentLinkSystem = () => {
         .from('permanent_links')
         .select(`
           id,
-          url,
-          status,
-          products (
-            title,
-            expires_at
+          url_path,
+          current_listing_id,
+          listings (
+            products (
+              title,
+              end_time
+            )
           )
         `)
         .order('id');
@@ -40,8 +42,13 @@ const PermanentLinkSystem = () => {
       }
 
       return data.map(link => ({
-        ...link,
-        product: link.products?.[0] || null
+        id: link.id,
+        url: link.url_path,
+        status: link.current_listing_id ? 'active' : 'available',
+        product: link.listings?.products?.[0] ? {
+          title: link.listings.products[0].title,
+          expires_at: link.listings.products[0].end_time
+        } : null
       })) as PermanentLink[];
     }
   });

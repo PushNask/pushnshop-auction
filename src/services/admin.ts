@@ -4,18 +4,26 @@ import type { Currency } from '@/types/product';
 
 export const fetchAdminStats = async (): Promise<AdminStats> => {
   const { data, error } = await supabase
-    .from('admin_stats')
-    .select('*')
-    .single();
+    .from('products')
+    .select(`
+      id,
+      price,
+      seller_id,
+      status,
+      payment_status
+    `);
 
   if (error) throw error;
 
-  return {
-    totalProducts: data.total_products,
-    activeSellers: data.active_sellers,
-    totalRevenue: data.total_revenue,
-    currency: data.currency as Currency
+  // Calculate stats from products data
+  const stats = {
+    totalProducts: data.length,
+    activeSellers: new Set(data.map(p => p.seller_id)).size,
+    totalRevenue: data.reduce((sum, p) => sum + (p.payment_status === 'verified' ? p.price : 0), 0),
+    currency: 'XAF' as Currency
   };
+
+  return stats;
 };
 
 interface SellerResponse {

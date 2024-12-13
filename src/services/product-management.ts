@@ -11,10 +11,14 @@ export const fetchUserProducts = async (userId: string): Promise<ManagedProduct[
       price,
       currency,
       quantity,
-      status,
-      expires_at,
-      view_count,
-      whatsapp_clicks
+      listings (
+        status,
+        end_time
+      ),
+      analytics (
+        views,
+        whatsapp_clicks
+      )
     `)
     .eq('seller_id', userId)
     .order('created_at', { ascending: false });
@@ -27,10 +31,10 @@ export const fetchUserProducts = async (userId: string): Promise<ManagedProduct[
     price: product.price,
     currency: product.currency as Currency,
     quantity: product.quantity,
-    status: product.status as ListingStatus,
-    expiresAt: product.expires_at,
-    views: product.view_count || 0,
-    whatsappClicks: product.whatsapp_clicks || 0
+    status: product.listings?.[0]?.status as ListingStatus || 'draft',
+    expiresAt: product.listings?.[0]?.end_time || null,
+    views: product.analytics?.[0]?.views || 0,
+    whatsappClicks: product.analytics?.[0]?.whatsapp_clicks || 0
   }));
 };
 

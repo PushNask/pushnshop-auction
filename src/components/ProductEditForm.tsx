@@ -152,7 +152,8 @@ const ProductEditForm = ({ productId }: ProductEditFormProps) => {
         const publicUrl = await uploadProductImage(product.id, img.file);
         return {
           url: publicUrl,
-          order_index: product.images.indexOf(img)
+          order_number: product.images.indexOf(img), // Changed from order_index to order_number
+          product_id: product.id
         };
       });
 
@@ -167,7 +168,8 @@ const ProductEditForm = ({ productId }: ProductEditFormProps) => {
           description: product.description,
           price: product.price,
           currency: product.currency,
-          quantity: product.quantity
+          quantity: product.quantity,
+          seller_id: supabase.auth.getUser()?.id // Add seller_id
         });
 
       if (productError) throw productError;
@@ -177,10 +179,7 @@ const ProductEditForm = ({ productId }: ProductEditFormProps) => {
         const { error: imagesError } = await supabase
           .from('product_images')
           .insert(
-            uploadedImages.filter(Boolean).map(img => ({
-              product_id: product.id,
-              ...img
-            }))
+            uploadedImages.filter(Boolean)
           );
 
         if (imagesError) throw imagesError;
