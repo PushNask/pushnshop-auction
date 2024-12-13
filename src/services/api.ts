@@ -1,6 +1,11 @@
-import { Product, ProductStatus } from '@/types/product';
+import type { Product, Filters, SortOption } from '@/types/product';
 
-export const fetchProducts = async (page = 0, searchQuery = '', filters = {}, sortBy = 'newest'): Promise<{ products: Product[], hasMore: boolean }> => {
+export const fetchProducts = async (
+  page = 0, 
+  searchQuery = '', 
+  filters: Filters = {}, 
+  sortBy: SortOption = 'newest'
+): Promise<{ products: Product[], hasMore: boolean }> => {
   await new Promise(resolve => setTimeout(resolve, 1000));
   
   const mockProducts: Product[] = Array(12).fill(null).map((_, i) => ({
@@ -16,7 +21,7 @@ export const fetchProducts = async (page = 0, searchQuery = '', filters = {}, so
       alt: `Product ${page * 12 + i + 1}`,
       order: 1
     }],
-    status: ProductStatus.ACTIVE,
+    status: 'active',
     sellerId: '123',
     sellerWhatsApp: '1234567890',
     createdAt: new Date().toISOString(),

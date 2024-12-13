@@ -5,6 +5,8 @@ export type ProductImage = {
   order: number;
 };
 
+export type ProductStatus = 'active' | 'sold' | 'ended' | 'pending';
+
 export type Product = {
   id: string;
   permanentLinkId: number;
@@ -21,13 +23,13 @@ export type Product = {
   viewCount: number;
 };
 
-export type ProductStatus = 'active' | 'sold' | 'ended' | 'pending';
-
 export type Filters = {
   status?: ProductStatus;
   minPrice?: number;
   maxPrice?: number;
   sellerId?: string;
+  inStock?: boolean;
+  endingSoon?: boolean;
 };
 
-export type SortOption = 'newest' | 'oldest' | 'price-asc' | 'price-desc';
+export type SortOption = 'newest' | 'ending-soon' | 'price-low' | 'price-high';

@@ -44,6 +44,10 @@ const MAX_FILE_SIZE = 2 * 1024 * 1024; // 2MB
 const MAX_IMAGES = 7;
 const ACCEPTED_IMAGE_TYPES = ['image/jpeg', 'image/png', 'image/webp'];
 
+interface FormErrors extends Partial<Record<keyof FormData, string>> {
+  submit?: string;
+}
+
 const ProductListingForm = () => {
   const { toast } = useToast();
   const [formData, setFormData] = useState<FormData>({
@@ -56,7 +60,7 @@ const ProductListingForm = () => {
     images: [],
     imageUrls: [],
   });
-  const [errors, setErrors] = useState<Partial<Record<keyof FormData, string>>>({});
+  const [errors, setErrors] = useState<FormErrors>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const validateImage = (file: File): string | null => {
