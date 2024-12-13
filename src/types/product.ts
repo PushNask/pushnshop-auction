@@ -30,13 +30,3 @@ export interface Product {
   expiresAt: string;
   viewCount: number;
 }
-
-export interface Filters {
-  search?: string;
-  minPrice?: number;
-  maxPrice?: number;
-  currency?: Currency;
-  status?: ListingStatus;
-  inStock?: boolean;
-  endingSoon?: boolean;
-}
