@@ -74,33 +74,14 @@ export const MetricsProvider = ({ children }: MetricsProviderProps) => {
     return cleanup;
   }, []);
 
-  if (isLoading) {
-    return (
-      <div className="flex justify-center items-center h-screen">
-        <Loader2 className="w-8 h-8 animate-spin" />
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <Alert variant="destructive">
-        <AlertCircle className="h-4 w-4" />
-        <AlertDescription>
-          {error.message}
-          <button 
-            onClick={() => window.location.reload()}
-            className="underline ml-2"
-          >
-            Retry
-          </button>
-        </AlertDescription>
-      </Alert>
-    );
-  }
+  const value = {
+    metrics,
+    isLoading,
+    error
+  };
 
   return (
-    <MetricsContext.Provider value={{ metrics, isLoading, error }}>
+    <MetricsContext.Provider value={value}>
       {children}
     </MetricsContext.Provider>
   );
