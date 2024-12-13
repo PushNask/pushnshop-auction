@@ -6,7 +6,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Search, Plus, CheckCircle2, Clock, XCircle } from 'lucide-react';
 import { ProductCard } from './ProductCard';
 import { EmptyState } from './EmptyState';
-import { useToast } from '@/components/ui/use-toast';
+import { useToast } from '@/hooks/use-toast';
 import type { ManagedProduct } from '@/types/product-management';
 
 export const ProductManagement = () => {
@@ -113,3 +113,5 @@ export const ProductManagement = () => {
     </div>
   );
 };
+
+export default ProductManagement;
