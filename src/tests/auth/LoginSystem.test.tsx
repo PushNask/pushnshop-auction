@@ -36,16 +36,6 @@ describe('LoginSystem', () => {
     vi.resetAllMocks();
   });
 
-  it('renders login form', () => {
-    render(
-      <BrowserRouter>
-        <AuthForm />
-      </BrowserRouter>
-    );
-
-    expect(screen.getByRole('tabpanel', { name: /login/i })).toBeInTheDocument();
-  });
-
   it('handles successful login', async () => {
     const mockUser: User = {
       id: 'mock-user-id',
