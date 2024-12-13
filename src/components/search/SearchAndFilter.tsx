@@ -58,8 +58,8 @@ export const SearchAndFilter = ({ onSearch, onFiltersChange }: SearchAndFilterPr
     const newFilters = {
       ...filters,
       categories: checked 
-        ? [...(filters.categories || []), category]
-        : (filters.categories || []).filter(c => c !== category)
+        ? [...filters.categories, category]
+        : filters.categories.filter(c => c !== category)
     };
     setFilters(newFilters);
     setIsFilterActive(true);
@@ -113,7 +113,7 @@ export const SearchAndFilter = ({ onSearch, onFiltersChange }: SearchAndFilterPr
             </div>
             {isFilterActive && (
               <Button variant="outline">
-                {(filters.categories?.length || 0) + 
+                {filters.categories.length + 
                   (filters.inStock ? 1 : 0) + 
                   (filters.endingSoon ? 1 : 0) + 
                   (filters.location ? 1 : 0)
