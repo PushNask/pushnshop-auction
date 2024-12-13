@@ -1,18 +1,20 @@
-import type { Currency, ListingStatus } from './product';
+import type { Currency } from './product';
 
 export interface ManagedProduct {
   id: string;
   title: string;
   price: number;
   currency: Currency;
+  status: 'active' | 'pending' | 'expired';
   quantity: number;
-  status: ListingStatus;
-  expiresAt: string;
+  expiresAt?: string;
   views: number;
   whatsappClicks: number;
+  image?: string;
 }
 
-export interface UpdateQuantityPayload {
-  productId: string;
-  quantity: number;
+export interface ProductStats {
+  totalViews: number;
+  totalClicks: number;
+  activeListings: number;
 }
