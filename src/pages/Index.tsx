@@ -1,99 +1,74 @@
-import { useState, useEffect, useRef, useCallback } from 'react';
-import { Header } from '@/components/Header';
-import { SearchAndFilter } from '@/components/search/SearchAndFilter';
-import { ProductGrid } from '@/components/ProductGrid';
-import { fetchProducts } from '@/services/api';
-import type { Product } from '@/types/product';
-import type { Filters } from '@/types/filters';
+import { Suspense, lazy } from "react";
+import { Toaster } from "@/components/ui/toaster";
+import { Toaster as Sonner } from "@/components/ui/sonner";
+import { TooltipProvider } from "@/components/ui/tooltip";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { ErrorBoundaryWrapper } from "./components/monitoring/ErrorBoundaryWrapper";
+import { MetricsProvider } from "./hooks/useMetrics";
+import "@/i18n/config";
+import AnalyticsDashboard from "@/components/analytics/AnalyticsDashboard";
 
-const HomePage = () => {
-  const [products, setProducts] = useState<Product[]>([]);
-  const [page, setPage] = useState(0);
-  const [hasMore, setHasMore] = useState(true);
-  const [isLoading, setIsLoading] = useState(false);
-  const [searchQuery, setSearchQuery] = useState('');
-  const [filters, setFilters] = useState<Filters>({
-    priceRange: [0, 1000000],
-    inStock: false,
-    endingSoon: false,
-    categories: [],
-    location: ''
-  });
-  
-  const loadingRef = useRef<HTMLDivElement>(null);
-  const observer = useRef<IntersectionObserver | null>(null);
+// Lazy load route components
+const Index = lazy(() => import("./pages/Index"));
+const PermanentLinks = lazy(() => import("./pages/PermanentLinks"));
+const AuthForm = lazy(() => import("./components/auth/AuthForm"));
+const AdminDashboard = lazy(() => import("./components/admin/AdminDashboard"));
+const ProductListingForm = lazy(() => import("./components/ProductListingForm"));
+const MonitoringDashboard = lazy(() => import("./components/monitoring/MonitoringDashboard"));
 
-  const loadProducts = useCallback(async () => {
-    if (isLoading || !hasMore) return;
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      retry: 1,
+      refetchOnWindowFocus: false,
+      staleTime: 5 * 60 * 1000, // 5 minutes
+    },
+  },
+});
 
-    setIsLoading(true);
-    try {
-      const result = await fetchProducts(page, searchQuery, filters);
-      setProducts(prev => [...prev, ...result.products]);
-      setHasMore(result.hasMore);
-      setPage(prev => prev + 1);
-    } catch (error) {
-      console.error('Error loading products:', error);
-    }
-    setIsLoading(false);
-  }, [page, searchQuery, filters, hasMore, isLoading]);
-
-  useEffect(() => {
-    if (loadingRef.current) {
-      observer.current = new IntersectionObserver(
-        (entries) => {
-          if (entries[0].isIntersecting) {
-            loadProducts();
-          }
-        },
-        { threshold: 1.0 }
-      );
-
-      observer.current.observe(loadingRef.current);
-    }
-
-    return () => {
-      if (observer.current) {
-        observer.current.disconnect();
-      }
-    };
-  }, [loadProducts]);
-
-  const handleSearch = useCallback((query: string) => {
-    setSearchQuery(query);
-    setProducts([]);
-    setPage(0);
-    setHasMore(true);
-  }, []);
-
-  const handleFiltersChange = useCallback((newFilters: Filters) => {
-    setFilters(newFilters);
-    setProducts([]);
-    setPage(0);
-    setHasMore(true);
-  }, []);
-
-  return (
-    <div className="min-h-screen bg-gray-50">
-      <Header 
-        searchQuery={searchQuery}
-        setSearchQuery={setSearchQuery}
-      />
-      <main className="container mx-auto px-4 py-8">
-        <SearchAndFilter 
-          onSearch={handleSearch}
-          onFiltersChange={handleFiltersChange}
-        />
-        <div className="mt-8">
-          <ProductGrid 
-            products={products}
-            isLoading={isLoading}
-            loadingRef={loadingRef}
-          />
+const App = () => (
+  <QueryClientProvider client={queryClient}>
+    <TooltipProvider>
+      <ErrorBoundaryWrapper>
+        <div className="min-h-screen bg-background">
+          <Toaster />
+          <Sonner />
+          <BrowserRouter>
+            <Suspense fallback={
+              <div className="flex items-center justify-center min-h-screen">
+                <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
+              </div>
+            }>
+              <Routes>
+                <Route path="/" element={<Index />} />
+                <Route path="/permanent-links" element={<PermanentLinks />} />
+                <Route path="/auth" element={<AuthForm />} />
+                <Route path="/admin" element={<AdminDashboard />} />
+                <Route path="/sell" element={<ProductListingForm />} />
+                <Route 
+                  path="/monitoring" 
+                  element={
+                    <MetricsProvider>
+                      <MonitoringDashboard />
+                    </MetricsProvider>
+                  } 
+                />
+              </Routes>
+            </Suspense>
+          </BrowserRouter>
         </div>
-      </main>
+      </ErrorBoundaryWrapper>
+    </TooltipProvider>
+  </QueryClientProvider>
+);
+
+const Index = () => {
+  return (
+    <div>
+      <AnalyticsDashboard />
     </div>
   );
 };
 
-export default HomePage;
+export default Index;
