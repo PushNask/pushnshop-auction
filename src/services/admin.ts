@@ -35,7 +35,7 @@ export const fetchPendingProducts = async (): Promise<PendingProduct[]> => {
       price,
       currency,
       status,
-      seller:users!products_seller_id_fkey(
+      seller:users!products_seller_id_fkey (
         full_name
       )
     `)
@@ -44,10 +44,10 @@ export const fetchPendingProducts = async (): Promise<PendingProduct[]> => {
   if (error) throw error;
 
   return (data || []).map(p => ({
-    id: p.id,
-    title: p.title,
-    price: p.price,
-    currency: p.currency as Currency,
+    id: p.id || '',
+    title: p.title || '',
+    price: p.price || 0,
+    currency: (p.currency || 'XAF') as Currency,
     status: p.status || 'pending',
     seller: p.seller?.full_name || 'Unknown'
   }));
@@ -63,9 +63,9 @@ export const fetchPendingPayments = async (): Promise<PendingPayment[]> => {
       status,
       payment_method,
       reference_number,
-      listing:listings(
-        product:products(
-          seller:users!products_seller_id_fkey(
+      listing:listings!payments_listing_id_fkey (
+        product:products (
+          seller:users!products_seller_id_fkey (
             full_name
           )
         )
@@ -76,11 +76,11 @@ export const fetchPendingPayments = async (): Promise<PendingPayment[]> => {
   if (error) throw error;
 
   return (data || []).map(p => ({
-    id: p.id,
-    amount: p.amount,
-    currency: p.currency as Currency,
+    id: p.id || '',
+    amount: p.amount || 0,
+    currency: (p.currency || 'XAF') as Currency,
     reference: p.reference_number || '',
-    seller: p.listing?.[0]?.product?.seller?.full_name || 'Unknown',
+    seller: p.listing?.product?.seller?.full_name || 'Unknown',
     method: (p.payment_method || 'cash') as PaymentMethod,
     status: (p.status || 'pending') as PaymentStatus
   }));
