@@ -3,7 +3,7 @@ import { Loader2 } from 'lucide-react';
 import { useToast } from '@/components/ui/use-toast';
 import { ProductCard } from './ProductCard';
 import { UpdateQuantityDialog } from './UpdateQuantityDialog';
-import { fetchUserProducts, updateProductQuantity } from '@/services/product-management';
+import { fetchUserProducts, updateProductQuantity, deleteProduct } from '@/services/product-management';
 import type { ManagedProduct } from '@/types/product-management';
 
 export const ProductManagementSystem = () => {
@@ -66,6 +66,23 @@ export const ProductManagementSystem = () => {
     );
   }
 
+  const handleDelete = async (product: ManagedProduct) => {
+    try {
+      await deleteProduct(product.id);
+      setProducts(products.filter(p => p.id !== product.id));
+      toast({
+        title: "Success",
+        description: "Product deleted successfully"
+      });
+    } catch (error) {
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "Failed to delete product"
+      });
+    }
+  };
+
   return (
     <div className="container mx-auto p-4">
       <div className="mb-6">
@@ -79,6 +96,7 @@ export const ProductManagementSystem = () => {
             key={product.id} 
             product={product}
             onEdit={setSelectedProduct}
+            onDelete={handleDelete}
           />
         ))}
       </div>
