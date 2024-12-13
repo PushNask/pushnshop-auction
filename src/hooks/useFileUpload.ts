@@ -1,8 +1,9 @@
 import { useState } from 'react';
-import { fileStorage } from '@/lib/storage';
+import { FileStorage } from '@/lib/storage';
 
 export function useFileUpload() {
   const [isUploading, setIsUploading] = useState(false);
+  const [progress, setProgress] = useState(0);
   const [error, setError] = useState<Error | null>(null);
 
   const uploadFile = async (file: File, productId: string) => {
@@ -10,7 +11,7 @@ export function useFileUpload() {
     setError(null);
     
     try {
-      const url = await fileStorage.uploadProductImage(file, productId);
+      const url = await FileStorage.uploadProductImage(productId, file);
       return url;
     } catch (err) {
       setError(err as Error);
@@ -20,5 +21,5 @@ export function useFileUpload() {
     }
   };
 
-  return { uploadFile, isUploading, error };
+  return { uploadFile, isUploading, progress, error };
 }

@@ -9,13 +9,13 @@ export const fetchAdminStats = async (): Promise<AdminStats> => {
 
   if (error) throw error;
 
-  const stats = {
+  const stats: AdminStats = {
     totalProducts: data.length,
     activeSellers: new Set(data.map(p => p.seller_id)).size,
     totalRevenue: data.reduce((sum, p) => 
-      sum + (p.payment_status === 'verified' ? p.price : 0), 0
+      p.payment_status === 'confirmed' ? sum + Number(p.price) : sum, 0
     ),
-    currency: 'XAF' as Currency
+    currency: 'XAF'
   };
 
   return stats;
@@ -26,7 +26,7 @@ export const fetchPendingProducts = async (): Promise<PendingProduct[]> => {
     .from('products')
     .select(`
       *,
-      users!inner (
+      seller:users!inner (
         email
       )
     `)
@@ -37,7 +37,7 @@ export const fetchPendingProducts = async (): Promise<PendingProduct[]> => {
   return data.map(product => ({
     id: product.id,
     title: product.title,
-    seller: product.users?.email || 'Unknown',
+    seller: product.seller?.email || 'Unknown',
     price: product.price,
     currency: product.currency as Currency,
     status: product.status
@@ -49,7 +49,7 @@ export const fetchPendingPayments = async (): Promise<PendingPayment[]> => {
     .from('products')
     .select(`
       *,
-      users!inner (
+      seller:users!inner (
         email
       )
     `)
@@ -62,35 +62,8 @@ export const fetchPendingPayments = async (): Promise<PendingPayment[]> => {
     reference: `PAY-${product.id.slice(0, 8)}`,
     amount: product.price,
     currency: product.currency as Currency,
-    seller: product.users?.email || 'Unknown',
+    seller: product.seller?.email || 'Unknown',
     method: 'bank',
     status: 'pending'
   }));
-};
-
-export const approveProduct = async (productId: string): Promise<void> => {
-  const { error } = await supabase
-    .from('products')
-    .update({ status: 'active' })
-    .eq('id', productId);
-
-  if (error) throw error;
-};
-
-export const rejectProduct = async (productId: string): Promise<void> => {
-  const { error } = await supabase
-    .from('products')
-    .update({ status: 'rejected' })
-    .eq('id', productId);
-
-  if (error) throw error;
-};
-
-export const verifyPayment = async (productId: string): Promise<void> => {
-  const { error } = await supabase
-    .from('products')
-    .update({ payment_status: 'verified' })
-    .eq('id', productId);
-
-  if (error) throw error;
 };
