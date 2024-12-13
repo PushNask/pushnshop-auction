@@ -1,6 +1,7 @@
 import { supabase } from '@/integrations/supabase/client';
-import { withQueryTracking } from '@/lib/monitoring/middleware';
 import type { AdminStats, PendingProduct, PendingPayment } from '@/types/admin';
+import type { Currency } from '@/types/product';
+import type { PaymentMethod, PaymentStatus } from '@/types/payment';
 
 export const fetchAdminStats = async (): Promise<AdminStats> => {
   const { data, error } = await supabase
@@ -9,7 +10,7 @@ export const fetchAdminStats = async (): Promise<AdminStats> => {
       id,
       price,
       currency,
-      seller:seller_id(id)
+      seller:users!products_seller_id_fkey(id)
     `)
     .eq('status', 'active');
 
@@ -34,7 +35,9 @@ export const fetchPendingProducts = async (): Promise<PendingProduct[]> => {
       price,
       currency,
       status,
-      seller:seller_id(full_name)
+      seller:users!products_seller_id_fkey(
+        full_name
+      )
     `)
     .eq('status', 'pending');
 
@@ -44,7 +47,7 @@ export const fetchPendingProducts = async (): Promise<PendingProduct[]> => {
     id: p.id,
     title: p.title,
     price: p.price,
-    currency: p.currency,
+    currency: p.currency as Currency,
     status: p.status || 'pending',
     seller: p.seller?.full_name || 'Unknown'
   }));
@@ -60,9 +63,11 @@ export const fetchPendingPayments = async (): Promise<PendingPayment[]> => {
       status,
       payment_method,
       reference_number,
-      listing:listing_id(
-        product:product_id(
-          seller:seller_id(full_name)
+      listing:listings(
+        product:products(
+          seller:users!products_seller_id_fkey(
+            full_name
+          )
         )
       )
     `)
@@ -73,11 +78,11 @@ export const fetchPendingPayments = async (): Promise<PendingPayment[]> => {
   return (data || []).map(p => ({
     id: p.id,
     amount: p.amount,
-    currency: p.currency,
+    currency: p.currency as Currency,
     reference: p.reference_number || '',
-    seller: p.listing?.product?.seller?.full_name || 'Unknown',
-    method: p.payment_method || 'cash',
-    status: p.status || 'pending'
+    seller: p.listing?.[0]?.product?.seller?.full_name || 'Unknown',
+    method: (p.payment_method || 'cash') as PaymentMethod,
+    status: (p.status || 'pending') as PaymentStatus
   }));
 };
 
