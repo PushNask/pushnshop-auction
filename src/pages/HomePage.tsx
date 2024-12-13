@@ -2,7 +2,7 @@ import AnalyticsDashboard from "@/components/analytics/AnalyticsDashboard";
 
 const HomePage = () => {
   return (
-    <div>
+    <div className="container mx-auto p-4">
       <AnalyticsDashboard />
     </div>
   );
