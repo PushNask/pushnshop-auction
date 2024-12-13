@@ -27,7 +27,9 @@ export const fetchPendingProducts = async (): Promise<PendingProduct[]> => {
       price,
       currency,
       status,
+      seller_id,
       seller:seller_id (
+        id,
         email
       )
     `)
@@ -54,7 +56,9 @@ export const fetchPendingPayments = async (): Promise<PendingPayment[]> => {
       price,
       currency,
       payment_status,
+      seller_id,
       seller:seller_id (
+        id,
         email
       )
     `)
