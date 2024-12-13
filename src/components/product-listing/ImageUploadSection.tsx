@@ -22,11 +22,11 @@ export const ImageUploadSection = ({
       return;
     }
 
-    const newImages: ProductImage[] = files.map(file => ({
+    const newImages: ProductImage[] = files.map((file, index) => ({
       id: Math.random().toString(36).substring(7),
       url: URL.createObjectURL(file),
-      alt: file.name || 'Product image', // Ensure alt is always provided
-      order: images.length,
+      alt: file.name || 'Product image',
+      order: images.length + index,
       isNew: true,
       file,
       preview: URL.createObjectURL(file)
