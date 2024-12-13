@@ -1,66 +1,22 @@
-import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { 
-  Loader2, 
   AlertCircle, 
   BarChart3,
   Activity,
   Users,
   Timer
 } from 'lucide-react';
-
-interface Metrics {
-  activeUsers: number;
-  activeListings: number;
-  averageResponseTime: number;
-  errorRate: number;
-  recentErrors: Array<{
-    id: number;
-    message: string;
-    timestamp: string;
-  }>;
-}
-
-const MOCK_METRICS: Metrics = {
-  activeUsers: 125,
-  activeListings: 87,
-  averageResponseTime: 230,
-  errorRate: 0.5,
-  recentErrors: [
-    { 
-      id: 1,
-      message: 'Failed to process payment',
-      timestamp: new Date().toISOString()
-    },
-    {
-      id: 2,
-      message: 'Image upload failed',
-      timestamp: new Date(Date.now() - 3600000).toISOString()
-    }
-  ]
-};
+import { useMetrics } from '@/hooks/useMetrics';
+import { useAuthCheck } from '@/hooks/useAuthCheck';
+import { PerformanceChart } from './PerformanceChart';
 
 const MonitoringDashboard = () => {
-  const [metrics, setMetrics] = useState<Metrics>(MOCK_METRICS);
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const { metrics, isLoading, error } = useMetrics();
+  const { isAuthorized, isChecking } = useAuthCheck();
 
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setMetrics(prev => ({
-        ...prev,
-        activeUsers: prev.activeUsers + Math.floor(Math.random() * 5),
-        averageResponseTime: 200 + Math.floor(Math.random() * 100),
-        errorRate: Math.max(0, prev.errorRate + (Math.random() - 0.5) * 0.2)
-      }));
-    }, 5000);
-
-    return () => clearInterval(interval);
-  }, []);
-
-  if (isLoading) {
+  if (isLoading || isChecking) {
     return (
       <div className="flex justify-center items-center min-h-screen">
         <Loader2 className="w-8 h-8 animate-spin" />
@@ -68,11 +24,24 @@ const MonitoringDashboard = () => {
     );
   }
 
-  if (error) {
+  if (!isAuthorized) {
     return (
       <Alert variant="destructive">
         <AlertCircle className="h-4 w-4" />
-        <AlertDescription>{error}</AlertDescription>
+        <AlertDescription>
+          You are not authorized to view this dashboard.
+        </AlertDescription>
+      </Alert>
+    );
+  }
+
+  if (error || !metrics) {
+    return (
+      <Alert variant="destructive">
+        <AlertCircle className="h-4 w-4" />
+        <AlertDescription>
+          {error?.message || 'Failed to load metrics'}
+        </AlertDescription>
       </Alert>
     );
   }
@@ -115,7 +84,7 @@ const MonitoringDashboard = () => {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              {metrics.averageResponseTime}ms
+              {Math.round(metrics.averageResponseTime)}ms
             </div>
           </CardContent>
         </Card>
@@ -168,9 +137,7 @@ const MonitoringDashboard = () => {
         <TabsContent value="performance">
           <Card>
             <CardContent className="p-4">
-              <div className="h-[300px] flex items-center justify-center text-gray-500">
-                Performance metrics chart will be implemented here
-              </div>
+              <PerformanceChart data={metrics.performanceData} />
             </CardContent>
           </Card>
         </TabsContent>
