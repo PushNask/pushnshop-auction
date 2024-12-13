@@ -12,6 +12,7 @@ const DEFAULT_PRODUCT: Product = {
   title: 'Sample Product',
   description: 'Sample product description',
   price: 99.99,
+  currency: 'XAF',
   quantity: 5,
   images: [
     {

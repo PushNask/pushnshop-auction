@@ -1,8 +1,11 @@
 import type { Currency } from '@/types/product';
 import { IMAGE_CONFIG } from '@/config/constants';
 
+const ACCEPTED_TYPES = ['image/jpeg', 'image/png', 'image/webp'] as const;
+type AcceptedImageType = typeof ACCEPTED_TYPES[number];
+
 export const validateImage = (file: File): string | null => {
-  if (!IMAGE_CONFIG.ACCEPTED_TYPES.includes(file.type)) {
+  if (!ACCEPTED_TYPES.includes(file.type as AcceptedImageType)) {
     return 'Invalid file type. Please upload JPEG, PNG, or WebP images.';
   }
   if (file.size > IMAGE_CONFIG.MAX_SIZE) {

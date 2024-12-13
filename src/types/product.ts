@@ -2,6 +2,7 @@ export type Currency = 'XAF' | 'USD';
 export type PaymentMethod = 'cash' | 'transfer';
 export type PaymentStatus = 'pending' | 'processing' | 'confirmed' | 'failed';
 export type ListingStatus = 'draft' | 'pending_payment' | 'pending_approval' | 'active' | 'inactive' | 'expired';
+export type SortOption = 'newest' | 'ending-soon' | 'price-low' | 'price-high';
 
 export interface ProductImage {
   id: string;
@@ -35,9 +36,6 @@ export interface Filters {
   maxPrice?: number;
   currency?: Currency;
   status?: ListingStatus;
-}
-
-export interface SortOption {
-  field: keyof Product;
-  direction: 'asc' | 'desc';
+  inStock?: boolean;
+  endingSoon?: boolean;
 }

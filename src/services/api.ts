@@ -13,6 +13,7 @@ export const fetchProducts = async (
     permanentLinkId: (page * 12 + i) % 120 + 1,
     title: `Product ${page * 12 + i + 1}`,
     price: Math.floor(Math.random() * 900) + 100,
+    currency: 'XAF',
     description: 'Product description preview',
     quantity: Math.floor(Math.random() * 10) + 1,
     images: [{
