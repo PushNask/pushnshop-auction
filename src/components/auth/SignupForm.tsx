@@ -39,16 +39,14 @@ export const SignupForm = () => {
         options: {
           data: {
             full_name: formData.fullName,
-            whatsapp_number: formData.whatsappNumber
+            whatsapp_number: formData.whatsappNumber,
+            role: 'buyer'
           },
           emailRedirectTo: `${window.location.origin}/auth/callback`
         }
       });
 
-      if (signUpError) {
-        console.error('Signup error:', signUpError);
-        throw signUpError;
-      }
+      if (signUpError) throw signUpError;
 
       if (data?.user) {
         toast({

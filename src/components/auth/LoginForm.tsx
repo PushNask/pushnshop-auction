@@ -20,6 +20,28 @@ export const LoginForm = () => {
     password: ''
   });
 
+  const handleResendConfirmation = async (email: string) => {
+    try {
+      const { error: resendError } = await supabase.auth.resend({
+        type: 'signup',
+        email: email,
+      });
+
+      if (resendError) throw resendError;
+
+      toast({
+        title: "Confirmation Email Sent",
+        description: "Please check your inbox for the confirmation link.",
+      });
+    } catch (err: any) {
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "Failed to resend confirmation email. Please try again.",
+      });
+    }
+  };
+
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
@@ -33,19 +55,10 @@ export const LoginForm = () => {
 
       if (error) {
         if (error.message.includes('Email not confirmed')) {
-          // Automatically resend confirmation email
-          const { error: resendError } = await supabase.auth.resend({
-            type: 'signup',
-            email: formData.email,
-          });
-
-          if (resendError) {
-            throw resendError;
-          }
-
+          setError('Please confirm your email address before logging in.');
           toast({
             title: "Email Not Confirmed",
-            description: "Please check your email for the confirmation link. We've sent a new confirmation email.",
+            description: "Please check your email for the confirmation link or click below to resend.",
           });
           return;
         }
@@ -116,10 +129,22 @@ export const LoginForm = () => {
       </div>
 
       {error && (
-        <Alert variant="destructive">
-          <AlertCircle className="h-4 w-4" />
-          <AlertDescription>{error}</AlertDescription>
-        </Alert>
+        <div className="space-y-2">
+          <Alert variant="destructive">
+            <AlertCircle className="h-4 w-4" />
+            <AlertDescription>{error}</AlertDescription>
+          </Alert>
+          {error.includes('confirm your email') && (
+            <Button
+              type="button"
+              variant="outline"
+              className="w-full"
+              onClick={() => handleResendConfirmation(formData.email)}
+            >
+              Resend Confirmation Email
+            </Button>
+          )}
+        </div>
       )}
 
       <Button 
