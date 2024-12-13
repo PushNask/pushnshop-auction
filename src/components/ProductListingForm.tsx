@@ -14,6 +14,7 @@ import { BasicInfoSection } from './product-listing/BasicInfoSection';
 import { PriceSection } from './product-listing/PriceSection';
 import { DurationSection } from './product-listing/DurationSection';
 import { ImageUploadSection } from './product-listing/ImageUploadSection';
+import type { ProductImage } from '@/types/product';
 
 interface FormData {
   title: string;
@@ -22,8 +23,7 @@ interface FormData {
   currency: 'XAF' | 'USD';
   quantity: string;
   duration: '24' | '48' | '72' | '96' | '120';
-  images: File[];
-  imageUrls: string[];
+  images: ProductImage[];
 }
 
 interface FormErrors extends Partial<Record<keyof FormData, string>> {
@@ -40,7 +40,6 @@ const ProductListingForm = () => {
     quantity: '',
     duration: '24',
     images: [],
-    imageUrls: [],
   });
   const [errors, setErrors] = useState<FormErrors>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -61,22 +60,12 @@ const ProductListingForm = () => {
     setFormData(prev => ({ ...prev, duration: value }));
   };
 
-  const handleImagesChange = (newFiles: File[]) => {
-    const newUrls = newFiles.map(file => URL.createObjectURL(file));
+  const handleImagesChange = (newImages: ProductImage[]) => {
     setFormData(prev => ({
       ...prev,
-      images: [...prev.images, ...newFiles],
-      imageUrls: [...prev.imageUrls, ...newUrls]
+      images: newImages
     }));
     setErrors(prev => ({ ...prev, images: undefined }));
-  };
-
-  const handleImageRemove = (index: number) => {
-    setFormData(prev => ({
-      ...prev,
-      images: prev.images.filter((_, i) => i !== index),
-      imageUrls: prev.imageUrls.filter((_, i) => i !== index)
-    }));
   };
 
   const validateForm = (): boolean => {
@@ -133,7 +122,6 @@ const ProductListingForm = () => {
         quantity: '',
         duration: '24',
         images: [],
-        imageUrls: [],
       });
     } catch (error) {
       setErrors(prev => ({
@@ -186,9 +174,7 @@ const ProductListingForm = () => {
 
           <ImageUploadSection
             images={formData.images}
-            imageUrls={formData.imageUrls}
             onImagesChange={handleImagesChange}
-            onImageRemove={handleImageRemove}
             error={errors.images}
           />
 

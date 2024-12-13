@@ -1,27 +1,24 @@
-import { useState } from 'react';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { Input } from '@/components/ui/input';
+import { Button } from '@/components/ui/button';
 import { Plus, X } from 'lucide-react';
-import type { ProductImage } from '@/types/product-form';
+import type { ProductImage } from '@/types/product';
 
 interface ImageUploadSectionProps {
   images: ProductImage[];
   onImagesChange: (images: ProductImage[]) => void;
-  maxImages?: number;
   error?: string;
 }
 
 export const ImageUploadSection = ({
   images,
   onImagesChange,
-  maxImages = 7,
   error
 }: ImageUploadSectionProps) => {
   const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(event.target.files || []);
     
-    if (images.length + files.length > maxImages) {
+    if (images.length + files.length > 7) {
       return;
     }
 
@@ -29,6 +26,8 @@ export const ImageUploadSection = ({
       id: Math.random().toString(36).substring(7),
       url: URL.createObjectURL(file),
       alt: file.name,
+      order: images.length,
+      isNew: true,
       file,
       preview: URL.createObjectURL(file)
     }));
@@ -42,13 +41,13 @@ export const ImageUploadSection = ({
 
   return (
     <div className="space-y-2">
-      <Label>Product Images ({images.length}/{maxImages})</Label>
+      <Label>Product Images ({images.length}/7)</Label>
       <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
         {images.map(image => (
           <div key={image.id} className="relative aspect-square">
             <img
               src={image.preview || image.url}
-              alt={image.alt || "Product preview"}
+              alt={image.alt}
               className="w-full h-full object-cover rounded-lg"
             />
             <Button
@@ -63,7 +62,7 @@ export const ImageUploadSection = ({
           </div>
         ))}
 
-        {images.length < maxImages && (
+        {images.length < 7 && (
           <div className="aspect-square border-2 border-dashed rounded-lg flex items-center justify-center hover:bg-gray-50 transition-colors">
             <Label
               htmlFor="image-upload"

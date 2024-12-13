@@ -11,6 +11,7 @@ export interface ProductImage {
   order: number;
   isNew?: boolean;
   file?: File;
+  preview?: string;
 }
 
 export interface Product {
