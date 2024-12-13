@@ -26,7 +26,7 @@ export const LoginForm = () => {
     setError('');
 
     try {
-      const { error } = await supabase.auth.signInWithPassword({
+      const { data, error } = await supabase.auth.signInWithPassword({
         email: formData.email,
         password: formData.password,
       });
@@ -50,7 +50,7 @@ export const LoginForm = () => {
         } else {
           throw error;
         }
-      } else {
+      } else if (data?.user) {
         toast({
           title: "Success",
           description: "Logged in successfully",
@@ -58,6 +58,7 @@ export const LoginForm = () => {
         navigate('/');
       }
     } catch (err: any) {
+      console.error('Login error:', err);
       setError(err.message || 'Failed to login');
       toast({
         variant: "destructive",
