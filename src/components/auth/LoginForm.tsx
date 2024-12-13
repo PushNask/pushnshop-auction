@@ -33,7 +33,6 @@ export const LoginForm = () => {
 
       if (error) {
         if (error.message.includes('Email not confirmed')) {
-          // Handle email not confirmed error
           const { error: resendError } = await supabase.auth.resend({
             type: 'signup',
             email: formData.email,
