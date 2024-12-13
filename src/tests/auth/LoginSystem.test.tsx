@@ -3,7 +3,7 @@ import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { BrowserRouter } from 'react-router-dom';
 import AuthForm from '@/components/auth/AuthForm';
 import { supabase } from '@/integrations/supabase/client';
-import { AuthError, Session, User } from '@supabase/supabase-js';
+import { AuthError, Session, User, AuthResponse } from '@supabase/supabase-js';
 
 // Mock supabase client
 vi.mock('@/integrations/supabase/client', () => ({
@@ -57,7 +57,7 @@ describe('LoginSystem', () => {
       confirmation_sent_at: null,
       confirmed_at: new Date().toISOString(),
       last_sign_in_at: new Date().toISOString(),
-      app_metadata: { provider: 'email' },
+      app_metadata: { provider: 'email', providers: ['email'] },
       user_metadata: {},
       identities: [],
       created_at: new Date().toISOString(),
@@ -74,10 +74,12 @@ describe('LoginSystem', () => {
       user: mockUser,
     };
 
-    vi.mocked(supabase.auth.signInWithPassword).mockResolvedValueOnce({
+    const mockAuthResponse: AuthResponse = {
       data: { user: mockUser, session: mockSession },
       error: null,
-    });
+    };
+
+    vi.mocked(supabase.auth.signInWithPassword).mockResolvedValueOnce(mockAuthResponse);
 
     render(
       <BrowserRouter>
@@ -103,10 +105,12 @@ describe('LoginSystem', () => {
 
   it('handles failed login attempts', async () => {
     const authError = new AuthError('Invalid credentials', 400);
-    vi.mocked(supabase.auth.signInWithPassword).mockResolvedValueOnce({
+    const mockAuthResponse: AuthResponse = {
       data: { user: null, session: null },
       error: authError,
-    });
+    };
+
+    vi.mocked(supabase.auth.signInWithPassword).mockResolvedValueOnce(mockAuthResponse);
 
     render(
       <BrowserRouter>
@@ -128,12 +132,15 @@ describe('LoginSystem', () => {
   });
 
   it('implements account lockout after multiple failed attempts', async () => {
+    const authError = new AuthError('Invalid credentials', 400);
+    const mockAuthResponse: AuthResponse = {
+      data: { user: null, session: null },
+      error: authError,
+    };
+
     // Simulate 5 failed attempts
     for (let i = 0; i < 5; i++) {
-      vi.mocked(supabase.auth.signInWithPassword).mockResolvedValueOnce({
-        data: { user: null, session: null },
-        error: new AuthError('Invalid credentials', 400),
-      });
+      vi.mocked(supabase.auth.signInWithPassword).mockResolvedValueOnce(mockAuthResponse);
     }
 
     render(
@@ -159,9 +166,7 @@ describe('LoginSystem', () => {
 
     // Verify lockout message
     await waitFor(() => {
-      expect(
-        screen.getByText(/too many failed attempts/i)
-      ).toBeInTheDocument();
+      expect(screen.getByText(/too many failed attempts/i)).toBeInTheDocument();
     });
   });
 });
