@@ -8,7 +8,8 @@ import type { Filters } from "@/types/filters";
 const HomePage = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [filters, setFilters] = useState<Filters>({
-    priceRange: [0, 1000000],
+    minPrice: 0,
+    maxPrice: 1000000,
     inStock: false,
     endingSoon: false,
     categories: [],

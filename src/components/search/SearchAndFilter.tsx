@@ -17,7 +17,8 @@ const CATEGORIES = [
 ];
 
 const INITIAL_FILTERS: Filters = {
-  priceRange: [0, 1000000],
+  minPrice: 0,
+  maxPrice: 1000000,
   inStock: false,
   endingSoon: false,
   categories: [],
@@ -40,7 +41,7 @@ export const SearchAndFilter = ({ onSearch, onFiltersChange }: SearchAndFilterPr
   };
 
   const handlePriceChange = (value: [number, number]) => {
-    const newFilters = { ...filters, priceRange: value };
+    const newFilters = { ...filters, minPrice: value[0], maxPrice: value[1] };
     setFilters(newFilters);
     setIsFilterActive(true);
     onFiltersChange(newFilters);
@@ -57,8 +58,8 @@ export const SearchAndFilter = ({ onSearch, onFiltersChange }: SearchAndFilterPr
     const newFilters = {
       ...filters,
       categories: checked 
-        ? [...filters.categories, category]
-        : filters.categories.filter(c => c !== category)
+        ? [...(filters.categories || []), category]
+        : (filters.categories || []).filter(c => c !== category)
     };
     setFilters(newFilters);
     setIsFilterActive(true);
@@ -112,7 +113,7 @@ export const SearchAndFilter = ({ onSearch, onFiltersChange }: SearchAndFilterPr
             </div>
             {isFilterActive && (
               <Button variant="outline">
-                {filters.categories.length + 
+                {(filters.categories?.length || 0) + 
                   (filters.inStock ? 1 : 0) + 
                   (filters.endingSoon ? 1 : 0) + 
                   (filters.location ? 1 : 0)
