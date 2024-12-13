@@ -1,12 +1,4 @@
-export interface ProductImage {
-  id: string;
-  url: string;
-  alt?: string;
-  order?: number;
-  isNew?: boolean;
-  file?: File;
-  preview?: string;
-}
+import type { ProductImage } from './product';
 
 export interface FormData {
   title: string;
@@ -18,3 +10,5 @@ export interface FormData {
   duration: '24' | '48' | '72' | '96' | '120';
   condition?: 'new' | 'used';
 }
+
+export type { ProductImage };
