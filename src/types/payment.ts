@@ -1,7 +1,7 @@
 import type { Currency } from './product';
 
 export type PaymentMethod = 'cash' | 'bank';
-export type PaymentStatus = 'pending' | 'processing' | 'confirmed' | 'failed';
+export type PaymentStatus = 'pending' | 'processing' | 'completed' | 'failed';
 
 export interface PaymentDetails {
   listingId: string;

@@ -25,7 +25,7 @@ export const StatsOverview = () => {
       return {
         totalProducts: typedData.length,
         totalRevenue: typedData.reduce((acc, curr) => 
-          curr.payment_status === 'verified' ? acc + curr.price : acc, 0),
+          curr.payment_status === 'completed' ? acc + curr.price : acc, 0),
         activeSellers: new Set(typedData.map(p => p.seller_id)).size
       };
     }
