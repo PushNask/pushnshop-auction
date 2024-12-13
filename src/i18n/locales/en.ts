@@ -12,6 +12,9 @@ export default {
     edit: 'Edit',
     create: 'Create',
     submit: 'Submit',
+    success: 'Success',
+    warning: 'Warning',
+    info: 'Information',
   },
   nav: {
     home: 'Home',
@@ -20,6 +23,30 @@ export default {
     about: 'About',
     account: 'My Account',
     menu: 'Menu',
+    admin: 'Admin',
+    monitoring: 'Monitoring',
+    login: 'Login',
+    signup: 'Sign Up',
+    logout: 'Logout',
+  },
+  auth: {
+    login: 'Login',
+    signup: 'Sign Up',
+    logout: 'Logout',
+    email: 'Email',
+    password: 'Password',
+    confirmPassword: 'Confirm Password',
+    forgotPassword: 'Forgot Password?',
+    whatsapp: 'WhatsApp Number',
+    fullName: 'Full Name',
+    createAccount: 'Create Account',
+    alreadyHaveAccount: 'Already have an account?',
+    dontHaveAccount: "Don't have an account?",
+    loginSuccess: 'Logged in successfully',
+    signupSuccess: 'Account created successfully',
+    verifyEmail: 'Please check your email for verification',
+    invalidCredentials: 'Invalid email or password',
+    passwordMismatch: 'Passwords do not match',
   },
   products: {
     title: 'Products',
@@ -70,15 +97,6 @@ export default {
     sortBy: 'Sort By',
     location: 'Location',
   },
-  auth: {
-    login: 'Login',
-    signup: 'Sign Up',
-    logout: 'Logout',
-    email: 'Email',
-    password: 'Password',
-    forgotPassword: 'Forgot Password?',
-    whatsapp: 'WhatsApp Number',
-  },
   monitoring: {
     title: 'System Monitoring',
     unauthorized: 'You are not authorized to view this dashboard.',
@@ -94,5 +112,39 @@ export default {
       errors: 'Recent Errors',
       performance: 'Performance'
     }
-  }
+  },
+  admin: {
+    dashboard: 'Admin Dashboard',
+    stats: {
+      totalProducts: 'Total Products',
+      activeSellers: 'Active Sellers',
+      totalRevenue: 'Total Revenue',
+      active: 'Active',
+      growing: 'Growing',
+    },
+    tabs: {
+      products: 'Pending Products',
+      payments: 'Payment Verification',
+    },
+    actions: {
+      approve: 'Approve',
+      reject: 'Reject',
+      verify: 'Verify Payment',
+      verifying: 'Verifying...',
+    },
+    messages: {
+      approveSuccess: 'Product approved successfully',
+      rejectSuccess: 'Product rejected successfully',
+      verifySuccess: 'Payment verified successfully',
+      loadError: 'Failed to load dashboard data',
+    },
+  },
+  errors: {
+    general: 'Something went wrong',
+    notFound: 'Page not found',
+    unauthorized: 'You are not authorized to view this page',
+    sessionExpired: 'Your session has expired',
+    networkError: 'Network error',
+    validation: 'Please check the form for errors',
+  },
 };

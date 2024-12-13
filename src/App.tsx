@@ -10,6 +10,10 @@ import "@/i18n/config";
 // Lazy load route components
 const Index = lazy(() => import("./pages/Index"));
 const PermanentLinks = lazy(() => import("./pages/PermanentLinks"));
+const AuthForm = lazy(() => import("./components/auth/AuthForm"));
+const AdminDashboard = lazy(() => import("./components/admin/AdminDashboard"));
+const ProductListingForm = lazy(() => import("./components/ProductListingForm"));
+const MonitoringDashboard = lazy(() => import("./components/monitoring/MonitoringDashboard"));
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -37,6 +41,10 @@ const App = () => (
               <Routes>
                 <Route path="/" element={<Index />} />
                 <Route path="/permanent-links" element={<PermanentLinks />} />
+                <Route path="/auth" element={<AuthForm />} />
+                <Route path="/admin" element={<AdminDashboard />} />
+                <Route path="/sell" element={<ProductListingForm />} />
+                <Route path="/monitoring" element={<MonitoringDashboard />} />
               </Routes>
             </Suspense>
           </BrowserRouter>

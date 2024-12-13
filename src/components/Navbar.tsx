@@ -1,12 +1,33 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Menu, X, ShoppingBag, User } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { LanguageSwitcher } from './LanguageSwitcher';
+import { supabase } from '@/integrations/supabase/client';
+import { Button } from './ui/button';
 
 export const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
+  const [session, setSession] = useState(null);
   const { t } = useTranslation();
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setSession(session);
+    });
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      setSession(session);
+    });
+
+    return () => subscription.unsubscribe();
+  }, []);
+
+  const handleLogout = async () => {
+    await supabase.auth.signOut();
+    navigate('/');
+  };
 
   return (
     <nav className="fixed w-full top-0 z-50 glass-card">
@@ -22,6 +43,9 @@ export const Navbar = () => {
             <Link to="/" className="nav-link">{t('nav.home')}</Link>
             <Link to="/products" className="nav-link">{t('nav.products')}</Link>
             <Link to="/sell" className="nav-link">{t('nav.sell')}</Link>
+            {session?.user.user_metadata.role === 'admin' && (
+              <Link to="/admin" className="nav-link">{t('nav.admin')}</Link>
+            )}
             <Link to="/about" className="nav-link">{t('nav.about')}</Link>
           </div>
 
@@ -29,9 +53,24 @@ export const Navbar = () => {
             <button className="p-2 hover:text-primary transition-colors">
               <ShoppingBag className="h-6 w-6" />
             </button>
-            <button className="p-2 hover:text-primary transition-colors">
-              <User className="h-6 w-6" />
-            </button>
+            {session ? (
+              <div className="flex items-center space-x-4">
+                <Link to="/profile">
+                  <Button variant="ghost" size="icon">
+                    <User className="h-6 w-6" />
+                  </Button>
+                </Link>
+                <Button variant="outline" onClick={handleLogout}>
+                  {t('nav.logout')}
+                </Button>
+              </div>
+            ) : (
+              <div className="flex items-center space-x-4">
+                <Link to="/auth">
+                  <Button variant="outline">{t('nav.login')}</Button>
+                </Link>
+              </div>
+            )}
             <LanguageSwitcher />
           </div>
 
@@ -71,6 +110,15 @@ export const Navbar = () => {
             >
               {t('nav.sell')}
             </Link>
+            {session?.user.user_metadata.role === 'admin' && (
+              <Link
+                to="/admin"
+                className="block px-3 py-2 rounded-md text-base font-medium hover:text-primary transition-colors"
+                onClick={() => setIsOpen(false)}
+              >
+                {t('nav.admin')}
+              </Link>
+            )}
             <Link
               to="/about"
               className="block px-3 py-2 rounded-md text-base font-medium hover:text-primary transition-colors"
@@ -78,6 +126,35 @@ export const Navbar = () => {
             >
               {t('nav.about')}
             </Link>
+            {!session && (
+              <Link
+                to="/auth"
+                className="block px-3 py-2 rounded-md text-base font-medium hover:text-primary transition-colors"
+                onClick={() => setIsOpen(false)}
+              >
+                {t('nav.login')}
+              </Link>
+            )}
+            {session && (
+              <>
+                <Link
+                  to="/profile"
+                  className="block px-3 py-2 rounded-md text-base font-medium hover:text-primary transition-colors"
+                  onClick={() => setIsOpen(false)}
+                >
+                  {t('nav.account')}
+                </Link>
+                <button
+                  className="block w-full text-left px-3 py-2 rounded-md text-base font-medium hover:text-primary transition-colors"
+                  onClick={() => {
+                    handleLogout();
+                    setIsOpen(false);
+                  }}
+                >
+                  {t('nav.logout')}
+                </button>
+              </>
+            )}
             <div className="px-3 py-2">
               <LanguageSwitcher />
             </div>
