@@ -54,6 +54,13 @@ export default {
       inStock: 'En stock',
       endingSoon: 'Se termine bientôt',
       clearFilters: 'Effacer les filtres'
+    },
+    management: {
+      noProducts: "Vous n'avez pas encore de produits",
+      addNew: 'Ajouter un nouveau produit',
+      edit: 'Modifier le produit',
+      delete: 'Supprimer le produit',
+      renew: 'Renouveler l\'annonce'
     }
   },
   filters: {
