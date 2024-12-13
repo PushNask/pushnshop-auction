@@ -1,12 +1,12 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
-import { Search, Menu, SlidersHorizontal, MessageCircle, Loader2 } from 'lucide-react';
+import { Search, Menu, SlidersHorizontal, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
-import { Card, CardContent, CardFooter } from '@/components/ui/card';
-import { Checkbox } from '@/components/ui/checkbox';
-import { Slider } from '@/components/ui/slider';
+import { FilterSheet } from '@/components/FilterSheet';
+import { ProductCard } from '@/components/ProductCard';
+import { Product, Filters } from '@/types/product';
 
 // Mock API call - replace with actual Supabase query
 const fetchProducts = async (page = 0, searchQuery = '', filters = {}, sortBy = 'newest') => {
@@ -27,131 +27,14 @@ const fetchProducts = async (page = 0, searchQuery = '', filters = {}, sortBy = 
   };
 };
 
-interface Product {
-  id: number;
-  title: string;
-  price: number;
-  timeLeft: string;
-  quantity: number;
-  description: string;
-}
-
-interface ProductCardProps {
-  product: Product;
-}
-
-const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
-  return (
-    <Card className="w-full max-w-sm mx-auto overflow-hidden">
-      <div className="relative aspect-square bg-gray-100">
-        <img
-          src="/placeholder.svg"
-          alt={product.title}
-          className="object-cover w-full h-full"
-        />
-        <div className="absolute top-2 right-2 bg-black/75 text-white px-3 py-1 rounded-full text-sm">
-          {product.timeLeft}
-        </div>
-      </div>
-      
-      <CardContent className="p-4">
-        <h3 className="text-lg font-semibold mb-2 line-clamp-2">
-          {product.title}
-        </h3>
-        
-        <div className="flex justify-between items-center mb-3">
-          <span className="text-xl font-bold">${product.price}</span>
-          <span className="text-sm text-gray-500">{product.quantity} available</span>
-        </div>
-        
-        <p className="text-sm text-gray-600 line-clamp-3">
-          {product.description}
-        </p>
-      </CardContent>
-      
-      <CardFooter className="p-4 pt-0 flex gap-2">
-        <Button 
-          className="flex-1 flex items-center justify-center gap-2 bg-green-600 hover:bg-green-700"
-        >
-          <MessageCircle size={20} />
-          Contact Seller
-        </Button>
-      </CardFooter>
-    </Card>
-  );
-};
-
-interface FilterSheetProps {
-  filters: {
-    minPrice: number;
-    maxPrice: number;
-    inStock: boolean;
-    endingSoon: boolean;
-  };
-  setFilters: React.Dispatch<React.SetStateAction<{
-    minPrice: number;
-    maxPrice: number;
-    inStock: boolean;
-    endingSoon: boolean;
-  }>>;
-}
-
-const FilterSheet: React.FC<FilterSheetProps> = ({ filters, setFilters }) => (
-  <div className="py-4 space-y-6">
-    <div className="space-y-4">
-      <h4 className="font-medium">Price Range</h4>
-      <div className="px-2">
-        <Slider
-          defaultValue={[filters.minPrice || 0, filters.maxPrice || 1000]}
-          max={1000}
-          step={10}
-          onValueChange={([min, max]) => 
-            setFilters(prev => ({ ...prev, minPrice: min, maxPrice: max }))
-          }
-        />
-        <div className="flex justify-between mt-2 text-sm text-gray-500">
-          <span>${filters.minPrice || 0}</span>
-          <span>${filters.maxPrice || 1000}</span>
-        </div>
-      </div>
-    </div>
-
-    <div className="space-y-4">
-      <h4 className="font-medium">Availability</h4>
-      <div className="space-y-2">
-        <div className="flex items-center space-x-2">
-          <Checkbox
-            id="in-stock"
-            checked={filters.inStock}
-            onCheckedChange={(checked) =>
-              setFilters(prev => ({ ...prev, inStock: checked }))
-            }
-          />
-          <label htmlFor="in-stock">In Stock</label>
-        </div>
-        <div className="flex items-center space-x-2">
-          <Checkbox
-            id="ending-soon"
-            checked={filters.endingSoon}
-            onCheckedChange={(checked) =>
-              setFilters(prev => ({ ...prev, endingSoon: checked }))
-            }
-          />
-          <label htmlFor="ending-soon">Ending Soon</label>
-        </div>
-      </div>
-    </div>
-  </div>
-);
-
-const Index = () => {
+const HomePage = () => {
   const [products, setProducts] = useState<Product[]>([]);
   const [page, setPage] = useState(0);
   const [hasMore, setHasMore] = useState(true);
   const [isLoading, setIsLoading] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [debouncedSearch, setDebouncedSearch] = useState('');
-  const [filters, setFilters] = useState({
+  const [filters, setFilters] = useState<Filters>({
     minPrice: 0,
     maxPrice: 1000,
     inStock: false,
@@ -213,14 +96,8 @@ const Index = () => {
     };
   }, [loadProducts]);
 
-  // Initial load
-  useEffect(() => {
-    loadProducts();
-  }, []);
-
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Header */}
       <header className="sticky top-0 z-50 bg-white border-b">
         <div className="container mx-auto px-4">
           <div className="flex items-center justify-between h-16">
@@ -324,7 +201,6 @@ const Index = () => {
           ))}
         </div>
         
-        {/* Infinite scroll trigger */}
         <div
           ref={loadingRef}
           className="flex justify-center items-center py-8"
@@ -338,4 +214,4 @@ const Index = () => {
   );
 };
 
-export default Index;
+export default HomePage;
