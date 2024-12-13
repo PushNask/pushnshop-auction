@@ -46,7 +46,7 @@ export const PaymentVerification = () => {
     try {
       const { error } = await supabase
         .from('payments')
-        .update({ status: 'verified' })
+        .update({ status: 'completed' }) // Changed from 'verified' to 'completed'
         .eq('id', paymentId);
 
       if (error) throw error;

@@ -8,7 +8,7 @@ export const StatsOverview = () => {
     queryFn: async () => {
       const { data, error } = await supabase
         .from('products')
-        .select('status, payment_status, price')
+        .select('status, payment_status, price, seller_id')
         .eq('status', 'active');
       
       if (error) throw error;
