@@ -1,3 +1,5 @@
+import type { Currency } from './product';
+
 export interface ProductImage {
   id: string;
   url: string;
@@ -10,7 +12,7 @@ export interface ProductFormData {
   title: string;
   description: string;
   price: number;
-  currency: 'XAF' | 'USD';
+  currency: Currency;
   quantity: number;
   images: ProductImage[];
 }
