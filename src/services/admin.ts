@@ -16,9 +16,9 @@ export const fetchAdminStats = async (): Promise<AdminStats> => {
   if (error) throw error;
 
   const stats: AdminStats = {
-    totalProducts: data.length,
-    activeSellers: new Set(data.map(p => p.seller?.id)).size,
-    totalRevenue: data.reduce((sum, p) => sum + (p.price || 0), 0),
+    totalProducts: data?.length || 0,
+    activeSellers: new Set(data?.map(p => p.seller?.id) || []).size,
+    totalRevenue: data?.reduce((sum, p) => sum + (p.price || 0), 0) || 0,
     currency: 'XAF'
   };
 
@@ -33,17 +33,19 @@ export const fetchPendingProducts = async (): Promise<PendingProduct[]> => {
       title,
       price,
       currency,
+      status,
       seller:seller_id(full_name)
     `)
     .eq('status', 'pending');
 
   if (error) throw error;
 
-  return data.map(p => ({
+  return (data || []).map(p => ({
     id: p.id,
     title: p.title,
     price: p.price,
     currency: p.currency,
+    status: p.status || 'pending',
     seller: p.seller?.full_name || 'Unknown'
   }));
 };
@@ -55,6 +57,8 @@ export const fetchPendingPayments = async (): Promise<PendingPayment[]> => {
       id,
       amount,
       currency,
+      status,
+      payment_method,
       reference_number,
       listing:listing_id(
         product:product_id(
@@ -66,12 +70,14 @@ export const fetchPendingPayments = async (): Promise<PendingPayment[]> => {
 
   if (error) throw error;
 
-  return data.map(p => ({
+  return (data || []).map(p => ({
     id: p.id,
     amount: p.amount,
     currency: p.currency,
-    reference: p.reference_number,
-    seller: p.listing?.product?.seller?.full_name || 'Unknown'
+    reference: p.reference_number || '',
+    seller: p.listing?.product?.seller?.full_name || 'Unknown',
+    method: p.payment_method || 'cash',
+    status: p.status || 'pending'
   }));
 };
 

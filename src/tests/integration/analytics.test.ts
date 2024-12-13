@@ -25,6 +25,7 @@ describe('Analytics Tests', () => {
         quantity: 5,
         seller_id: testUser.id
       })
+      .select()
       .single();
     if (productError) throw productError;
     testProduct = product;
@@ -47,10 +48,11 @@ describe('Analytics Tests', () => {
         views: 1,
         whatsapp_clicks: 1,
       })
+      .select()
       .single();
 
     expect(error).toBeNull();
-    expect(analytics.views).toBe(1);
-    expect(analytics.whatsapp_clicks).toBe(1);
+    expect(analytics?.views).toBe(1);
+    expect(analytics?.whatsapp_clicks).toBe(1);
   });
 });
