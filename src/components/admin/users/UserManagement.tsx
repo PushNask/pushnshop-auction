@@ -3,10 +3,24 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { useToast } from "@/components/ui/use-toast";
+import { useToast } from "@/hooks/use-toast";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { UserPlus, Search, Lock, Unlock } from "lucide-react";
+
+type UserRole = 'seller' | 'buyer' | 'admin';
+
+interface User {
+  id: string;
+  email: string;
+  full_name: string;
+  role: UserRole;
+  whatsapp_number: string;
+  created_at: string;
+  updated_at: string;
+  website_url: string;
+  phone: string;
+}
 
 export function UserManagement() {
   const [search, setSearch] = useState('');
@@ -21,11 +35,11 @@ export function UserManagement() {
         .ilike('email', `%${search}%`);
       
       if (error) throw error;
-      return data;
+      return data as User[];
     }
   });
 
-  const handleRoleUpdate = async (userId: string, newRole: string) => {
+  const handleRoleUpdate = async (userId: string, newRole: UserRole) => {
     try {
       const { error } = await supabase
         .from('users')
@@ -78,7 +92,6 @@ export function UserManagement() {
                 <tr>
                   <th className="text-left p-2">User</th>
                   <th className="text-left p-2">Role</th>
-                  <th className="text-left p-2">Status</th>
                   <th className="text-left p-2">Actions</th>
                 </tr>
               </thead>
@@ -93,11 +106,6 @@ export function UserManagement() {
                     </td>
                     <td className="p-2">
                       <Badge>{user.role}</Badge>
-                    </td>
-                    <td className="p-2">
-                      <Badge variant={user.status === 'active' ? 'default' : 'secondary'}>
-                        {user.status || 'active'}
-                      </Badge>
                     </td>
                     <td className="p-2">
                       <div className="flex gap-2">
@@ -125,3 +133,5 @@ export function UserManagement() {
     </div>
   );
 }
+
+export default UserManagement;
