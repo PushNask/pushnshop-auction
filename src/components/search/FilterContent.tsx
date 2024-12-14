@@ -1,4 +1,3 @@
-import { Filters, FilterKey } from "@/types/filters";
 import { Button } from "@/components/ui/button";
 import { FilterX } from "lucide-react";
 import { useTranslation } from "react-i18next";
@@ -6,6 +5,7 @@ import { PriceRangeFilter } from "./filters/PriceRangeFilter";
 import { AvailabilityFilter } from "./filters/AvailabilityFilter";
 import { CategoryFilter } from "./filters/CategoryFilter";
 import { LocationFilter } from "./filters/LocationFilter";
+import type { Filters } from "@/types/filters";
 import type { Dispatch, SetStateAction } from "react";
 
 export interface FilterContentProps {
@@ -23,7 +23,7 @@ export const FilterContent = ({
     onFiltersChange(prev => ({ ...prev, minPrice: value[0], maxPrice: value[1] }));
   };
 
-  const handleCheckboxChange = (key: FilterKey, checked: boolean) => {
+  const handleCheckboxChange = (key: keyof Filters, checked: boolean) => {
     onFiltersChange(prev => ({ ...prev, [key]: checked }));
   };
 
