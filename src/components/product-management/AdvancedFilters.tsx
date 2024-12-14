@@ -1,16 +1,9 @@
 import { useState } from 'react';
-import { Button } from '@/components/ui/button';
-import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
+import { Label } from '@/components/ui/label';
 import { Slider } from '@/components/ui/slider';
 import { X } from 'lucide-react';
+import { DateRangePicker } from '@/components/ui/date-range-picker';
 
 export interface FilterState {
   status: string[];
@@ -53,7 +46,7 @@ export const AdvancedFilters = ({ onFilterChange }: AdvancedFiltersProps) => {
   };
 
   const resetFilters = () => {
-    const defaultFilters = {
+    const defaultFilters: FilterState = {
       status: [],
       priceRange: [0, 1000000],
       categories: [],
@@ -88,7 +81,7 @@ export const AdvancedFilters = ({ onFilterChange }: AdvancedFiltersProps) => {
               defaultValue={filters.priceRange}
               max={1000000}
               step={1000}
-              onValueChange={(value) => handleFilterChange('priceRange', value)}
+              onValueChange={(value) => handleFilterChange('priceRange', value as [number, number])}
             />
             <div className="flex justify-between mt-2">
               <span className="text-sm text-muted-foreground">
@@ -119,13 +112,13 @@ export const AdvancedFilters = ({ onFilterChange }: AdvancedFiltersProps) => {
       </div>
 
       <div className="flex justify-end gap-2">
-        <Button
-          variant="outline"
+        <button
           onClick={resetFilters}
+          className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground"
         >
-          <X className="w-4 h-4 mr-2" />
+          <X className="w-4 h-4" />
           Reset Filters
-        </Button>
+        </button>
       </div>
     </div>
   );
