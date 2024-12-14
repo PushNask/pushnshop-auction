@@ -3,6 +3,12 @@ import { supabase } from '@/integrations/supabase/client';
 import { ProductCard } from '@/components/ProductCard';
 import { LoadingSpinner } from '@/components/loading/LoadingSpinner';
 import type { Product } from '@/types/product';
+import type { Database } from '@/integrations/supabase/types';
+
+type ProductWithImages = Database['public']['Tables']['products']['Row'] & {
+  product_images: Database['public']['Tables']['product_images']['Row'][];
+  users: { whatsapp_number: string | null };
+};
 
 interface SimilarProductsProps {
   currentProduct: Product;
@@ -41,7 +47,7 @@ export function SimilarProducts({ currentProduct, limit = 4 }: SimilarProductsPr
         .limit(limit);
 
       if (!error && data) {
-        const mappedProducts = data.map(product => ({
+        const mappedProducts: Product[] = data.map((product: ProductWithImages) => ({
           id: product.id,
           title: product.title,
           description: product.description,
@@ -54,7 +60,7 @@ export function SimilarProducts({ currentProduct, limit = 4 }: SimilarProductsPr
             alt: img.alt || '',
             order: img.order_number
           })),
-          status: product.status,
+          status: product.status as Product['status'],
           sellerId: product.seller_id,
           sellerWhatsApp: product.users?.whatsapp_number || '',
           createdAt: product.created_at,

@@ -4,9 +4,23 @@ import { StatsOverview } from "./dashboard/StatsOverview";
 import { PaymentVerification } from "./dashboard/PaymentVerification";
 import AnalyticsDashboard from "@/components/analytics/AnalyticsDashboard";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
+import type { AdminDashboardMetrics } from "@/types/admin-dashboard";
 
 const AdminDashboard = () => {
   const { isAuthorized, isChecking } = useAuthCheck();
+
+  const { data: metrics, isLoading } = useQuery({
+    queryKey: ["admin-metrics"],
+    queryFn: async () => {
+      const { data, error } = await supabase.rpc("get_admin_dashboard_metrics", {
+        time_range: "7d"
+      });
+      if (error) throw error;
+      return data as AdminDashboardMetrics;
+    }
+  });
 
   if (isChecking) {
     return <div>Checking authorization...</div>;
@@ -28,7 +42,7 @@ const AdminDashboard = () => {
         </TabsList>
 
         <TabsContent value="overview">
-          <StatsOverview />
+          <StatsOverview metrics={metrics?.overview} isLoading={isLoading} />
         </TabsContent>
 
         <TabsContent value="payments">

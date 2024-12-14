@@ -503,6 +503,12 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      get_admin_dashboard_metrics: {
+        Args: {
+          time_range: string
+        }
+        Returns: Json
+      }
       increment_link_analytics: {
         Args: {
           p_link_id: number
