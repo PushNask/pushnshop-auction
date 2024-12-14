@@ -19,6 +19,10 @@ export interface FormData {
   images: ProductImage[];
 }
 
+export interface ProductFormData extends FormData {
+  category?: string;
+}
+
 export interface ApiResponse<T> {
   data: T | null;
   error: {

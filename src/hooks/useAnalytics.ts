@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
+import { AnalyticsMetrics } from '@/types/analytics';
 import { supabase } from '@/integrations/supabase/client';
-import type { AnalyticsMetrics } from '@/types/analytics';
 
 export function useAnalytics(timeRange: '24h' | '7d' | '30d' | '90d') {
   const [metrics, setMetrics] = useState<AnalyticsMetrics | null>(null);
@@ -12,7 +12,7 @@ export function useAnalytics(timeRange: '24h' | '7d' | '30d' | '90d') {
       try {
         const { data, error } = await supabase
           .rpc('get_admin_dashboard_metrics', { time_range: timeRange });
-
+        
         if (error) throw error;
         
         if (data) {

@@ -9,10 +9,10 @@ import { useTranslation } from 'react-i18next';
 
 const AnalyticsDashboard = () => {
   const [timeframe, setTimeframe] = useState<'7d' | '30d' | '90d'>('7d');
-  const { data, stats, isLoading } = useAnalytics(timeframe);
+  const { metrics, loading, error } = useAnalytics(timeframe);
   const { t } = useTranslation();
 
-  if (isLoading) {
+  if (loading) {
     return (
       <div className="flex justify-center items-center min-h-screen">
         <Loader2 className="w-8 h-8 animate-spin" />
@@ -20,7 +20,7 @@ const AnalyticsDashboard = () => {
     );
   }
 
-  if (!stats) {
+  if (!metrics) {
     return null;
   }
 
@@ -53,37 +53,37 @@ const AnalyticsDashboard = () => {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         <StatCard
           title={t('analytics.stats.views')}
-          value={stats.totalViews}
+          value={metrics.views}
           icon={Eye}
-          trend={12.5}
+          trend={metrics.trends.viewsTrend}
         />
         <StatCard
           title={t('analytics.stats.clicks')}
-          value={stats.totalClicks}
+          value={metrics.clicks}
           icon={MessageSquare}
-          trend={8.2}
+          trend={metrics.trends.clicksTrend}
         />
         <StatCard
-          title={t('analytics.stats.listings')}
-          value={stats.activeListings}
+          title={t('analytics.stats.conversions')}
+          value={metrics.conversions}
           icon={TrendingUp}
-          trend={-2.1}
+          trend={metrics.trends.conversionTrend}
         />
       </div>
 
-      <PerformanceChart data={data} />
+      <PerformanceChart data={metrics} />
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <MetricsChart
-          title={t('analytics.charts.responseTime')}
-          data={data}
-          dataKey="inquiries"
+          title={t('analytics.charts.views')}
+          data={metrics}
+          dataKey="views"
           color="#0077B6"
         />
         <MetricsChart
-          title={t('analytics.charts.demographics')}
-          data={data}
-          dataKey="views"
+          title={t('analytics.charts.clicks')}
+          data={metrics}
+          dataKey="clicks"
           color="#FB8500"
         />
       </div>

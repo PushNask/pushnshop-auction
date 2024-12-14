@@ -27,9 +27,9 @@ export const EnhancedProductForm = () => {
     description: '',
     price: '',
     currency: 'XAF',
-    quantity: 1,
-    category: '',
-    duration: '24'
+    quantity: '1',
+    duration: '24',
+    images: []
   });
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -104,12 +104,12 @@ export const EnhancedProductForm = () => {
             <BasicInfoSection
               title={formData.title}
               description={formData.description}
-              quantity={formData.quantity.toString()}
+              quantity={formData.quantity}
               onChange={(e) => {
                 const { name, value } = e.target;
                 setFormData(prev => ({
                   ...prev,
-                  [name]: name === 'quantity' ? parseInt(value) || 1 : value
+                  [name]: value
                 }));
               }}
               errors={{}}
@@ -129,23 +129,15 @@ export const EnhancedProductForm = () => {
                 }))}
               />
 
-              <CategorySection
-                value={formData.category}
-                onChange={(value) => setFormData(prev => ({
+              <DurationSection
+                duration={formData.duration}
+                currency={formData.currency}
+                onDurationChange={(value) => setFormData(prev => ({
                   ...prev,
-                  category: value
+                  duration: value
                 }))}
               />
             </div>
-
-            <DurationSection
-              duration={formData.duration}
-              currency={formData.currency}
-              onDurationChange={(value) => setFormData(prev => ({
-                ...prev,
-                duration: value
-              }))}
-            />
           </div>
         </CardContent>
 
