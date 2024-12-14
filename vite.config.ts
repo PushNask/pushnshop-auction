@@ -8,15 +8,8 @@ export default defineConfig(({ mode }: ConfigEnv): UserConfig => ({
   server: {
     host: "::",
     port: 8080,
-    // Configure SPA fallback
-    proxy: {
-      // Redirect all requests that don't match a static file to index.html
-      '*': {
-        target: 'http://localhost:8080',
-        changeOrigin: true,
-        rewrite: (path) => path,
-      },
-    },
+    // Configure history API fallback for SPA
+    historyApiFallback: true,
   },
   plugins: [
     react(),
