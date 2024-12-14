@@ -3,11 +3,11 @@ import type { SystemMetrics, AlertConfig, Alert } from './types';
 
 export class MonitoringService {
   private static alertConfigs: AlertConfig[] = [
-    { metric: 'responseTime', threshold: 1000, condition: 'above', severity: 'high' },
-    { metric: 'errorRate', threshold: 5, condition: 'above', severity: 'high' },
-    { metric: 'memoryUsage', threshold: 90, condition: 'above', severity: 'medium' },
-    { metric: 'cpuUsage', threshold: 80, condition: 'above', severity: 'medium' },
-    { metric: 'databaseConnections', threshold: 100, condition: 'above', severity: 'low' }
+    { metric: 'response_time', threshold: 1000, condition: 'above', severity: 'high' },
+    { metric: 'error_rate', threshold: 5, condition: 'above', severity: 'high' },
+    { metric: 'memory_usage', threshold: 90, condition: 'above', severity: 'medium' },
+    { metric: 'cpu_usage', threshold: 80, condition: 'above', severity: 'medium' },
+    { metric: 'database_connections', threshold: 100, condition: 'above', severity: 'low' }
   ];
 
   static async collectMetrics(): Promise<SystemMetrics> {
@@ -22,12 +22,12 @@ export class MonitoringService {
       ]);
 
       const metrics: SystemMetrics = {
-        responseTime: performance.now() - startTime,
-        errorRate: errorStats.errorRate,
-        activeUsers: userStats.activeUsers,
-        memoryUsage: resourceStats.memoryUsage,
-        cpuUsage: resourceStats.cpuUsage,
-        databaseConnections: dbStats.connections
+        response_time: performance.now() - startTime,
+        error_rate: errorStats.errorRate,
+        active_users: userStats.activeUsers,
+        memory_usage: resourceStats.memoryUsage,
+        cpu_usage: resourceStats.cpuUsage,
+        database_connections: dbStats.connections
       };
 
       await this.saveMetrics(metrics);
@@ -65,8 +65,15 @@ export class MonitoringService {
   }
 
   private static async getResourceStats() {
+    // Safe check for performance.memory availability (Chrome only)
+    const memoryUsage = typeof performance !== 'undefined' && 
+      'memory' in performance && 
+      (performance as any).memory ? 
+      (performance as any).memory.usedJSHeapSize / 1024 / 1024 : 
+      0;
+
     return {
-      memoryUsage: performance.memory?.usedJSHeapSize / 1024 / 1024 || 0,
+      memoryUsage,
       cpuUsage: 0 // Would be populated from hosting platform metrics
     };
   }
@@ -110,7 +117,15 @@ export class MonitoringService {
   }
 
   private static async saveAlerts(alerts: Alert[]) {
-    await supabase.from('system_alerts').insert(alerts);
+    await supabase.from('system_alerts').insert(
+      alerts.map(alert => ({
+        metric: alert.metric,
+        value: alert.value,
+        threshold: alert.threshold,
+        severity: alert.severity,
+        created_at: alert.timestamp.toISOString()
+      }))
+    );
   }
 
   static async logError(error: Error, metadata?: Record<string, any>) {

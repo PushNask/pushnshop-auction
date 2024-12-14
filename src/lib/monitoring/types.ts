@@ -1,10 +1,10 @@
 export interface SystemMetrics {
-  responseTime: number;
-  errorRate: number;
-  activeUsers: number;
-  memoryUsage: number;
-  cpuUsage: number;
-  databaseConnections: number;
+  response_time: number;
+  error_rate: number;
+  active_users: number;
+  memory_usage: number;
+  cpu_usage: number;
+  database_connections: number;
 }
 
 export interface AlertConfig {
