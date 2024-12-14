@@ -148,6 +148,8 @@ export type Database = {
           current_listing_id: string | null
           id: number
           last_assigned_at: string | null
+          status: Database["public"]["Enums"]["permanent_link_status"]
+          url_key: string
           url_path: string
         }
         Insert: {
@@ -155,6 +157,8 @@ export type Database = {
           current_listing_id?: string | null
           id?: number
           last_assigned_at?: string | null
+          status?: Database["public"]["Enums"]["permanent_link_status"]
+          url_key: string
           url_path: string
         }
         Update: {
@@ -162,6 +166,8 @@ export type Database = {
           current_listing_id?: string | null
           id?: number
           last_assigned_at?: string | null
+          status?: Database["public"]["Enums"]["permanent_link_status"]
+          url_key?: string
           url_path?: string
         }
         Relationships: []
@@ -307,6 +313,7 @@ export type Database = {
         | "expired"
         | "rejected"
       payment_status: "pending" | "processing" | "completed" | "failed"
+      permanent_link_status: "active" | "available"
       user_role: "seller" | "buyer" | "admin"
     }
     CompositeTypes: {
