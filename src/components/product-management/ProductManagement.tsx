@@ -7,8 +7,10 @@ import { Search, Plus, CheckCircle2, Clock, XCircle } from 'lucide-react';
 import { ProductCard } from './ProductCard';
 import { EmptyState } from './EmptyState';
 import { ProductBatchActions } from './ProductBatchActions';
-import { AdvancedFilters, type FilterState } from './AdvancedFilters';
+import { AdvancedFilters } from './AdvancedFilters';
+import { ProductExport } from './ProductExport';
 import { useToast } from '@/hooks/use-toast';
+import type { FilterState } from './AdvancedFilters';
 import type { ManagedProduct } from '@/types/product-management';
 
 export const ProductManagement = () => {
@@ -62,15 +64,18 @@ export const ProductManagement = () => {
 
   return (
     <div className="container mx-auto p-4 max-w-4xl space-y-6">
-      <div className="flex justify-between items-center">
-        <h1 className="text-2xl font-bold">My Products</h1>
-        <Button 
-          className="bg-[#0077B6] hover:bg-[#0077B6]/90"
-          onClick={handleAddNew}
-        >
-          <Plus className="w-4 h-4 mr-2" />
-          Add New Product
-        </Button>
+      <div className="flex justify-between items-start">
+        <div>
+          <h1 className="text-2xl font-bold">My Products</h1>
+          <Button 
+            className="bg-[#0077B6] hover:bg-[#0077B6]/90 mt-4"
+            onClick={handleAddNew}
+          >
+            <Plus className="w-4 h-4 mr-2" />
+            Add New Product
+          </Button>
+        </div>
+        <ProductExport />
       </div>
 
       <div className="flex items-center gap-4">
