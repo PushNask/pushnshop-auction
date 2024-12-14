@@ -1,66 +1,61 @@
 import { supabase } from "@/integrations/supabase/client";
-import type { Filters } from "@/types/filters";
+import { Product } from "@/types/product";
+import { Filters } from "@/types/filters";
 
-interface ProductsResponse {
-  products: any[];
-  count: number;
-}
-
-export const fetchProducts = async (
-  offset: number = 0,
-  searchQuery: string = "",
-  filters: Filters
-): Promise<ProductsResponse> => {
+export const fetchProducts = async (filters: Filters): Promise<Product[]> => {
   let query = supabase
-    .from('products')
-    .select('*, product_images(*)', { count: 'exact' });
+    .from("products")
+    .select(`
+      *,
+      product_images (
+        url,
+        alt,
+        order_number
+      )
+    `)
+    .order("created_at", { ascending: false });
 
-  // Apply search filter if provided
-  if (searchQuery) {
-    query = query.ilike('title', `%${searchQuery}%`);
+  // Apply search filter
+  if (filters.search) {
+    const searchQuery = filters.search.trim();
+    query = query.ilike("title", `%${searchQuery}%`);
   }
 
   // Apply price filters if provided
   if (filters.minPrice !== undefined && filters.minPrice > 0) {
-    query = query.gte('price', filters.minPrice);
+    query = query.gte("price", filters.minPrice);
   }
   if (filters.maxPrice !== undefined && filters.maxPrice < 1000000) {
-    query = query.lte('price', filters.maxPrice);
+    query = query.lte("price", filters.maxPrice);
   }
 
-  // Apply status filter for in-stock items
+  // Apply stock filter
   if (filters.inStock) {
-    query = query.gt('quantity', 0);
+    query = query.gt("quantity", 0);
   }
 
   // Apply ending soon filter
   if (filters.endingSoon) {
     const twentyFourHoursFromNow = new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString();
-    query = query.lte('end_time', twentyFourHoursFromNow);
+    query = query.lt("end_time", twentyFourHoursFromNow);
   }
 
-  // Apply location filter if provided
-  if (filters.location) {
-    query = query.eq('location', filters.location);
-  }
-
-  // Apply category filters if provided
+  // Apply category filters
   if (filters.categories.length > 0) {
-    query = query.in('category', filters.categories);
+    query = query.in("category", filters.categories);
   }
 
-  // Add pagination
-  query = query.range(offset, offset + 11);
+  // Apply location filter
+  if (filters.location) {
+    query = query.eq("location", filters.location);
+  }
 
-  const { data: products, count, error } = await query;
+  const { data, error } = await query;
 
   if (error) {
-    console.error('Error fetching products:', error);
+    console.error("Error fetching products:", error);
     throw error;
   }
 
-  return {
-    products: products || [],
-    count: count || 0
-  };
+  return data || [];
 };

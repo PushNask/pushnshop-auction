@@ -1,4 +1,4 @@
-import type { Currency } from './product';
+import type { Currency } from "./product";
 
 export interface Filters {
   search: string;
