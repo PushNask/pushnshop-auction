@@ -22,14 +22,12 @@ export default defineConfig(({ mode }: ConfigEnv): UserConfig => ({
   build: {
     outDir: 'dist',
     sourcemap: true,
-    // Ensure assets use predictable names
     assetsDir: 'assets',
     rollupOptions: {
       output: {
         manualChunks: {
           vendor: ['react', 'react-dom', 'react-router-dom'],
         },
-        // Use a more predictable naming pattern for chunks
         chunkFileNames: 'assets/js/[name]-[hash].js',
         entryFileNames: 'assets/js/[name]-[hash].js',
         assetFileNames: 'assets/[ext]/[name]-[hash].[ext]',
