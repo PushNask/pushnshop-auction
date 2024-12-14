@@ -1,9 +1,17 @@
 export interface PermanentLink {
   id: number;
-  url: string;
-  status: 'available' | 'active';
-  product?: {
-    title: string;
-    expires_at: string;
-  } | null;
+  url_key: string;
+  url_path: string;
+  current_listing_id?: string;
+  status: 'active' | 'available';
+  created_at: string;
+  last_assigned_at: string;
+  performance_score: number;
+  rotation_count: number;
+}
+
+export interface PermanentLinkAnalytics {
+  views: number;
+  clicks: number;
+  lastActivity: string;
 }

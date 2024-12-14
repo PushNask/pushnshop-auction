@@ -1,6 +1,26 @@
 import { useState, useEffect } from 'react';
 import { AnalyticsMetrics } from '@/types/analytics';
 import { supabase } from '@/integrations/supabase/client';
+import type { Json } from '@/integrations/supabase/types';
+
+interface RawMetricsResponse {
+  overview: {
+    totalViews: number;
+    totalClicks: number;
+    conversions: number;
+    totalRevenue: number;
+    viewsTrend: number;
+    clicksTrend: number;
+    conversionTrend: number;
+    revenueTrend: number;
+  };
+  timeSeriesData: Array<{
+    date: string;
+    views: number;
+    clicks: number;
+    inquiries: number;
+  }>;
+}
 
 export function useAnalytics(timeRange: '24h' | '7d' | '30d' | '90d') {
   const [metrics, setMetrics] = useState<AnalyticsMetrics | null>(null);
@@ -10,25 +30,27 @@ export function useAnalytics(timeRange: '24h' | '7d' | '30d' | '90d') {
   useEffect(() => {
     const fetchMetrics = async () => {
       try {
-        const { data, error } = await supabase
+        const { data, error: fetchError } = await supabase
           .rpc('get_admin_dashboard_metrics', { time_range: timeRange });
         
-        if (error) throw error;
+        if (fetchError) throw fetchError;
         
-        if (data) {
+        const rawData = data as unknown as RawMetricsResponse;
+        
+        if (rawData) {
           const transformedData: AnalyticsMetrics = {
-            views: data.overview?.totalViews || 0,
-            clicks: data.overview?.totalClicks || 0,
-            conversions: data.overview?.conversions || 0,
-            revenue: data.overview?.totalRevenue || 0,
+            views: rawData.overview.totalViews,
+            clicks: rawData.overview.totalClicks,
+            conversions: rawData.overview.conversions,
+            revenue: rawData.overview.totalRevenue,
             timeRange,
             trends: {
-              viewsTrend: data.overview?.viewsTrend || 0,
-              clicksTrend: data.overview?.clicksTrend || 0,
-              conversionTrend: data.overview?.conversionTrend || 0,
-              revenueTrend: data.overview?.revenueTrend || 0
+              viewsTrend: rawData.overview.viewsTrend,
+              clicksTrend: rawData.overview.clicksTrend,
+              conversionTrend: rawData.overview.conversionTrend,
+              revenueTrend: rawData.overview.revenueTrend
             },
-            data: data.timeSeriesData || [] // Assuming the RPC returns timeSeriesData
+            data: rawData.timeSeriesData
           };
           setMetrics(transformedData);
         }

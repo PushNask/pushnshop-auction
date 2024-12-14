@@ -19,7 +19,11 @@ export class EnhancedPermanentLinkManager {
   public async createPermanentLink(linkData: Omit<PermanentLink, 'id'>) {
     const { data, error } = await supabase
       .from('permanent_links')
-      .insert(linkData)
+      .insert({
+        url_key: linkData.url_key,
+        url_path: linkData.url_path,
+        status: linkData.status || 'available'
+      })
       .select('*')
       .single();
 
