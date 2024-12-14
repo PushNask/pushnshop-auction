@@ -9,6 +9,30 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      active_sessions: {
+        Row: {
+          created_at: string | null
+          id: string
+          last_activity: string | null
+          metadata: Json | null
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          last_activity?: string | null
+          metadata?: Json | null
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          last_activity?: string | null
+          metadata?: Json | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       analytics: {
         Row: {
           created_at: string | null
@@ -43,6 +67,33 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      error_logs: {
+        Row: {
+          created_at: string | null
+          error_message: string
+          id: number
+          metadata: Json | null
+          stack_trace: string | null
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          error_message: string
+          id?: number
+          metadata?: Json | null
+          stack_trace?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          error_message?: string
+          id?: number
+          metadata?: Json | null
+          stack_trace?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
       }
       listings: {
         Row: {
@@ -303,6 +354,69 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      system_alerts: {
+        Row: {
+          acknowledged: boolean | null
+          created_at: string | null
+          id: number
+          metric: string
+          severity: string
+          threshold: number
+          value: number
+        }
+        Insert: {
+          acknowledged?: boolean | null
+          created_at?: string | null
+          id?: number
+          metric: string
+          severity: string
+          threshold: number
+          value: number
+        }
+        Update: {
+          acknowledged?: boolean | null
+          created_at?: string | null
+          id?: number
+          metric?: string
+          severity?: string
+          threshold?: number
+          value?: number
+        }
+        Relationships: []
+      }
+      system_metrics: {
+        Row: {
+          active_users: number | null
+          cpu_usage: number | null
+          created_at: string | null
+          database_connections: number | null
+          error_rate: number | null
+          id: number
+          memory_usage: number | null
+          response_time: number | null
+        }
+        Insert: {
+          active_users?: number | null
+          cpu_usage?: number | null
+          created_at?: string | null
+          database_connections?: number | null
+          error_rate?: number | null
+          id?: number
+          memory_usage?: number | null
+          response_time?: number | null
+        }
+        Update: {
+          active_users?: number | null
+          cpu_usage?: number | null
+          created_at?: string | null
+          database_connections?: number | null
+          error_rate?: number | null
+          id?: number
+          memory_usage?: number | null
+          response_time?: number | null
+        }
+        Relationships: []
       }
       users: {
         Row: {
