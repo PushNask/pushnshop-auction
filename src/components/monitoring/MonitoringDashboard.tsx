@@ -6,7 +6,7 @@ import { LoadingSpinner } from '@/components/loading/LoadingSpinner';
 import type { SystemMetrics, Alert } from '@/lib/monitoring/types';
 
 export function MonitoringDashboard() {
-  const [metrics, setMetrics] = useState<(SystemMetrics & { timestamp: number })[]>([]);
+  const [metrics, setMetrics] = useState<(SystemMetrics & { created_at: string })[]>([]);
   const [alerts, setAlerts] = useState<Alert[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -14,7 +14,7 @@ export function MonitoringDashboard() {
     const fetchMetrics = async () => {
       try {
         const currentMetrics = await MonitoringService.collectMetrics();
-        setMetrics(prev => [...prev, { ...currentMetrics, timestamp: Date.now() }].slice(-60));
+        setMetrics(prev => [...prev, { ...currentMetrics, created_at: new Date().toISOString() }].slice(-60));
         
         const newAlerts = await MonitoringService.checkAlerts(currentMetrics);
         if (newAlerts.length > 0) {
@@ -43,19 +43,19 @@ export function MonitoringDashboard() {
         <MetricsChart
           title="Response Time"
           data={metrics}
-          dataKey="responseTime"
+          dataKey="response_time"
           stroke="#8884d8"
         />
         <MetricsChart
           title="Error Rate"
           data={metrics}
-          dataKey="errorRate"
+          dataKey="error_rate"
           stroke="#82ca9d"
         />
         <MetricsChart
           title="Active Users"
           data={metrics}
-          dataKey="activeUsers"
+          dataKey="active_users"
           stroke="#ffc658"
         />
       </div>

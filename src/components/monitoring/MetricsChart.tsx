@@ -18,7 +18,7 @@ export function MetricsChart({ title, data, dataKey, stroke = '#8884d8' }: Metri
         <ResponsiveContainer width="100%" height={200}>
           <LineChart data={data}>
             <XAxis 
-              dataKey="timestamp"
+              dataKey="created_at"
               tickFormatter={(timestamp) => new Date(timestamp).toLocaleTimeString()}
             />
             <YAxis />
