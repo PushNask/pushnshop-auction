@@ -22,14 +22,13 @@ export default defineConfig(({ mode }: ConfigEnv): UserConfig => ({
   build: {
     outDir: 'dist',
     sourcemap: true,
-    assetsDir: 'assets',
     rollupOptions: {
       output: {
         manualChunks: {
           vendor: ['react', 'react-dom', 'react-router-dom'],
         },
-        chunkFileNames: 'js/[name]-[hash].js',
-        entryFileNames: 'js/[name]-[hash].js',
+        chunkFileNames: 'assets/js/[name]-[hash].js',
+        entryFileNames: 'assets/js/[name]-[hash].js',
         assetFileNames: (assetInfo) => {
           if (!assetInfo.name) return 'assets/[name]-[hash][extname]';
           
@@ -37,11 +36,11 @@ export default defineConfig(({ mode }: ConfigEnv): UserConfig => ({
           const ext = info[info.length - 1];
           
           if (/png|jpe?g|svg|gif|tiff|bmp|ico/i.test(ext)) {
-            return `images/[name]-[hash][extname]`;
+            return `assets/images/[name]-[hash][extname]`;
           }
           
           if (ext === 'css') {
-            return `css/[name]-[hash][extname]`;
+            return `assets/css/[name]-[hash][extname]`;
           }
           
           return `assets/[name]-[hash][extname]`;
