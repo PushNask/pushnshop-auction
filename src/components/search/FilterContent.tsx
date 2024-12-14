@@ -8,7 +8,7 @@ import { CategoryFilter } from "./filters/CategoryFilter";
 import { LocationFilter } from "./filters/LocationFilter";
 import type { Dispatch, SetStateAction } from "react";
 
-interface FilterContentProps {
+export interface FilterContentProps {
   filters: Filters;
   onFiltersChange: Dispatch<SetStateAction<Filters>>;
 }
@@ -74,7 +74,7 @@ export const FilterContent = ({
       />
 
       <CategoryFilter 
-        categories={["Electronics", "Fashion", "Home", "Sports"]} // Add your categories here
+        categories={["Electronics", "Fashion", "Home", "Sports"]}
         selectedCategories={filters.categories}
         onCategoryChange={handleCategoryChange}
       />
