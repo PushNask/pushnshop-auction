@@ -3,14 +3,14 @@ import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { BrowserRouter } from 'react-router-dom';
 import AuthForm from '@/components/auth/AuthForm';
 import { supabase } from '@/integrations/supabase/client';
-import { AuthError, Session, User, AuthResponse } from '@supabase/supabase-js';
+import { AuthError, AuthResponse, User, Session } from '@supabase/supabase-js';
 
 // Mock supabase client
 vi.mock('@/integrations/supabase/client', () => ({
   supabase: {
     auth: {
       signInWithPassword: vi.fn(),
-      getSession: vi.fn(),
+      getSession: vi.fn(() => Promise.resolve({ data: { session: null }, error: null })),
       onAuthStateChange: vi.fn(() => ({
         data: { subscription: { unsubscribe: vi.fn() } },
       })),
@@ -26,6 +26,13 @@ vi.mock('react-router-dom', async () => {
     useNavigate: () => vi.fn(),
   };
 });
+
+// Mock toast hook
+vi.mock('@/hooks/use-toast', () => ({
+  useToast: () => ({
+    toast: vi.fn(),
+  }),
+}));
 
 describe('LoginSystem', () => {
   beforeEach(() => {
