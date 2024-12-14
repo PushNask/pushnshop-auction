@@ -1,9 +1,9 @@
 import { useRef } from "react";
-import { ProductGrid } from "@/components/ProductGrid";
 import { useQuery } from "@tanstack/react-query";
 import { fetchProducts } from "@/services/api";
 import type { Filters } from "@/types/filters";
 import { useToast } from "@/hooks/use-toast";
+import { ProductGrid } from "@/components/ProductGrid";
 
 const initialFilters: Filters = {
   search: '',
