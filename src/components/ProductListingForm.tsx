@@ -14,17 +14,7 @@ import { BasicInfoSection } from './product-listing/BasicInfoSection';
 import { PriceSection } from './product-listing/PriceSection';
 import { DurationSection } from './product-listing/DurationSection';
 import { ImageUploadSection } from './product-listing/ImageUploadSection';
-import type { ProductImage } from '@/types/product';
-
-interface FormData {
-  title: string;
-  description: string;
-  price: string;
-  currency: 'XAF' | 'USD';
-  quantity: string;
-  duration: '24' | '48' | '72' | '96' | '120';
-  images: ProductImage[];
-}
+import type { ProductImage, FormData } from '@/types/product-form';
 
 interface FormErrors extends Partial<Record<keyof FormData, string>> {
   submit?: string;

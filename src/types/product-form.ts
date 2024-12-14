@@ -1,17 +1,22 @@
 import type { Currency } from './product';
 
-export interface ProductFormData {
+export interface ProductImage {
+  id: string;
+  url: string;
+  alt: string;
+  order: number;
+  file?: File;
+  preview?: string;
+}
+
+export interface FormData {
   title: string;
   description: string;
-  price: number;
+  price: string;
   currency: Currency;
-  category: string;
-  images: Array<{
-    id: string;
-    url: string;
-    file?: File;
-  }>;
+  quantity: string;
   duration: '24' | '48' | '72' | '96' | '120';
+  images: ProductImage[];
 }
 
 export interface ApiResponse<T> {

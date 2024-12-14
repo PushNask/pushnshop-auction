@@ -1,3 +1,10 @@
+export interface AnalyticsData {
+  date: string;
+  views: number;
+  clicks: number;
+  inquiries: number;
+}
+
 export interface AnalyticsMetrics {
   views: number;
   clicks: number;

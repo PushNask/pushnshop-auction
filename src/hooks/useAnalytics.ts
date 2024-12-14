@@ -15,7 +15,6 @@ export function useAnalytics(timeRange: '24h' | '7d' | '30d' | '90d') {
 
         if (error) throw error;
         
-        // Transform the data to match our AnalyticsMetrics type
         if (data) {
           const transformedData: AnalyticsMetrics = {
             views: data.overview?.totalViews || 0,
