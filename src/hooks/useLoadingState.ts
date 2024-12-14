@@ -1,33 +1,30 @@
-import { useState, useCallback } from 'react';
-import { LoadingState } from '@/types/shared';
+import { useLoadingStore } from "@/lib/loading/LoadingManager";
+import { useCallback } from "react";
 
-export const useLoadingState = (initialState = false) => {
-  const [state, setState] = useState<LoadingState>({
-    isLoading: initialState,
-    error: null,
-  });
-
+export function useLoadingState(key: string) {
+  const { setLoading, isLoading } = useLoadingStore();
+  
   const startLoading = useCallback(() => {
-    setState({ isLoading: true, error: null });
-  }, []);
+    setLoading(key, true);
+  }, [key, setLoading]);
 
   const stopLoading = useCallback(() => {
-    setState({ isLoading: false, error: null });
-  }, []);
+    setLoading(key, false);
+  }, [key, setLoading]);
 
-  const setError = useCallback((error: string) => {
-    setState({ isLoading: false, error });
-  }, []);
-
-  const reset = useCallback(() => {
-    setState({ isLoading: false, error: null });
-  }, []);
+  const withLoading = useCallback(async <T,>(fn: () => Promise<T>): Promise<T> => {
+    try {
+      startLoading();
+      return await fn();
+    } finally {
+      stopLoading();
+    }
+  }, [startLoading, stopLoading]);
 
   return {
-    ...state,
+    isLoading: isLoading(key),
     startLoading,
     stopLoading,
-    setError,
-    reset,
+    withLoading
   };
-};
+}
