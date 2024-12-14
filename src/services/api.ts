@@ -20,11 +20,11 @@ export const fetchProducts = async (
     query = query.ilike('title', `%${searchQuery}%`);
   }
 
-  // Apply price filters
-  if (filters.minPrice > 0) {
+  // Apply price filters if provided
+  if (filters.minPrice !== undefined && filters.minPrice > 0) {
     query = query.gte('price', filters.minPrice);
   }
-  if (filters.maxPrice < 1000000) {
+  if (filters.maxPrice !== undefined && filters.maxPrice < 1000000) {
     query = query.lte('price', filters.maxPrice);
   }
 
