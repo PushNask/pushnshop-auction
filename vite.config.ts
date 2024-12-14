@@ -27,19 +27,20 @@ export default defineConfig(({ mode }: ConfigEnv): UserConfig => ({
         manualChunks: {
           vendor: ['react', 'react-dom', 'react-router-dom'],
         },
-        chunkFileNames: 'js/[name]-[hash].js',
-        entryFileNames: 'js/[name]-[hash].js',
-        assetFileNames: ({ name }) => {
+        chunkFileNames: 'assets/[name]-[hash].js',
+        entryFileNames: 'assets/[name]-[hash].js',
+        assetFileNames: (info) => {
+          const name = info.name;
           if (!name) return 'assets/[name]-[hash][extname]';
           
           const ext = name.split('.').pop();
           
           if (ext && /png|jpe?g|svg|gif|tiff|bmp|ico/i.test(ext)) {
-            return `images/[name]-[hash][extname]`;
+            return `assets/images/[name]-[hash][extname]`;
           }
           
           if (ext === 'css') {
-            return `css/[name]-[hash][extname]`;
+            return `assets/css/[name]-[hash][extname]`;
           }
           
           return `assets/[name]-[hash][extname]`;
