@@ -2,13 +2,21 @@ import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react-swc";
 import path from "path";
 import { componentTagger } from "lovable-tagger";
+import type { ConfigEnv, UserConfig } from 'vite';
 
-export default defineConfig(({ mode }) => ({
+export default defineConfig(({ mode }: ConfigEnv): UserConfig => ({
   server: {
     host: "::",
     port: 8080,
-    // Add history fallback for development
-    middlewareMode: "html",
+    // Configure SPA fallback
+    proxy: {
+      // Redirect all requests that don't match a static file to index.html
+      '*': {
+        target: 'http://localhost:8080',
+        changeOrigin: true,
+        rewrite: (path) => path,
+      },
+    },
   },
   plugins: [
     react(),
