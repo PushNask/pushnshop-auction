@@ -503,7 +503,19 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      increment_link_analytics: {
+        Args: {
+          p_link_id: number
+          p_column: string
+        }
+        Returns: undefined
+      }
+      increment_rotation_count: {
+        Args: {
+          link_id: number
+        }
+        Returns: undefined
+      }
     }
     Enums: {
       currency_type: "XAF" | "USD"
