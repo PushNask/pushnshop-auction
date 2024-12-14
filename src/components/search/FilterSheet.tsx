@@ -2,28 +2,17 @@ import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/co
 import { Button } from '@/components/ui/button';
 import { SlidersHorizontal } from 'lucide-react';
 import { FilterContent } from './FilterContent';
-import type { Filters, FilterKey } from '@/types/filters';
+import type { Filters } from '@/types/filters';
+import type { Dispatch, SetStateAction } from 'react';
 
 interface FilterSheetProps {
   filters: Filters;
-  categories: string[];
-  isFilterActive: boolean;
-  onPriceChange: (value: [number, number]) => void;
-  onCheckboxChange: (key: FilterKey, checked: boolean) => void;
-  onCategoryChange: (category: string, checked: boolean) => void;
-  onLocationChange: (location: string) => void;
-  onClearFilters: () => void;
+  onFiltersChange: Dispatch<SetStateAction<Filters>>;
 }
 
 export const FilterSheet = ({
   filters,
-  categories,
-  isFilterActive,
-  onPriceChange,
-  onCheckboxChange,
-  onCategoryChange,
-  onLocationChange,
-  onClearFilters,
+  onFiltersChange,
 }: FilterSheetProps) => (
   <Sheet>
     <SheetTrigger asChild>
@@ -38,13 +27,7 @@ export const FilterSheet = ({
       <div className="mt-4">
         <FilterContent 
           filters={filters}
-          categories={categories}
-          isFilterActive={isFilterActive}
-          onPriceChange={onPriceChange}
-          onCheckboxChange={onCheckboxChange}
-          onCategoryChange={onCategoryChange}
-          onLocationChange={onLocationChange}
-          onClearFilters={onClearFilters}
+          onFiltersChange={onFiltersChange}
         />
       </div>
     </SheetContent>
