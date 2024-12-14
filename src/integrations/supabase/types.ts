@@ -95,6 +95,44 @@ export type Database = {
         }
         Relationships: []
       }
+      link_analytics: {
+        Row: {
+          clicks: number | null
+          created_at: string | null
+          id: string
+          last_activity: string | null
+          link_id: number | null
+          updated_at: string | null
+          views: number | null
+        }
+        Insert: {
+          clicks?: number | null
+          created_at?: string | null
+          id?: string
+          last_activity?: string | null
+          link_id?: number | null
+          updated_at?: string | null
+          views?: number | null
+        }
+        Update: {
+          clicks?: number | null
+          created_at?: string | null
+          id?: string
+          last_activity?: string | null
+          link_id?: number | null
+          updated_at?: string | null
+          views?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "link_analytics_link_id_fkey"
+            columns: ["link_id"]
+            isOneToOne: true
+            referencedRelation: "permanent_links"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       listings: {
         Row: {
           created_at: string | null
@@ -240,6 +278,8 @@ export type Database = {
           current_listing_id: string | null
           id: number
           last_assigned_at: string | null
+          performance_score: number | null
+          rotation_count: number | null
           status: Database["public"]["Enums"]["permanent_link_status"]
           url_key: string
           url_path: string
@@ -249,6 +289,8 @@ export type Database = {
           current_listing_id?: string | null
           id?: number
           last_assigned_at?: string | null
+          performance_score?: number | null
+          rotation_count?: number | null
           status?: Database["public"]["Enums"]["permanent_link_status"]
           url_key: string
           url_path: string
@@ -258,6 +300,8 @@ export type Database = {
           current_listing_id?: string | null
           id?: number
           last_assigned_at?: string | null
+          performance_score?: number | null
+          rotation_count?: number | null
           status?: Database["public"]["Enums"]["permanent_link_status"]
           url_key?: string
           url_path?: string
