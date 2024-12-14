@@ -3,6 +3,7 @@ import { ProductGrid } from "@/components/ProductGrid";
 import { useQuery } from "@tanstack/react-query";
 import { fetchProducts } from "@/services/api";
 import type { Filters } from "@/types/filters";
+import { useToast } from "@/components/ui/use-toast";
 
 const initialFilters: Filters = {
   search: '',
@@ -17,16 +18,34 @@ const initialFilters: Filters = {
 
 const HomePage = () => {
   const loadingRef = useRef<HTMLDivElement>(null);
+  const { toast } = useToast();
   
-  const { data, isLoading } = useQuery({
+  const { data: products, isLoading, error } = useQuery({
     queryKey: ['products'],
     queryFn: () => fetchProducts(initialFilters),
+    onError: (err) => {
+      console.error('Error fetching products:', err);
+      toast({
+        title: "Error",
+        description: "Failed to load products. Please try again later.",
+        variant: "destructive"
+      });
+    }
   });
+
+  if (error) {
+    return (
+      <div className="container mx-auto p-4 text-center">
+        <h2 className="text-2xl font-bold text-red-600">Failed to load products</h2>
+        <p className="text-gray-600 mt-2">Please try refreshing the page</p>
+      </div>
+    );
+  }
 
   return (
     <div className="container mx-auto p-4">
       <ProductGrid 
-        products={data || []}
+        products={products || []}
         isLoading={isLoading}
         loadingRef={loadingRef}
       />
