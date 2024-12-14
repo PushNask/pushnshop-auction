@@ -1,14 +1,22 @@
-import type { ProductImage } from './product';
+import type { Currency } from './product';
 
-export interface FormData {
+export interface ProductFormData {
   title: string;
   description: string;
-  price: string;
-  currency: 'XAF' | 'USD';
-  quantity: number;
+  price: number;
+  currency: Currency;
   category: string;
+  images: Array<{
+    id: string;
+    url: string;
+    file?: File;
+  }>;
   duration: '24' | '48' | '72' | '96' | '120';
-  condition?: 'new' | 'used';
 }
 
-export type { ProductImage };
+export interface ApiResponse<T> {
+  data: T | null;
+  error: {
+    message: string;
+  } | null;
+}

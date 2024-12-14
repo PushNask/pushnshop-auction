@@ -1,76 +1,46 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
-import type { AnalyticsData, AnalyticsStats } from '@/types/analytics';
-import { useToast } from '@/components/ui/use-toast';
+import type { AnalyticsMetrics } from '@/types/analytics';
 
-export const useAnalytics = (timeframe: '7d' | '30d' | '90d') => {
-  const [data, setData] = useState<AnalyticsData[]>([]);
-  const [stats, setStats] = useState<AnalyticsStats | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
-  const { toast } = useToast();
+export function useAnalytics(timeRange: '24h' | '7d' | '30d' | '90d') {
+  const [metrics, setMetrics] = useState<AnalyticsMetrics | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    const fetchAnalytics = async () => {
+    const fetchMetrics = async () => {
       try {
-        setIsLoading(true);
-        
-        // Get analytics data from Supabase
-        const { data: analyticsData, error } = await supabase
-          .from('analytics')
-          .select(`
-            listing_id,
-            views,
-            whatsapp_clicks,
-            created_at
-          `)
-          .gte('created_at', new Date(Date.now() - parseInt(timeframe) * 86400000).toISOString());
+        const { data, error } = await supabase
+          .rpc('get_admin_dashboard_metrics', { time_range: timeRange });
 
         if (error) throw error;
-
-        // Transform data for charts
-        const transformedData: AnalyticsData[] = Array.from({ length: parseInt(timeframe) }, (_, i) => {
-          const date = new Date(Date.now() - (parseInt(timeframe) - 1 - i) * 86400000);
-          const dayData = analyticsData.filter(d => 
-            new Date(d.created_at).toDateString() === date.toDateString()
-          );
-          
-          return {
-            date: date.toLocaleDateString(),
-            views: dayData.reduce((sum, d) => sum + (d.views || 0), 0),
-            clicks: dayData.reduce((sum, d) => sum + (d.whatsapp_clicks || 0), 0),
-            inquiries: Math.floor(Math.random() * 10) // Mock data for inquiries
+        
+        // Transform the data to match our AnalyticsMetrics type
+        if (data) {
+          const transformedData: AnalyticsMetrics = {
+            views: data.overview?.totalViews || 0,
+            clicks: data.overview?.totalClicks || 0,
+            conversions: data.overview?.conversions || 0,
+            revenue: data.overview?.totalRevenue || 0,
+            timeRange,
+            trends: {
+              viewsTrend: data.overview?.viewsTrend || 0,
+              clicksTrend: data.overview?.clicksTrend || 0,
+              conversionTrend: data.overview?.conversionTrend || 0,
+              revenueTrend: data.overview?.revenueTrend || 0
+            }
           };
-        });
-
-        setData(transformedData);
-
-        // Calculate stats
-        const totalViews = analyticsData.reduce((sum, d) => sum + (d.views || 0), 0);
-        const totalClicks = analyticsData.reduce((sum, d) => sum + (d.whatsapp_clicks || 0), 0);
-
-        setStats({
-          totalViews,
-          totalClicks,
-          activeListings: 12, // This should come from products table
-          avgResponseTime: '2.5 hours',
-          conversionRate: `${((totalClicks / totalViews) * 100).toFixed(1)}%`,
-          totalInquiries: 89
-        });
-
-      } catch (error) {
-        console.error('Error fetching analytics:', error);
-        toast({
-          variant: "destructive",
-          title: "Error",
-          description: "Failed to load analytics data"
-        });
+          setMetrics(transformedData);
+        }
+      } catch (err) {
+        setError(err instanceof Error ? err.message : 'An error occurred');
       } finally {
-        setIsLoading(false);
+        setLoading(false);
       }
     };
 
-    fetchAnalytics();
-  }, [timeframe, toast]);
+    fetchMetrics();
+  }, [timeRange]);
 
-  return { data, stats, isLoading };
-};
+  return { metrics, loading, error };
+}
