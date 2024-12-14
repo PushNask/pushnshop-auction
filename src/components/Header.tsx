@@ -1,3 +1,4 @@
+import { useState, useEffect } from 'react';
 import { Menu } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { Link, useNavigate } from 'react-router-dom';
