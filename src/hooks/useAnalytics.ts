@@ -1,68 +1,47 @@
-import { useState, useEffect } from 'react';
-import { AnalyticsMetrics } from '@/types/analytics';
+import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
-import type { Json } from '@/integrations/supabase/types';
+import type { AnalyticsMetrics } from '@/types/analytics';
 
-interface RawMetricsResponse {
-  overview: {
-    totalViews: number;
-    totalClicks: number;
-    conversions: number;
-    totalRevenue: number;
-    viewsTrend: number;
-    clicksTrend: number;
-    conversionTrend: number;
-    revenueTrend: number;
+export const useAnalytics = (timeRange: string = '7d') => {
+  const { data: metrics, isLoading, error } = useQuery({
+    queryKey: ['analytics', timeRange],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('analytics')
+        .select('*')
+        .gte('created_at', new Date(Date.now() - getDurationInMs(timeRange)))
+        .order('created_at', { ascending: true });
+
+      if (error) throw error;
+
+      return transformAnalyticsData(data);
+    }
+  });
+
+  return { metrics, isLoading, error };
+};
+
+const getDurationInMs = (timeRange: string): number => {
+  const durations: Record<string, number> = {
+    '24h': 24 * 60 * 60 * 1000,
+    '7d': 7 * 24 * 60 * 60 * 1000,
+    '30d': 30 * 24 * 60 * 60 * 1000,
+    '90d': 90 * 24 * 60 * 60 * 1000
   };
-  timeSeriesData: Array<{
-    date: string;
-    views: number;
-    clicks: number;
-    inquiries: number;
-  }>;
-}
+  return durations[timeRange] || durations['7d'];
+};
 
-export function useAnalytics(timeRange: '24h' | '7d' | '30d' | '90d') {
-  const [metrics, setMetrics] = useState<AnalyticsMetrics | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-
-  useEffect(() => {
-    const fetchMetrics = async () => {
-      try {
-        const { data, error: fetchError } = await supabase
-          .rpc('get_admin_dashboard_metrics', { time_range: timeRange });
-        
-        if (fetchError) throw fetchError;
-        
-        const rawData = data as unknown as RawMetricsResponse;
-        
-        if (rawData) {
-          const transformedData: AnalyticsMetrics = {
-            views: rawData.overview.totalViews,
-            clicks: rawData.overview.totalClicks,
-            conversions: rawData.overview.conversions,
-            revenue: rawData.overview.totalRevenue,
-            timeRange,
-            trends: {
-              viewsTrend: rawData.overview.viewsTrend,
-              clicksTrend: rawData.overview.clicksTrend,
-              conversionTrend: rawData.overview.conversionTrend,
-              revenueTrend: rawData.overview.revenueTrend
-            },
-            data: rawData.timeSeriesData
-          };
-          setMetrics(transformedData);
-        }
-      } catch (err) {
-        setError(err instanceof Error ? err.message : 'An error occurred');
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchMetrics();
-  }, [timeRange]);
-
-  return { metrics, loading, error };
-}
+const transformAnalyticsData = (data: any[]): AnalyticsMetrics => {
+  return {
+    views: data.reduce((sum, item) => sum + (item.views || 0), 0),
+    clicks: data.reduce((sum, item) => sum + (item.clicks || 0), 0),
+    conversions: data.reduce((sum, item) => sum + (item.conversions || 0), 0),
+    revenue: data.reduce((sum, item) => sum + (item.revenue || 0), 0),
+    metrics: {
+      daily: data.map(item => ({
+        date: new Date(item.created_at).toISOString().split('T')[0],
+        value: item.views || 0
+      }))
+    }
+  };
+};

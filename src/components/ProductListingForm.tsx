@@ -1,21 +1,21 @@
 import { useState } from 'react';
-import { Card, CardContent } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { Loader2, AlertCircle } from 'lucide-react';
+import { Loader2, AlertCircle, Save } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import { ImageUploadSection } from '@/components/product-listing/ImageUploadSection';
-import { BasicInfoSection } from '@/components/product-listing/BasicInfoSection';
-import { PriceSection } from '@/components/product-listing/PriceSection';
-import { CategorySection } from '@/components/product-listing/CategorySection';
-import { DurationSection } from '@/components/product-listing/DurationSection';
+import { ImageUploadSection } from './product-listing/ImageUploadSection';
+import { BasicInfoSection } from './product-listing/BasicInfoSection';
+import { PriceSection } from './product-listing/PriceSection';
+import { CategorySection } from './product-listing/CategorySection';
+import { DurationSection } from './product-listing/DurationSection';
 import type { ProductImage, FormData } from '@/types/product-form';
+import type { Duration } from '@/types/product';
 
-interface ProductListingFormProps {
-  onSubmit: (data: FormData) => Promise<void>;
-}
-
-export const ProductListingForm = ({ onSubmit }: ProductListingFormProps) => {
+export const ProductListingForm = ({
+  onSubmit,
+  initialData = {}
+}: ProductListingFormProps) => {
   const { toast } = useToast();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState('');
@@ -26,8 +26,9 @@ export const ProductListingForm = ({ onSubmit }: ProductListingFormProps) => {
     price: '',
     currency: 'XAF',
     quantity: '1',
-    duration: '24' as '24' | '48' | '72' | '96' | '120',
-    images: []
+    duration: '24',
+    images: [],
+    ...initialData
   });
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -46,7 +47,10 @@ export const ProductListingForm = ({ onSubmit }: ProductListingFormProps) => {
         throw new Error('At least one image is required');
       }
 
-      await onSubmit(formData);
+      const response = await onSubmit(formData);
+      if (response.error) {
+        throw new Error(response.error.message);
+      }
 
       toast({
         title: "Success",
@@ -127,7 +131,7 @@ export const ProductListingForm = ({ onSubmit }: ProductListingFormProps) => {
               />
 
               <DurationSection
-                duration={formData.duration}
+                duration={formData.duration as Duration}
                 currency={formData.currency}
                 onDurationChange={(value) => setFormData(prev => ({
                   ...prev,
