@@ -14,6 +14,12 @@ const HomePage = lazy(() => import("@/pages/HomePage"));
 const AuthForm = lazy(() => import("@/components/auth/AuthForm"));
 const AboutPage = lazy(() => import("@/pages/AboutPage"));
 const ProductsPage = lazy(() => import("@/pages/ProductsPage"));
+const DashboardPage = lazy(() => import("@/pages/DashboardPage"));
+const AdminDashboard = lazy(() => import("@/components/admin/AdminDashboard"));
+const UserManagement = lazy(() => import("@/components/admin/users/UserManagement"));
+const SystemMonitoring = lazy(() => import("@/components/admin/monitoring/SystemMonitoring"));
+const ProfilePage = lazy(() => import("@/pages/ProfilePage"));
+const SellPage = lazy(() => import("@/pages/SellPage"));
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -46,6 +52,12 @@ const App = () => (
                     <Route path="/auth" element={<AuthForm />} />
                     <Route path="/about" element={<AboutPage />} />
                     <Route path="/products" element={<ProductsPage />} />
+                    <Route path="/dashboard" element={<DashboardPage />} />
+                    <Route path="/admin" element={<AdminDashboard />} />
+                    <Route path="/admin/users" element={<UserManagement />} />
+                    <Route path="/admin/monitoring" element={<SystemMonitoring />} />
+                    <Route path="/profile" element={<ProfilePage />} />
+                    <Route path="/sell" element={<SellPage />} />
                   </Routes>
                 </Suspense>
               </div>

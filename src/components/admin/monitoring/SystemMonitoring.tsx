@@ -22,7 +22,9 @@ export function SystemMonitoring() {
   useEffect(() => {
     const fetchSystemMetrics = async () => {
       const { data } = await supabase.rpc('get_system_metrics');
-      setMetrics(data);
+      if (data) {
+        setMetrics(data as SystemMetrics);
+      }
     };
 
     const fetchAlerts = async () => {
@@ -74,7 +76,7 @@ export function SystemMonitoring() {
 
   return (
     <div className="space-y-6">
-      <h2 className="text-xl font-semibold">System Health</h2>
+      <h2 className="text-2xl font-bold">System Monitoring</h2>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <Card>
@@ -96,7 +98,10 @@ export function SystemMonitoring() {
         <Card>
           <CardContent className="p-4">
             <h3 className="text-lg font-semibold mb-2">Response Time</h3>
-            <Progress value={metrics?.response_time ? Math.min(metrics.response_time / 10, 100) : 0} className="mb-2" />
+            <Progress 
+              value={metrics?.response_time ? Math.min(metrics.response_time / 10, 100) : 0} 
+              className="mb-2" 
+            />
             <span className="text-sm text-gray-600">{metrics?.response_time || 0}ms</span>
           </CardContent>
         </Card>
@@ -147,7 +152,7 @@ export function SystemMonitoring() {
                     <td className="p-2">
                       <Badge variant={
                         log.level === 'error' ? 'destructive' : 
-                        log.level === 'warning' ? 'warning' : 
+                        log.level === 'warning' ? 'secondary' : 
                         'default'
                       }>
                         {log.level}
@@ -165,3 +170,5 @@ export function SystemMonitoring() {
     </div>
   );
 }
+
+export default SystemMonitoring;
