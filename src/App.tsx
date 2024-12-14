@@ -13,6 +13,7 @@ import "@/i18n/config";
 const HomePage = lazy(() => import("@/pages/HomePage"));
 const AuthForm = lazy(() => import("@/components/auth/AuthForm"));
 const AboutPage = lazy(() => import("@/pages/AboutPage"));
+const ProductsPage = lazy(() => import("@/pages/ProductsPage"));
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -44,6 +45,7 @@ const App = () => (
                     <Route path="/" element={<HomePage />} />
                     <Route path="/auth" element={<AuthForm />} />
                     <Route path="/about" element={<AboutPage />} />
+                    <Route path="/products" element={<ProductsPage />} />
                   </Routes>
                 </Suspense>
               </div>
