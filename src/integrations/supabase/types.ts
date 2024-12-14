@@ -217,6 +217,7 @@ export type Database = {
           payment_status: string | null
           price: number
           quantity: number
+          searchable: unknown | null
           seller_id: string
           status: string | null
           title: string
@@ -231,6 +232,7 @@ export type Database = {
           payment_status?: string | null
           price: number
           quantity: number
+          searchable?: unknown | null
           seller_id: string
           status?: string | null
           title: string
@@ -245,6 +247,7 @@ export type Database = {
           payment_status?: string | null
           price?: number
           quantity?: number
+          searchable?: unknown | null
           seller_id?: string
           status?: string | null
           title?: string
