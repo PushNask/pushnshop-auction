@@ -1,48 +1,29 @@
-import { useState, useEffect } from 'react';
-import { RealtimePostgresChangesPayload } from '@supabase/supabase-js';
+import { useEffect, useState } from 'react';
 import { RealtimeManager } from '@/lib/realtime/RealtimeManager';
 import type { Product } from '@/types/product';
-import type { Database } from '@/integrations/supabase/types';
 
-type ProductPayload = RealtimePostgresChangesPayload<Database['public']['Tables']['products']['Row']>;
-
-export function useRealtimeProducts(initialProducts: Product[]) {
+export const useRealtimeProducts = (initialProducts: Product[] = []) => {
   const [products, setProducts] = useState<Product[]>(initialProducts);
 
   useEffect(() => {
-    // Update state when initialProducts changes
-    setProducts(initialProducts);
-  }, [initialProducts]);
-
-  useEffect(() => {
-    // Subscribe to product changes
-    RealtimeManager.subscribe('products', 'INSERT', (payload: ProductPayload) => {
-      setProducts(prev => [...prev, payload.new as unknown as Product]);
+    const subscription = RealtimeManager.subscribeToProducts({
+      onInsert: (newProduct: Product) => {
+        setProducts(prev => [...prev, newProduct]);
+      },
+      onUpdate: (updatedProduct: Product) => {
+        setProducts(prev => 
+          prev.map(p => p.id === updatedProduct.id ? updatedProduct : p)
+        );
+      },
+      onDelete: (deletedProduct: Product) => {
+        setProducts(prev => prev.filter(p => p.id !== deletedProduct.id));
+      }
     });
 
-    RealtimeManager.subscribe('products', 'UPDATE', (payload: ProductPayload) => {
-      setProducts(prev =>
-        prev.map(product =>
-          product.id === payload.new.id 
-            ? { ...product, ...payload.new as unknown as Product }
-            : product
-        )
-      );
-    });
-
-    RealtimeManager.subscribe('products', 'DELETE', (payload: ProductPayload) => {
-      setProducts(prev =>
-        prev.filter(product => product.id !== payload.old.id)
-      );
-    });
-
-    // Cleanup subscriptions
     return () => {
-      RealtimeManager.unsubscribe('products', 'INSERT');
-      RealtimeManager.unsubscribe('products', 'UPDATE');
-      RealtimeManager.unsubscribe('products', 'DELETE');
+      subscription.unsubscribe();
     };
-  }, []); // Empty dependency array since we don't want to re-subscribe
+  }, []);
 
   return products;
-}
+};
