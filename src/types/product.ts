@@ -9,6 +9,9 @@ export interface ProductImage {
   url: string;
   alt: string;
   order: number;
+  file?: File;
+  isNew?: boolean;
+  preview?: string;
 }
 
 export interface Product {

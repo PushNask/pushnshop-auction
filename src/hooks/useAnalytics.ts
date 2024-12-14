@@ -32,16 +32,27 @@ const getDurationInMs = (timeRange: string): number => {
 };
 
 const transformAnalyticsData = (data: any[]): AnalyticsMetrics => {
+  const views = data.reduce((sum, item) => sum + (item.views || 0), 0);
+  const clicks = data.reduce((sum, item) => sum + (item.clicks || 0), 0);
+  const conversions = data.reduce((sum, item) => sum + (item.conversions || 0), 0);
+  const revenue = data.reduce((sum, item) => sum + (item.revenue || 0), 0);
+
   return {
-    views: data.reduce((sum, item) => sum + (item.views || 0), 0),
-    clicks: data.reduce((sum, item) => sum + (item.clicks || 0), 0),
-    conversions: data.reduce((sum, item) => sum + (item.conversions || 0), 0),
-    revenue: data.reduce((sum, item) => sum + (item.revenue || 0), 0),
-    metrics: {
-      daily: data.map(item => ({
-        date: new Date(item.created_at).toISOString().split('T')[0],
-        value: item.views || 0
-      }))
-    }
+    views,
+    clicks,
+    conversions,
+    revenue,
+    trends: {
+      viewsTrend: 0,
+      clicksTrend: 0,
+      conversionTrend: 0,
+      revenueTrend: 0
+    },
+    data: data.map(item => ({
+      date: new Date(item.created_at).toISOString().split('T')[0],
+      views: item.views || 0,
+      clicks: item.clicks || 0,
+      inquiries: item.inquiries || 0
+    }))
   };
 };

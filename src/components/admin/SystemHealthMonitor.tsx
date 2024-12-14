@@ -33,7 +33,6 @@ export const SystemHealthMonitor = ({
           .limit(5);
 
         if (alertsData) {
-          // Transform the alerts data to match SystemAlert type
           const transformedAlerts: SystemAlert[] = alertsData.map(alert => ({
             id: String(alert.id),
             type: alert.severity === 'high' ? 'error' : 'warning',
@@ -42,7 +41,7 @@ export const SystemHealthMonitor = ({
             metric: alert.metric,
             value: alert.value,
             threshold: alert.threshold,
-            severity: alert.severity
+            severity: alert.severity as 'high' | 'medium' | 'low'
           }));
           setAlerts(transformedAlerts);
         }

@@ -1,39 +1,32 @@
-import { describe, it, expect, vi } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import { StatsOverview } from '@/components/admin/dashboard/StatsOverview';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
-// Mock supabase client
-vi.mock('@/integrations/supabase/client', () => ({
-  supabase: {
-    from: () => ({
-      select: () => ({
-        eq: () => ({
-          data: [
-            { status: 'active', payment_status: 'verified', price: 1000, seller_id: '1' },
-            { status: 'active', payment_status: 'verified', price: 2000, seller_id: '2' },
-          ],
-          error: null
-        })
-      })
-    })
+const mockMetrics = {
+  totalUsers: 100,
+  usersTrend: 5,
+  activeListings: 50,
+  listingsTrend: 10,
+  totalRevenue: 1000,
+  revenueTrend: 15,
+  systemHealth: 'Excellent' as const,
+  systemStatus: {
+    responseTime: 200,
+    errorRate: 0.5
   }
-}));
+};
 
 describe('StatsOverview', () => {
-  const queryClient = new QueryClient();
+  it('renders all metrics correctly', () => {
+    render(<StatsOverview metrics={mockMetrics} isLoading={false} />);
+    
+    expect(screen.getByText('100')).toBeInTheDocument();
+    expect(screen.getByText('50')).toBeInTheDocument();
+    expect(screen.getByText('1000')).toBeInTheDocument();
+    expect(screen.getByText('Excellent')).toBeInTheDocument();
+  });
 
-  it('renders stats correctly', async () => {
-    render(
-      <QueryClientProvider client={queryClient}>
-        <StatsOverview />
-      </QueryClientProvider>
-    );
-
-    // Wait for stats to load
-    expect(await screen.findByText('Total Products')).toBeInTheDocument();
-    expect(await screen.findByText('2')).toBeInTheDocument(); // Total products
-    expect(await screen.findByText('2')).toBeInTheDocument(); // Active sellers
-    expect(await screen.findByText('XAF 3,000')).toBeInTheDocument(); // Total revenue
+  it('shows loading state', () => {
+    render(<StatsOverview metrics={mockMetrics} isLoading={true} />);
+    expect(screen.getByText(/loading/i)).toBeInTheDocument();
   });
 });
