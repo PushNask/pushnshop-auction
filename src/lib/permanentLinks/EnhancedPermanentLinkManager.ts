@@ -71,11 +71,21 @@ export class EnhancedPermanentLinkManager {
       .single();
 
     if (nextListing) {
+      // First update the rotation count
+      const { error: updateError } = await supabase.rpc('increment_rotation_count', {
+        link_id: linkId
+      });
+
+      if (updateError) {
+        console.error('Failed to update rotation count:', updateError);
+        return;
+      }
+
+      // Then update the link assignment
       await supabase.from('permanent_links')
         .update({
           current_listing_id: nextListing.id,
-          last_assigned_at: new Date().toISOString(),
-          rotation_count: supabase.raw('rotation_count + 1')
+          last_assigned_at: new Date().toISOString()
         })
         .eq('id', linkId);
 
@@ -88,14 +98,14 @@ export class EnhancedPermanentLinkManager {
   static async trackAnalytics(linkId: number, event: 'view' | 'click') {
     try {
       const column = `${event}s`;
-      await supabase.from('link_analytics')
-        .upsert({
-          link_id: linkId,
-          [column]: supabase.raw(`${column} + 1`),
-          last_activity: new Date().toISOString()
-        }, {
-          onConflict: 'link_id'
-        });
+      
+      // Use RPC call to increment the counter
+      const { error } = await supabase.rpc('increment_link_analytics', {
+        p_link_id: linkId,
+        p_column: column
+      });
+
+      if (error) throw error;
     } catch (error) {
       console.error('Failed to track analytics:', error);
     }
