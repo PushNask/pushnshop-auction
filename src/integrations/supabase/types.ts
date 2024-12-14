@@ -429,6 +429,33 @@ export type Database = {
         }
         Relationships: []
       }
+      system_logs: {
+        Row: {
+          created_at: string | null
+          id: number
+          level: string
+          message: string
+          metadata: Json | null
+          source: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          id?: number
+          level: string
+          message: string
+          metadata?: Json | null
+          source?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          id?: number
+          level?: string
+          message?: string
+          metadata?: Json | null
+          source?: string | null
+        }
+        Relationships: []
+      }
       system_metrics: {
         Row: {
           active_users: number | null
@@ -459,6 +486,48 @@ export type Database = {
           id?: number
           memory_usage?: number | null
           response_time?: number | null
+        }
+        Relationships: []
+      }
+      system_settings: {
+        Row: {
+          created_at: string | null
+          default_currency: string | null
+          id: number
+          maintenance_mode: boolean | null
+          max_file_size: number | null
+          notification_settings: Json | null
+          security_settings: Json | null
+          site_name: string
+          smtp_settings: Json | null
+          updated_at: string | null
+          user_registration: boolean | null
+        }
+        Insert: {
+          created_at?: string | null
+          default_currency?: string | null
+          id?: number
+          maintenance_mode?: boolean | null
+          max_file_size?: number | null
+          notification_settings?: Json | null
+          security_settings?: Json | null
+          site_name?: string
+          smtp_settings?: Json | null
+          updated_at?: string | null
+          user_registration?: boolean | null
+        }
+        Update: {
+          created_at?: string | null
+          default_currency?: string | null
+          id?: number
+          maintenance_mode?: boolean | null
+          max_file_size?: number | null
+          notification_settings?: Json | null
+          security_settings?: Json | null
+          site_name?: string
+          smtp_settings?: Json | null
+          updated_at?: string | null
+          user_registration?: boolean | null
         }
         Relationships: []
       }
@@ -507,6 +576,10 @@ export type Database = {
         Args: {
           time_range: string
         }
+        Returns: Json
+      }
+      get_system_metrics: {
+        Args: Record<PropertyKey, never>
         Returns: Json
       }
       increment_link_analytics: {

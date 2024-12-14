@@ -2,6 +2,9 @@ import { useAuthCheck } from "@/hooks/useAuthCheck";
 import { Navigate } from "react-router-dom";
 import { StatsOverview } from "./dashboard/StatsOverview";
 import { PaymentVerification } from "./dashboard/PaymentVerification";
+import { SystemMonitoring } from "./monitoring/SystemMonitoring";
+import { UserManagement } from "./users/UserManagement";
+import { PendingListings } from "./listings/PendingListings";
 import AnalyticsDashboard from "@/components/analytics/AnalyticsDashboard";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useQuery } from "@tanstack/react-query";
@@ -37,7 +40,10 @@ const AdminDashboard = () => {
       <Tabs defaultValue="overview" className="space-y-6">
         <TabsList>
           <TabsTrigger value="overview">Overview</TabsTrigger>
+          <TabsTrigger value="listings">Listings</TabsTrigger>
           <TabsTrigger value="payments">Payments</TabsTrigger>
+          <TabsTrigger value="users">Users</TabsTrigger>
+          <TabsTrigger value="system">System</TabsTrigger>
           <TabsTrigger value="analytics">Analytics</TabsTrigger>
         </TabsList>
 
@@ -45,8 +51,20 @@ const AdminDashboard = () => {
           <StatsOverview metrics={metrics?.overview} isLoading={isLoading} />
         </TabsContent>
 
+        <TabsContent value="listings">
+          <PendingListings />
+        </TabsContent>
+
         <TabsContent value="payments">
           <PaymentVerification />
+        </TabsContent>
+
+        <TabsContent value="users">
+          <UserManagement />
+        </TabsContent>
+
+        <TabsContent value="system">
+          <SystemMonitoring />
         </TabsContent>
 
         <TabsContent value="analytics">
