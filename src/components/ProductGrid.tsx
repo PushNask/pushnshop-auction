@@ -2,6 +2,7 @@ import { Loader2 } from 'lucide-react';
 import { ProductCard } from './ProductCard';
 import type { Product } from '@/types/product';
 import { useTranslation } from 'react-i18next';
+import { useRealtimeProducts } from '@/hooks/useRealtimeProducts';
 
 interface ProductGridProps {
   products: Product[];
@@ -9,8 +10,9 @@ interface ProductGridProps {
   loadingRef: React.RefObject<HTMLDivElement>;
 }
 
-export const ProductGrid: React.FC<ProductGridProps> = ({ products, isLoading, loadingRef }) => {
+export const ProductGrid: React.FC<ProductGridProps> = ({ products: initialProducts, isLoading, loadingRef }) => {
   const { t } = useTranslation();
+  const products = useRealtimeProducts(initialProducts);
 
   if (products.length === 0 && !isLoading) {
     return (

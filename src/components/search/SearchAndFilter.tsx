@@ -1,9 +1,9 @@
-import { useState } from "react";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { SlidersHorizontal } from "lucide-react";
 import { FilterContent } from "./FilterContent";
+import { useProductSearch } from "@/hooks/useProductSearch";
 import type { Filters } from "@/types/filters";
 import type { Dispatch, SetStateAction } from "react";
 
@@ -13,6 +13,8 @@ export interface SearchAndFilterProps {
 }
 
 export const SearchAndFilter: React.FC<SearchAndFilterProps> = ({ filters, onFiltersChange }) => {
+  const { loading } = useProductSearch(filters);
+
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     onFiltersChange(prev => ({ ...prev, search: e.target.value }));
   };
@@ -24,11 +26,12 @@ export const SearchAndFilter: React.FC<SearchAndFilterProps> = ({ filters, onFil
           placeholder="Search products..."
           value={filters.search}
           onChange={handleSearchChange}
+          disabled={loading}
         />
       </div>
       <Sheet>
         <SheetTrigger asChild>
-          <Button variant="outline">
+          <Button variant="outline" disabled={loading}>
             <SlidersHorizontal className="h-4 w-4 mr-2" />
             Filters
           </Button>
