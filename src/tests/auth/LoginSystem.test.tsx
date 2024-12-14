@@ -77,13 +77,20 @@ describe('LoginSystem', () => {
       </BrowserRouter>
     );
 
+    // Switch to login tab if needed
+    const loginTab = screen.getByRole('tab', { name: /login/i });
+    fireEvent.click(loginTab);
+
+    // Fill in login form
     fireEvent.change(screen.getByLabelText(/email/i), {
       target: { value: 'test@example.com' },
     });
     fireEvent.change(screen.getByLabelText(/password/i), {
       target: { value: 'password123' },
     });
-    fireEvent.click(screen.getByRole('button', { name: /login/i }));
+
+    // Submit form
+    fireEvent.click(screen.getByRole('button', { name: /log in/i }));
 
     await waitFor(() => {
       expect(supabase.auth.signInWithPassword).toHaveBeenCalledWith({
@@ -94,10 +101,9 @@ describe('LoginSystem', () => {
   });
 
   it('handles failed login attempts', async () => {
-    const authError = new AuthError('Invalid credentials', 400);
     const mockAuthResponse: AuthResponse = {
       data: { user: null, session: null },
-      error: authError,
+      error: new AuthError('Invalid credentials', 400),
     };
 
     vi.mocked(supabase.auth.signInWithPassword).mockResolvedValueOnce(mockAuthResponse);
@@ -108,13 +114,20 @@ describe('LoginSystem', () => {
       </BrowserRouter>
     );
 
+    // Switch to login tab if needed
+    const loginTab = screen.getByRole('tab', { name: /login/i });
+    fireEvent.click(loginTab);
+
+    // Fill in login form
     fireEvent.change(screen.getByLabelText(/email/i), {
       target: { value: 'test@example.com' },
     });
     fireEvent.change(screen.getByLabelText(/password/i), {
       target: { value: 'wrongpassword' },
     });
-    fireEvent.click(screen.getByRole('button', { name: /login/i }));
+
+    // Submit form
+    fireEvent.click(screen.getByRole('button', { name: /log in/i }));
 
     await waitFor(() => {
       expect(screen.getByText(/invalid credentials/i)).toBeInTheDocument();
@@ -122,16 +135,13 @@ describe('LoginSystem', () => {
   });
 
   it('implements account lockout after multiple failed attempts', async () => {
-    const authError = new AuthError('Invalid credentials', 400);
     const mockAuthResponse: AuthResponse = {
       data: { user: null, session: null },
-      error: authError,
+      error: new AuthError('Invalid credentials', 400),
     };
 
-    // Simulate 5 failed attempts
-    for (let i = 0; i < 5; i++) {
-      vi.mocked(supabase.auth.signInWithPassword).mockResolvedValueOnce(mockAuthResponse);
-    }
+    // Mock multiple failed attempts
+    vi.mocked(supabase.auth.signInWithPassword).mockResolvedValue(mockAuthResponse);
 
     render(
       <BrowserRouter>
@@ -139,7 +149,11 @@ describe('LoginSystem', () => {
       </BrowserRouter>
     );
 
-    // Attempt login 5 times
+    // Switch to login tab if needed
+    const loginTab = screen.getByRole('tab', { name: /login/i });
+    fireEvent.click(loginTab);
+
+    // Attempt login multiple times
     for (let i = 0; i < 5; i++) {
       fireEvent.change(screen.getByLabelText(/email/i), {
         target: { value: 'test@example.com' },
@@ -147,7 +161,7 @@ describe('LoginSystem', () => {
       fireEvent.change(screen.getByLabelText(/password/i), {
         target: { value: 'wrongpassword' },
       });
-      fireEvent.click(screen.getByRole('button', { name: /login/i }));
+      fireEvent.click(screen.getByRole('button', { name: /log in/i }));
 
       await waitFor(() => {
         expect(supabase.auth.signInWithPassword).toHaveBeenCalled();
