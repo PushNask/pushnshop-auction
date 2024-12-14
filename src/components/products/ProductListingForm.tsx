@@ -5,26 +5,26 @@ import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Loader2 } from 'lucide-react';
-import type { ProductFormData, ApiResponse } from '@/types/product-form';
+import type { FormData, ApiResponse } from '@/types/product-form';
 import { ImageUploadSection } from '../product-listing/ImageUploadSection';
 
 interface ProductListingFormProps {
-  onSubmit: (data: ProductFormData) => Promise<ApiResponse<any>>;
-  initialData?: Partial<ProductFormData>;
+  onSubmit: (data: FormData) => Promise<ApiResponse<any>>;
+  initialData?: Partial<FormData>;
 }
 
 export const ProductListingForm = ({
   onSubmit,
   initialData = {}
 }: ProductListingFormProps) => {
-  const [formData, setFormData] = useState<ProductFormData>({
+  const [formData, setFormData] = useState<FormData>({
     title: '',
     description: '',
-    price: 0,
+    price: '',
     currency: 'XAF',
-    category: '',
-    images: [],
+    quantity: '1',
     duration: '24',
+    images: [],
     ...initialData
   });
 
@@ -70,7 +70,7 @@ export const ProductListingForm = ({
             type="number"
             placeholder="Price"
             value={formData.price}
-            onChange={(e) => setFormData({ ...formData, price: Number(e.target.value) })}
+            onChange={(e) => setFormData({ ...formData, price: e.target.value })}
             required
           />
 

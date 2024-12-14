@@ -17,7 +17,7 @@ export interface AnalyticsMetrics {
     conversionTrend: number;
     revenueTrend: number;
   };
-  data: AnalyticsData[]; // Array for chart data
+  data: AnalyticsData[];
 }
 
 export interface SystemMetrics {

@@ -15,12 +15,8 @@ export interface FormData {
   price: string;
   currency: Currency;
   quantity: string;
-  duration: '24' | '48' | '72' | '96' | '120';
+  duration: string;
   images: ProductImage[];
-}
-
-export interface ProductFormData extends FormData {
-  category?: string;
 }
 
 export interface ApiResponse<T> {
