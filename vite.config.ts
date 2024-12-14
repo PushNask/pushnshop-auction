@@ -27,23 +27,26 @@ export default defineConfig(({ mode }: ConfigEnv): UserConfig => ({
         manualChunks: {
           vendor: ['react', 'react-dom', 'react-router-dom'],
         },
-        chunkFileNames: 'js/[name].[hash].js',
-        entryFileNames: 'js/[name].[hash].js',
+        chunkFileNames: 'assets/js/[name].[hash].js',
+        entryFileNames: 'assets/js/[name].[hash].js',
         assetFileNames: (assetInfo) => {
-          const info = assetInfo.name || '';
-          const extType = info.split('.').pop() || '';
+          if (!assetInfo || !assetInfo.name) {
+            return 'assets/[name].[hash][extname]';
+          }
 
-          if (extType) {
-            if (/png|jpe?g|svg|gif|tiff|bmp|ico/i.test(extType)) {
-              return 'assets/images/[name].[hash][extname]';
-            }
-            if (extType === 'css') {
-              return 'assets/css/[name].[hash][extname]';
-            }
+          const info = assetInfo.name;
+          const ext = info.split('.').pop()?.toLowerCase() || '';
+
+          if (/png|jpe?g|svg|gif|tiff|bmp|ico/i.test(ext)) {
+            return 'assets/images/[name].[hash][extname]';
+          }
+          
+          if (ext === 'css') {
+            return 'assets/css/[name].[hash][extname]';
           }
           
           return 'assets/[name].[hash][extname]';
-        }
+        },
       },
     },
   },
