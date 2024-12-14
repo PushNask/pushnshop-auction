@@ -7,29 +7,41 @@ export class PermanentLinkManager {
   private static TOTAL_LINKS = 120;
   
   static async initialize() {
-    const { data: existingLinks, error: countError } = await supabase
-      .from('permanent_links')
-      .select('*');
-    
-    if (countError) {
-      console.error('Error checking existing links:', countError);
-      return;
-    }
-    
-    if (!existingLinks || existingLinks.length === 0) {
-      const links = Array.from({ length: this.TOTAL_LINKS }, (_, i) => ({
-        url_path: `/p/${i + 1}`,
-        url_key: `p${i + 1}`,
-        status: 'available' as const
-      }));
+    try {
+      // First check if user is authenticated
+      const { data: { session } } = await supabase.auth.getSession();
       
-      const { error: insertError } = await supabase
-        .from('permanent_links')
-        .insert(links);
-        
-      if (insertError) {
-        console.error('Error creating permanent links:', insertError);
+      if (!session) {
+        console.warn('User not authenticated, skipping permanent links initialization');
+        return;
       }
+
+      const { data: existingLinks, error: countError } = await supabase
+        .from('permanent_links')
+        .select('*');
+    
+      if (countError) {
+        console.error('Error checking existing links:', countError);
+        return;
+      }
+    
+      if (!existingLinks || existingLinks.length === 0) {
+        const links = Array.from({ length: this.TOTAL_LINKS }, (_, i) => ({
+          url_path: `/p/${i + 1}`,
+          url_key: `p${i + 1}`,
+          status: 'available' as const
+        }));
+      
+        const { error: insertError } = await supabase
+          .from('permanent_links')
+          .insert(links);
+          
+        if (insertError) {
+          console.error('Error creating permanent links:', insertError);
+        }
+      }
+    } catch (error) {
+      console.error('Error initializing permanent links:', error);
     }
   }
 
