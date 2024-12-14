@@ -6,8 +6,9 @@ import type { Filters } from "@/types/filters";
 
 const initialFilters: Filters = {
   search: '',
-  minPrice: 0,
-  maxPrice: 1000000,
+  minPrice: undefined,
+  maxPrice: undefined,
+  currency: undefined,
   inStock: false,
   endingSoon: false,
   categories: [],
@@ -19,13 +20,13 @@ const HomePage = () => {
   
   const { data, isLoading } = useQuery({
     queryKey: ['products'],
-    queryFn: () => fetchProducts(0, "", initialFilters),
+    queryFn: () => fetchProducts(initialFilters),
   });
 
   return (
     <div className="container mx-auto p-4">
       <ProductGrid 
-        products={data?.products || []}
+        products={data || []}
         isLoading={isLoading}
         loadingRef={loadingRef}
       />

@@ -8,9 +8,13 @@ export const fetchProducts = async (filters: Filters): Promise<Product[]> => {
     .select(`
       *,
       product_images (
+        id,
         url,
         alt,
         order_number
+      ),
+      users!products_seller_id_fkey (
+        whatsapp_number
       )
     `)
     .order("created_at", { ascending: false });
@@ -57,5 +61,26 @@ export const fetchProducts = async (filters: Filters): Promise<Product[]> => {
     throw error;
   }
 
-  return data || [];
+  // Map the database response to our Product type
+  return (data || []).map(item => ({
+    id: item.id,
+    permanentLinkId: undefined, // This will be set by the listing if available
+    title: item.title,
+    description: item.description,
+    price: Number(item.price),
+    currency: item.currency,
+    quantity: item.quantity,
+    images: (item.product_images || []).map(img => ({
+      id: img.id,
+      url: img.url,
+      alt: img.alt || '',
+      order: img.order_number
+    })),
+    status: item.status,
+    sellerId: item.seller_id,
+    sellerWhatsApp: item.users?.whatsapp_number || '',
+    createdAt: item.created_at,
+    expiresAt: item.end_time || new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(),
+    viewCount: 0 // This will be populated from analytics if needed
+  }));
 };

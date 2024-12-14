@@ -3,9 +3,10 @@ import { SearchAndFilter } from "@/components/search/SearchAndFilter";
 import { ProductGrid } from "@/components/ProductGrid";
 import { fetchProducts } from "@/services/api";
 import { Filters } from "@/types/filters";
-import { useState } from "react";
+import { useState, useRef } from "react";
 
 const ProductsPage = () => {
+  const loadingRef = useRef<HTMLDivElement>(null);
   const [filters, setFilters] = useState<Filters>({
     search: "",
     minPrice: undefined,
@@ -26,7 +27,11 @@ const ProductsPage = () => {
     <div className="container mx-auto px-4 py-8">
       <h1 className="text-3xl font-bold mb-8">Products</h1>
       <SearchAndFilter filters={filters} onFiltersChange={setFilters} />
-      <ProductGrid products={products || []} isLoading={isLoading} />
+      <ProductGrid 
+        products={products || []} 
+        isLoading={isLoading} 
+        loadingRef={loadingRef}
+      />
     </div>
   );
 };
