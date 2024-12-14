@@ -1,14 +1,34 @@
-import { useTranslation } from "react-i18next";
+import { useRef } from "react";
+import { ProductGrid } from "@/components/ProductGrid";
+import { useQuery } from "@tanstack/react-query";
+import { fetchProducts } from "@/services/api";
+import type { Filters } from "@/types/filters";
+
+const initialFilters: Filters = {
+  search: '',
+  minPrice: 0,
+  maxPrice: 1000000,
+  inStock: false,
+  endingSoon: false,
+  categories: [],
+  location: ''
+};
 
 const ProductsPage = () => {
-  const { t } = useTranslation();
+  const loadingRef = useRef<HTMLDivElement>(null);
+  
+  const { data, isLoading } = useQuery({
+    queryKey: ['products'],
+    queryFn: () => fetchProducts(0, "", initialFilters),
+  });
 
   return (
     <div className="container mx-auto p-4">
-      <h1 className="text-2xl font-bold mb-4">{t('products.title', 'Products')}</h1>
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {/* Product grid will be implemented here */}
-      </div>
+      <ProductGrid 
+        products={data?.products || []}
+        isLoading={isLoading}
+        loadingRef={loadingRef}
+      />
     </div>
   );
 };
