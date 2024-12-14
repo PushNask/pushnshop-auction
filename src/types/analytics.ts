@@ -17,6 +17,7 @@ export interface AnalyticsMetrics {
     conversionTrend: number;
     revenueTrend: number;
   };
+  data: AnalyticsData[]; // Add this for chart data
 }
 
 export interface SystemMetrics {
@@ -34,4 +35,8 @@ export interface SystemAlert {
   message: string;
   timestamp: string;
   acknowledged: boolean;
+  metric?: string;
+  value?: number;
+  threshold?: number;
+  severity?: string;
 }

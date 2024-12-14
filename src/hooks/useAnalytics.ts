@@ -27,7 +27,8 @@ export function useAnalytics(timeRange: '24h' | '7d' | '30d' | '90d') {
               clicksTrend: data.overview?.clicksTrend || 0,
               conversionTrend: data.overview?.conversionTrend || 0,
               revenueTrend: data.overview?.revenueTrend || 0
-            }
+            },
+            data: data.timeSeriesData || [] // Assuming the RPC returns timeSeriesData
           };
           setMetrics(transformedData);
         }

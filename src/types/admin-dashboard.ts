@@ -43,3 +43,5 @@ export interface AdminDashboardMetrics {
   userMetrics: UserMetrics;
   productMetrics: ProductMetrics;
 }
+
+export type UserRole = 'seller' | 'buyer' | 'admin';
