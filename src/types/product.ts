@@ -2,28 +2,28 @@ export type Duration = '24' | '48' | '72' | '96' | '120';
 
 export type Currency = 'XAF' | 'USD';
 
+export type ListingStatus = 'draft' | 'pending_payment' | 'pending_approval' | 'active' | 'expired' | 'rejected';
+
 export interface ProductImage {
   id: string;
   url: string;
   alt: string;
   order: number;
-  file?: File;
-  preview?: string;
 }
 
-export interface FormData {
+export interface Product {
+  id: string;
+  permanentLinkId?: number;
   title: string;
   description: string;
-  price: string;
+  price: number;
   currency: Currency;
-  quantity: string;
-  duration: Duration;
+  quantity: number;
   images: ProductImage[];
-}
-
-export interface ApiResponse<T> {
-  data: T | null;
-  error: {
-    message: string;
-  } | null;
+  status: ListingStatus;
+  sellerId: string;
+  sellerWhatsApp: string;
+  createdAt: string;
+  expiresAt: string;
+  viewCount: number;
 }

@@ -12,6 +12,14 @@ import { DurationSection } from './product-listing/DurationSection';
 import type { ProductImage, FormData } from '@/types/product-form';
 import type { Duration } from '@/types/product';
 
+interface ProductListingFormProps {
+  onSubmit: (data: FormData) => Promise<{
+    data: any | null;
+    error: { message: string } | null;
+  }>;
+  initialData?: Partial<FormData>;
+}
+
 export const ProductListingForm = ({
   onSubmit,
   initialData = {}
@@ -135,7 +143,7 @@ export const ProductListingForm = ({
                 currency={formData.currency}
                 onDurationChange={(value) => setFormData(prev => ({
                   ...prev,
-                  duration: value
+                  duration: value as Duration
                 }))}
               />
             </div>

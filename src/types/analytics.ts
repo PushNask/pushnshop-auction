@@ -7,19 +7,6 @@ export interface SystemMetrics {
   active_users: number;
 }
 
-export interface AnalyticsMetrics {
-  views: number;
-  clicks: number;
-  conversions: number;
-  revenue: number;
-  metrics: {
-    daily: Array<{
-      date: string;
-      value: number;
-    }>;
-  };
-}
-
 export interface SystemAlert {
   id: string;
   type: 'error' | 'warning';
@@ -28,5 +15,26 @@ export interface SystemAlert {
   metric: string;
   value: number;
   threshold: number;
-  severity: string;
+  severity: 'high' | 'medium' | 'low';
+}
+
+export interface AnalyticsData {
+  date: string;
+  views: number;
+  clicks: number;
+  inquiries: number;
+}
+
+export interface AnalyticsMetrics {
+  views: number;
+  clicks: number;
+  conversions: number;
+  revenue: number;
+  trends: {
+    viewsTrend: number;
+    clicksTrend: number;
+    conversionTrend: number;
+    revenueTrend: number;
+  };
+  data: AnalyticsData[];
 }
