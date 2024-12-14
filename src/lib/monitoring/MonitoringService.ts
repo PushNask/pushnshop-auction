@@ -132,4 +132,25 @@ export class MonitoringService {
       
     if (error) throw error;
   }
+
+  static async logError(error: Error, metadata?: Record<string, any>) {
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      
+      const errorLog = {
+        error_message: error.message,
+        stack_trace: error.stack,
+        metadata: metadata || {},
+        user_id: user?.id
+      };
+
+      const { error: insertError } = await supabase
+        .from('error_logs')
+        .insert([errorLog]);
+
+      if (insertError) throw insertError;
+    } catch (e) {
+      console.error('Failed to log error:', e);
+    }
+  }
 }
