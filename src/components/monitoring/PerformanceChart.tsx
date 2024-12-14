@@ -11,7 +11,7 @@ export const PerformanceChart = ({ data }: PerformanceChartProps) => {
       <LineChart data={data}>
         <CartesianGrid strokeDasharray="3 3" />
         <XAxis 
-          dataKey="timestamp" 
+          dataKey="created_at" 
           tickFormatter={(value) => new Date(value).toLocaleTimeString()}
         />
         <YAxis yAxisId="left" />
@@ -22,21 +22,21 @@ export const PerformanceChart = ({ data }: PerformanceChartProps) => {
         <Line
           yAxisId="left"
           type="monotone"
-          dataKey="responseTime"
+          dataKey="response_time"
           stroke="#0077B6"
           name="Response Time (ms)"
         />
         <Line
           yAxisId="right"
           type="monotone"
-          dataKey="errorRate"
+          dataKey="error_rate"
           stroke="#EF4444"
           name="Error Rate (%)"
         />
         <Line
           yAxisId="left"
           type="monotone"
-          dataKey="activeUsers"
+          dataKey="active_users"
           stroke="#10B981"
           name="Active Users"
         />

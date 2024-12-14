@@ -39,7 +39,11 @@ export class MonitoringService {
   }
 
   private static async saveMetrics(metrics: SystemMetrics) {
-    await supabase.from('system_metrics').insert([metrics]);
+    const { error } = await supabase
+      .from('system_metrics')
+      .insert([metrics]);
+      
+    if (error) throw error;
   }
 
   private static async getErrorStats() {
@@ -65,12 +69,9 @@ export class MonitoringService {
   }
 
   private static async getResourceStats() {
-    // Safe check for performance.memory availability (Chrome only)
-    const memoryUsage = typeof performance !== 'undefined' && 
-      'memory' in performance && 
-      (performance as any).memory ? 
-      (performance as any).memory.usedJSHeapSize / 1024 / 1024 : 
-      0;
+    // Check if performance.memory is available (Chrome only)
+    const memoryInfo = (performance as any).memory;
+    const memoryUsage = memoryInfo ? (memoryInfo.usedJSHeapSize / memoryInfo.jsHeapSizeLimit) * 100 : 0;
 
     return {
       memoryUsage,
@@ -117,25 +118,18 @@ export class MonitoringService {
   }
 
   private static async saveAlerts(alerts: Alert[]) {
-    await supabase.from('system_alerts').insert(
-      alerts.map(alert => ({
-        metric: alert.metric,
-        value: alert.value,
-        threshold: alert.threshold,
-        severity: alert.severity,
-        created_at: alert.timestamp.toISOString()
-      }))
-    );
-  }
-
-  static async logError(error: Error, metadata?: Record<string, any>) {
-    const errorLog = {
-      error_message: error.message,
-      stack_trace: error.stack,
-      metadata: metadata || {},
-      user_id: (await supabase.auth.getUser()).data.user?.id
-    };
-
-    await supabase.from('error_logs').insert([errorLog]);
+    const { error } = await supabase
+      .from('system_alerts')
+      .insert(
+        alerts.map(alert => ({
+          metric: alert.metric,
+          value: alert.value,
+          threshold: alert.threshold,
+          severity: alert.severity,
+          created_at: alert.timestamp.toISOString()
+        }))
+      );
+      
+    if (error) throw error;
   }
 }
