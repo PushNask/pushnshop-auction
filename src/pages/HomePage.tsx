@@ -3,7 +3,7 @@ import { ProductGrid } from "@/components/ProductGrid";
 import { useQuery } from "@tanstack/react-query";
 import { fetchProducts } from "@/services/api";
 import type { Filters } from "@/types/filters";
-import { useToast } from "@/components/ui/use-toast";
+import { useToast } from "@/hooks/use-toast";
 
 const initialFilters: Filters = {
   search: '',
@@ -23,13 +23,15 @@ const HomePage = () => {
   const { data: products, isLoading, error } = useQuery({
     queryKey: ['products'],
     queryFn: () => fetchProducts(initialFilters),
-    onError: (err) => {
-      console.error('Error fetching products:', err);
-      toast({
-        title: "Error",
-        description: "Failed to load products. Please try again later.",
-        variant: "destructive"
-      });
+    meta: {
+      errorHandler: (err: Error) => {
+        console.error('Error fetching products:', err);
+        toast({
+          title: "Error",
+          description: "Failed to load products. Please try again later.",
+          variant: "destructive"
+        });
+      }
     }
   });
 
