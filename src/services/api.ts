@@ -1,5 +1,5 @@
 import { supabase } from "@/integrations/supabase/client";
-import { Product } from "@/types/product";
+import { Product, ListingStatus } from "@/types/product";
 import { Filters } from "@/types/filters";
 
 export const fetchProducts = async (filters: Filters): Promise<Product[]> => {
@@ -76,7 +76,7 @@ export const fetchProducts = async (filters: Filters): Promise<Product[]> => {
       alt: img.alt || '',
       order: img.order_number
     })),
-    status: item.status,
+    status: item.status as ListingStatus, // Cast the status to ListingStatus type
     sellerId: item.seller_id,
     sellerWhatsApp: item.users?.whatsapp_number || '',
     createdAt: item.created_at,
