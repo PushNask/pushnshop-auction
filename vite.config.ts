@@ -8,8 +8,6 @@ export default defineConfig(({ mode }: ConfigEnv): UserConfig => ({
   server: {
     host: "::",
     port: 8080,
-    // Configure history API fallback for SPA
-    historyApiFallback: true,
   },
   plugins: [
     react(),
