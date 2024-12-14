@@ -112,7 +112,7 @@ export function UserManagement() {
                         <Button
                           variant="outline"
                           size="sm"
-                          onClick={() => handleRoleUpdate(user.id, user.role === 'admin' ? 'user' : 'admin')}
+                          onClick={() => handleRoleUpdate(user.id, user.role === 'admin' ? 'buyer' : 'admin')}
                         >
                           {user.role === 'admin' ? (
                             <Lock className="w-4 h-4 mr-2" />

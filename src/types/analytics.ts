@@ -5,19 +5,11 @@ export interface AnalyticsData {
   inquiries: number;
 }
 
-export interface AnalyticsMetrics {
-  views: number;
-  clicks: number;
-  conversions: number;
-  revenue: number;
-  timeRange: string;
-  trends: {
-    viewsTrend: number;
-    clicksTrend: number;
-    conversionTrend: number;
-    revenueTrend: number;
-  };
+export interface MetricsChartProps {
+  title: string;
   data: AnalyticsData[];
+  dataKey: keyof AnalyticsData;
+  color: string;
 }
 
 export interface SystemMetrics {
@@ -34,7 +26,6 @@ export interface SystemAlert {
   type: 'warning' | 'error' | 'info';
   message: string;
   timestamp: string;
-  acknowledged: boolean;
   metric?: string;
   value?: number;
   threshold?: number;

@@ -1,6 +1,7 @@
-export interface SystemStatus {
-  responseTime: number;
-  errorRate: number;
+export interface AdminDashboardMetrics {
+  overview: OverviewMetrics;
+  userMetrics: UserMetrics;
+  productMetrics: ProductMetrics;
 }
 
 export interface OverviewMetrics {
@@ -14,6 +15,16 @@ export interface OverviewMetrics {
   systemStatus: SystemStatus;
 }
 
+export interface SystemStatus {
+  responseTime: number;
+  errorRate: number;
+}
+
+export interface UserMetrics {
+  growth: UserGrowthData[];
+  demographics: UserDemographics[];
+}
+
 export interface UserGrowthData {
   date: string;
   count: number;
@@ -24,24 +35,13 @@ export interface UserDemographics {
   count: number;
 }
 
-export interface UserMetrics {
-  growth: UserGrowthData[];
-  demographics: UserDemographics[];
+export interface ProductMetrics {
+  categories: ProductCategoryData[];
 }
 
 export interface ProductCategoryData {
   status: string;
   count: number;
-}
-
-export interface ProductMetrics {
-  categories: ProductCategoryData[];
-}
-
-export interface AdminDashboardMetrics {
-  overview: OverviewMetrics;
-  userMetrics: UserMetrics;
-  productMetrics: ProductMetrics;
 }
 
 export type UserRole = 'seller' | 'buyer' | 'admin';

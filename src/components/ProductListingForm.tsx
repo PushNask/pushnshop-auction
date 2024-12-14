@@ -1,198 +1,115 @@
 import { useState } from 'react';
-import {
-  Card,
-  CardContent,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { Loader2, AlertCircle } from 'lucide-react';
-import { useToast } from '@/components/ui/use-toast';
-import { BasicInfoSection } from './product-listing/BasicInfoSection';
-import { PriceSection } from './product-listing/PriceSection';
-import { DurationSection } from './product-listing/DurationSection';
-import { ImageUploadSection } from './product-listing/ImageUploadSection';
-import type { ProductImage, FormData } from '@/types/product-form';
+import { Loader2 } from 'lucide-react';
+import type { FormData, ApiResponse } from '@/types/product-form';
+import { ImageUploadSection } from '../product-listing/ImageUploadSection';
 
-interface FormErrors extends Partial<Record<keyof FormData, string>> {
-  submit?: string;
+interface ProductListingFormProps {
+  onSubmit: (data: FormData) => Promise<ApiResponse<any>>;
+  initialData?: Partial<FormData>;
 }
 
-const ProductListingForm = () => {
-  const { toast } = useToast();
+export const ProductListingForm = ({
+  onSubmit,
+  initialData = {}
+}: ProductListingFormProps) => {
   const [formData, setFormData] = useState<FormData>({
     title: '',
     description: '',
     price: '',
     currency: 'XAF',
-    quantity: '',
+    quantity: '1',
     duration: '24',
     images: [],
+    ...initialData
   });
-  const [errors, setErrors] = useState<FormErrors>({});
-  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const handleInputChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
-  ) => {
-    const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
-    setErrors(prev => ({ ...prev, [name]: undefined }));
-  };
-
-  const handleCurrencyChange = (value: 'XAF' | 'USD') => {
-    setFormData(prev => ({ ...prev, currency: value }));
-  };
-
-  const handleDurationChange = (value: '24' | '48' | '72' | '96' | '120') => {
-    setFormData(prev => ({ ...prev, duration: value }));
-  };
-
-  const handleImagesChange = (newImages: ProductImage[]) => {
-    setFormData(prev => ({
-      ...prev,
-      images: newImages
-    }));
-    setErrors(prev => ({ ...prev, images: undefined }));
-  };
-
-  const validateForm = (): boolean => {
-    const newErrors: FormErrors = {};
-
-    if (!formData.title.trim()) {
-      newErrors.title = 'Title is required';
-    }
-    if (!formData.description.trim()) {
-      newErrors.description = 'Description is required';
-    }
-    if (!formData.price || isNaN(Number(formData.price))) {
-      newErrors.price = 'Valid price is required';
-    }
-    if (!formData.quantity || isNaN(Number(formData.quantity))) {
-      newErrors.quantity = 'Valid quantity is required';
-    }
-    if (formData.images.length === 0) {
-      newErrors.images = 'At least one image is required';
-    }
-
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
-  };
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
-    if (!validateForm()) {
-      toast({
-        variant: "destructive",
-        title: "Validation Error",
-        description: "Please check the form for errors.",
-      });
-      return;
-    }
+    setLoading(true);
+    setError(null);
 
-    setIsSubmitting(true);
     try {
-      // Mock API call
-      await new Promise(resolve => setTimeout(resolve, 2000));
-      
-      toast({
-        title: "Success!",
-        description: "Your listing has been created.",
-      });
-
-      // Reset form
-      setFormData({
-        title: '',
-        description: '',
-        price: '',
-        currency: 'XAF',
-        quantity: '',
-        duration: '24',
-        images: [],
-      });
-    } catch (error) {
-      setErrors(prev => ({
-        ...prev,
-        submit: 'Failed to create listing. Please try again.'
-      }));
-      
-      toast({
-        variant: "destructive",
-        title: "Error",
-        description: "Failed to create listing. Please try again.",
-      });
+      const response = await onSubmit(formData);
+      if (response.error) {
+        throw new Error(response.error.message);
+      }
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'An error occurred');
+    } finally {
+      setLoading(false);
     }
-    setIsSubmitting(false);
   };
 
   return (
-    <form onSubmit={handleSubmit}>
-      <Card className="max-w-2xl mx-auto">
-        <CardHeader>
-          <CardTitle>Create New Listing</CardTitle>
-        </CardHeader>
+    <form onSubmit={handleSubmit} className="space-y-6">
+      <div className="space-y-4">
+        <Input
+          placeholder="Title"
+          value={formData.title}
+          onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+          required
+        />
+        
+        <Textarea
+          placeholder="Description"
+          value={formData.description}
+          onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+          required
+        />
 
-        <CardContent className="space-y-6">
-          <BasicInfoSection
-            title={formData.title}
-            description={formData.description}
-            quantity={formData.quantity}
-            onChange={handleInputChange}
-            errors={{
-              title: errors.title,
-              description: errors.description,
-              quantity: errors.quantity
-            }}
+        <div className="grid grid-cols-2 gap-4">
+          <Input
+            type="number"
+            placeholder="Price"
+            value={formData.price}
+            onChange={(e) => setFormData({ ...formData, price: e.target.value })}
+            required
           />
 
-          <PriceSection
-            price={formData.price}
-            currency={formData.currency}
-            onPriceChange={handleInputChange}
-            onCurrencyChange={handleCurrencyChange}
-            priceError={errors.price}
-          />
-
-          <DurationSection
-            duration={formData.duration}
-            currency={formData.currency}
-            onDurationChange={handleDurationChange}
-          />
-
-          <ImageUploadSection
-            images={formData.images}
-            onImagesChange={handleImagesChange}
-            error={errors.images}
-          />
-
-          {errors.submit && (
-            <Alert variant="destructive">
-              <AlertCircle className="h-4 w-4" />
-              <AlertDescription>{errors.submit}</AlertDescription>
-            </Alert>
-          )}
-        </CardContent>
-
-        <CardFooter>
-          <Button
-            type="submit"
-            className="w-full bg-[#0077B6] hover:bg-[#0077B6]/90"
-            disabled={isSubmitting}
+          <Select
+            value={formData.currency}
+            onValueChange={(value) => setFormData({ ...formData, currency: value as 'XAF' | 'USD' })}
           >
-            {isSubmitting ? (
-              <>
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                Creating Listing...
-              </>
-            ) : (
-              'Create Listing'
-            )}
-          </Button>
-        </CardFooter>
-      </Card>
+            <SelectTrigger>
+              <SelectValue placeholder="Currency" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="XAF">XAF</SelectItem>
+              <SelectItem value="USD">USD</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+
+        <ImageUploadSection
+          images={formData.images}
+          onImagesChange={(images) => setFormData({ ...formData, images })}
+        />
+
+        {error && (
+          <Alert variant="destructive">
+            <AlertDescription>{error}</AlertDescription>
+          </Alert>
+        )}
+
+        <Button type="submit" disabled={loading} className="w-full">
+          {loading ? (
+            <>
+              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              Submitting...
+            </>
+          ) : (
+            'Create Listing'
+          )}
+        </Button>
+      </div>
     </form>
   );
 };

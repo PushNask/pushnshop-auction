@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button';
 import { LoadingOverlay } from '@/components/loading/LoadingOverlay';
 import { Users, ShoppingBag, DollarSign, Activity } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
+import type { AnalyticsData } from '@/types/analytics';
 
 export function AnalyticsDashboard() {
   const { t } = useTranslation();
@@ -71,7 +72,12 @@ export function AnalyticsDashboard() {
             </div>
 
             <Card className="p-6">
-              <MetricsChart data={metrics.data} />
+              <MetricsChart
+                title="Performance Over Time"
+                data={metrics.data}
+                dataKey="views"
+                color="#0077B6"
+              />
             </Card>
           </>
         )}

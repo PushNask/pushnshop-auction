@@ -7,10 +7,12 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 
+type Duration = '24' | '48' | '72' | '96' | '120';
+
 interface DurationSectionProps {
-  duration: '24' | '48' | '72' | '96' | '120';
+  duration: Duration;
   currency: 'XAF' | 'USD';
-  onDurationChange: (value: '24' | '48' | '72' | '96' | '120') => void;
+  onDurationChange: (value: Duration) => void;
 }
 
 const DURATION_PRICES = {
@@ -31,17 +33,17 @@ export const DurationSection = ({
       <Label>Listing Duration</Label>
       <Select
         value={duration}
-        onValueChange={(value: '24' | '48' | '72' | '96' | '120') => onDurationChange(value)}
+        onValueChange={(value: Duration) => onDurationChange(value)}
       >
         <SelectTrigger>
           <SelectValue />
         </SelectTrigger>
         <SelectContent>
-          {Object.entries(DURATION_PRICES).map(([hours, prices]) => (
+          {(Object.keys(DURATION_PRICES) as Duration[]).map((hours) => (
             <SelectItem key={hours} value={hours}>
               {hours} hours - {currency === 'XAF' 
-                ? `XAF ${prices.XAF.toLocaleString()}`
-                : `$${prices.USD}`
+                ? `XAF ${DURATION_PRICES[hours].XAF.toLocaleString()}`
+                : `$${DURATION_PRICES[hours].USD}`
               }
             </SelectItem>
           ))}

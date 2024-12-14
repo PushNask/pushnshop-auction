@@ -28,7 +28,7 @@ export const EnhancedProductForm = () => {
     price: '',
     currency: 'XAF',
     quantity: '1',
-    duration: '24',
+    duration: '24' as '24' | '48' | '72' | '96' | '120',
     images: []
   });
 
@@ -62,9 +62,9 @@ export const EnhancedProductForm = () => {
         description: '',
         price: '',
         currency: 'XAF',
-        quantity: 1,
-        category: '',
-        duration: '24'
+        quantity: '1',
+        duration: '24' as '24' | '48' | '72' | '96' | '120',
+        images: []
       });
       setImages([]);
     } catch (err) {
