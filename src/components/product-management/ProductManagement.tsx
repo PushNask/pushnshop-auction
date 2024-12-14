@@ -6,6 +6,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Search, Plus, CheckCircle2, Clock, XCircle } from 'lucide-react';
 import { ProductCard } from './ProductCard';
 import { EmptyState } from './EmptyState';
+import { ProductBatchActions } from './ProductBatchActions';
+import { AdvancedFilters, type FilterState } from './AdvancedFilters';
 import { useToast } from '@/hooks/use-toast';
 import type { ManagedProduct } from '@/types/product-management';
 
@@ -13,6 +15,12 @@ export const ProductManagement = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const [searchQuery, setSearchQuery] = useState('');
+  const [selectedProducts, setSelectedProducts] = useState<string[]>([]);
+  const [filters, setFilters] = useState<FilterState>({
+    status: [],
+    priceRange: [0, 1000000],
+    categories: []
+  });
   const [products, setProducts] = useState<ManagedProduct[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -40,6 +48,18 @@ export const ProductManagement = () => {
     navigate('/products/new');
   };
 
+  const handleBatchActionComplete = () => {
+    setSelectedProducts([]);
+    // Refresh products list
+    // ... implement refresh logic
+  };
+
+  const handleFilterChange = (newFilters: FilterState) => {
+    setFilters(newFilters);
+    // Apply filters to products list
+    // ... implement filter logic
+  };
+
   return (
     <div className="container mx-auto p-4 max-w-4xl space-y-6">
       <div className="flex justify-between items-center">
@@ -64,6 +84,15 @@ export const ProductManagement = () => {
           />
         </div>
       </div>
+
+      <AdvancedFilters onFilterChange={handleFilterChange} />
+
+      {selectedProducts.length > 0 && (
+        <ProductBatchActions
+          selectedProducts={selectedProducts}
+          onActionComplete={handleBatchActionComplete}
+        />
+      )}
 
       <Tabs defaultValue="active" className="space-y-4">
         <TabsList>
