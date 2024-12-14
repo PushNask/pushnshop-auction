@@ -31,3 +31,10 @@ export interface SystemAlert {
   threshold?: number;
   severity?: string;
 }
+
+export interface AnalyticsMetrics {
+  views: number;
+  clicks: number;
+  conversions: number;
+  revenue: number;
+}

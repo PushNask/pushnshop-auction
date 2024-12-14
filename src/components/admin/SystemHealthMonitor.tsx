@@ -26,7 +26,6 @@ export const SystemHealthMonitor = ({
           setMetrics(data as SystemMetrics);
         }
 
-        // Fetch alerts
         const { data: alertsData } = await supabase
           .from('system_alerts')
           .select('*')
@@ -34,7 +33,18 @@ export const SystemHealthMonitor = ({
           .limit(5);
 
         if (alertsData) {
-          setAlerts(alertsData as SystemAlert[]);
+          // Transform the alerts data to match SystemAlert type
+          const transformedAlerts: SystemAlert[] = alertsData.map(alert => ({
+            id: String(alert.id),
+            type: alert.severity === 'high' ? 'error' : 'warning',
+            message: `${alert.metric}: ${alert.value} exceeded threshold ${alert.threshold}`,
+            timestamp: alert.created_at,
+            metric: alert.metric,
+            value: alert.value,
+            threshold: alert.threshold,
+            severity: alert.severity
+          }));
+          setAlerts(transformedAlerts);
         }
       } catch (error) {
         console.error('Error fetching system metrics:', error);
