@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Menu } from 'lucide-react';
+import { Menu, Sun, Moon } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { Link, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -9,7 +9,6 @@ import { useTheme } from 'next-themes';
 import { LanguageSwitcher } from './LanguageSwitcher';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
-import { Sun, Moon } from 'lucide-react';
 
 export const Header = () => {
   const { t } = useTranslation();
