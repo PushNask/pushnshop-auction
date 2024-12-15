@@ -1,6 +1,6 @@
-import { RealtimeChannel, RealtimeChannelOptions } from '@supabase/supabase-js';
+import { RealtimeChannel, RealtimeChannelOptions, RealtimePresence } from '@supabase/supabase-js';
 
-export const createMockSupabaseClient = () => ({
+export const createSupabaseMock = () => ({
   from: () => ({
     select: jest.fn().mockReturnThis(),
     insert: jest.fn().mockReturnThis(),
@@ -8,6 +8,7 @@ export const createMockSupabaseClient = () => ({
     delete: jest.fn().mockReturnThis(),
     eq: jest.fn().mockReturnThis(),
     single: jest.fn().mockReturnThis(),
+    maybeSingle: jest.fn().mockReturnThis()
   }),
   auth: {
     getSession: jest.fn().mockResolvedValue({ data: { session: null }, error: null }),
@@ -28,13 +29,12 @@ export const createMockSupabaseClient = () => ({
     push: jest.fn(),
     log: jest.fn(),
     presence: {
-      track: jest.fn(),
-      untrack: jest.fn(),
       state: {},
+      untrack: jest.fn(),
       onJoin: jest.fn(),
       onLeave: jest.fn(),
       onSync: jest.fn(),
-    },
+    } as RealtimePresence,
   }),
   rpc: (
     fn: string,
@@ -62,8 +62,7 @@ export const createMockRealtimeChannel = (): Partial<RealtimeChannel> => {
       },
       presence: {
         key: ''
-      },
-      postgres_changes: []
+      }
     }
   };
 
@@ -81,12 +80,13 @@ export const createMockRealtimeChannel = (): Partial<RealtimeChannel> => {
     push: jest.fn(),
     log: jest.fn(),
     presence: {
-      track: jest.fn(),
-      untrack: jest.fn(),
       state: {},
+      untrack: jest.fn(),
       onJoin: jest.fn(),
       onLeave: jest.fn(),
       onSync: jest.fn(),
-    },
+    } as RealtimePresence,
   };
 };
+
+export const mockChannel = createMockRealtimeChannel();
