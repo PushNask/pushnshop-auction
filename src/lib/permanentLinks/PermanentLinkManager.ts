@@ -23,22 +23,31 @@ export class PermanentLinkManager {
       }
     
       if (!existingLinks || existingLinks.length === 0) {
-        const links = Array.from({ length: this.TOTAL_LINKS }, (_, i) => ({
-          url_path: `/p/${i + 1}`,
-          url_key: `p${i + 1}`,
-          status: 'available' as const
-        }));
-      
-        const { error: insertError } = await supabase
-          .from('permanent_links')
-          .insert(links);
-          
-        if (insertError) {
-          console.error('Error creating permanent links:', insertError);
-        }
+        await this.createInitialLinks();
       }
     } catch (error) {
       console.error('Error initializing permanent links:', error);
+      // Don't throw the error, just log it to prevent app crashes
+    }
+  }
+
+  private static async createInitialLinks() {
+    try {
+      const links = Array.from({ length: this.TOTAL_LINKS }, (_, i) => ({
+        url_path: `/p/${i + 1}`,
+        url_key: `p${i + 1}`,
+        status: 'available' as const
+      }));
+    
+      const { error: insertError } = await supabase
+        .from('permanent_links')
+        .insert(links);
+        
+      if (insertError) {
+        console.error('Error creating permanent links:', insertError);
+      }
+    } catch (error) {
+      console.error('Error creating initial links:', error);
     }
   }
 
