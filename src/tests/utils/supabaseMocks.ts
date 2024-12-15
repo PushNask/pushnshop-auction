@@ -72,6 +72,12 @@ export const createSupabaseMock = () => ({
       },
       stateChangeRefs: [],
       emit: vi.fn(),
+      // Add missing required properties
+      subTopic: '',
+      private: false,
+      presenceState: () => ({}),
+      untrack: vi.fn(),
+      updateJoinPayload: vi.fn(),
       broadcastEndpointURL: () => '',
       isClosed: () => false,
       isErrored: () => false,

@@ -83,7 +83,6 @@ describe('Product Update Management', () => {
   test('maintains version control for updates', async () => {
     render(<ProductManagementSystem />);
     
-    // Simulate multiple updates
     const priceInput = screen.getByRole('spinbutton', { name: /price/i });
     fireEvent.change(priceInput, { target: { value: '1000' } });
     
