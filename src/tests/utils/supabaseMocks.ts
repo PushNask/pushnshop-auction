@@ -21,7 +21,7 @@ export const createMockRealtimeChannel = (): Partial<RealtimeChannel> => {
     presenceState: vi.fn(),
     socket: null as unknown as RealtimeClient,
     bindings: {},
-    state: REALTIME_SUBSCRIBE_STATES.SUBSCRIBED as unknown as REALTIME_SUBSCRIBE_STATES,
+    state: 'SUBSCRIBED',
     joinedOnce: false,
     rejoinTimer: null,
     rejoinAttempts: 0,
@@ -60,10 +60,10 @@ export const createPostgrestMock = () => {
       status: 200,
       statusText: 'OK'
     })),
-    mockResolvedValueOnce: vi.fn()
+    order: vi.fn().mockReturnThis(),
+    limit: vi.fn().mockReturnThis()
   };
 
-  // Add proper typing to the mock
   return mock as unknown as PostgrestQueryBuilder<Database['public'], any, any>;
 };
 

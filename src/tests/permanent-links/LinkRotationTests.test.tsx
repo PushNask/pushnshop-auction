@@ -20,10 +20,14 @@ describe('Link Rotation System', () => {
         url_key: 'p1', 
         performance_score: 0.8 
       },
-      error: null
+      error: null,
+      count: null,
+      status: 200,
+      statusText: 'OK'
     };
 
-    mockSupabase.from().single.mockResolvedValueOnce(mockLinks);
+    const postgrestMock = mockSupabase.from();
+    postgrestMock.single.mockResolvedValueOnce(mockLinks);
     
     const result = await PermanentLinkManager.getNextAvailableLink();
     expect(result).toEqual(mockLinks.data);
