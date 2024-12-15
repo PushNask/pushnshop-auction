@@ -41,7 +41,7 @@ export const ProductProvider = ({ children }: ProductProviderProps) => {
             id: img.id,
             url: img.url,
             alt: img.alt || '',
-            order: img.order_number
+            order_number: img.order_number
           }));
           mappedProduct.sellerWhatsApp = productData.users?.whatsapp_number || '';
           return mappedProduct;

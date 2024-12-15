@@ -3,24 +3,30 @@ export interface SystemStatus {
   errorRate: number;
 }
 
+export interface OverviewMetrics {
+  totalUsers: number;
+  usersTrend: number;
+  activeListings: number;
+  listingsTrend: number;
+  totalRevenue: number;
+  revenueTrend: number;
+  systemHealth: string;
+  systemStatus: SystemStatus;
+}
+
+export interface UserMetrics {
+  growth: Array<{ date: string; count: number }>;
+  demographics: Array<{ role: string; count: number }>;
+}
+
+export interface ProductMetrics {
+  categories: Array<{ status: string; count: number }>;
+}
+
 export interface AdminDashboardMetrics {
-  overview: {
-    totalUsers: number;
-    usersTrend: number;
-    activeListings: number;
-    listingsTrend: number;
-    totalRevenue: number;
-    revenueTrend: number;
-    systemHealth: string;
-    systemStatus: SystemStatus;
-  };
-  userMetrics: {
-    growth: Array<{ date: string; count: number }>;
-    demographics: Array<{ role: string; count: number }>;
-  };
-  productMetrics: {
-    categories: Array<{ status: string; count: number }>;
-  };
+  overview: OverviewMetrics;
+  userMetrics: UserMetrics;
+  productMetrics: ProductMetrics;
 }
 
 export interface SystemMetrics {

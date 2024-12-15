@@ -16,6 +16,7 @@ import { PriceSection } from './PriceSection';
 import { CategorySection } from './CategorySection';
 import { DurationSection } from './DurationSection';
 import type { ProductImage, FormData } from '@/types/product-form';
+import type { Duration } from '@/types/product';
 
 export const EnhancedProductForm = () => {
   const { toast } = useToast();
@@ -28,7 +29,7 @@ export const EnhancedProductForm = () => {
     price: '',
     currency: 'XAF',
     quantity: '1',
-    duration: '24' as '24' | '48' | '72' | '96' | '120',
+    duration: '24' as Duration,
     images: []
   });
 
@@ -63,7 +64,7 @@ export const EnhancedProductForm = () => {
         price: '',
         currency: 'XAF',
         quantity: '1',
-        duration: '24' as '24' | '48' | '72' | '96' | '120',
+        duration: '24' as Duration,
         images: []
       });
       setImages([]);
@@ -134,7 +135,7 @@ export const EnhancedProductForm = () => {
                 currency={formData.currency}
                 onDurationChange={(value) => setFormData(prev => ({
                   ...prev,
-                  duration: value
+                  duration: value as Duration
                 }))}
               />
             </div>

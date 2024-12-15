@@ -13,22 +13,6 @@ import { supabase } from "@/integrations/supabase/client";
 import { MetricCard } from "./MetricCard";
 import { LoadingOverlay } from "@/components/loading/LoadingOverlay";
 import type { AdminDashboardMetrics } from "@/types/admin-dashboard";
-import {
-  LineChart,
-  Line,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  ResponsiveContainer,
-  PieChart,
-  Pie,
-  Cell,
-  BarChart,
-  Bar,
-} from "recharts";
-
-const COLORS = ["#0088FE", "#00C49F", "#FFBB28", "#FF8042"];
 
 export function AdminDashboard() {
   const [timeRange, setTimeRange] = useState<string>("7d");
@@ -40,7 +24,7 @@ export function AdminDashboard() {
         time_range: timeRange,
       });
       if (error) throw error;
-      return data as AdminDashboardMetrics;
+      return data as unknown as AdminDashboardMetrics;
     },
   });
 
