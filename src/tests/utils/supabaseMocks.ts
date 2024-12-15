@@ -1,5 +1,5 @@
 import { vi } from 'vitest';
-import { RealtimeChannel, RealtimeClient, RealtimeChannelOptions, REALTIME_SUBSCRIBE_STATES, CHANNEL_STATES } from '@supabase/supabase-js';
+import { RealtimeChannel, RealtimeClient, RealtimeChannelOptions } from '@supabase/supabase-js';
 import type { PostgrestQueryBuilder, PostgrestSingleResponse } from '@supabase/postgrest-js';
 import type { Database } from '@/integrations/supabase/types';
 
@@ -7,8 +7,8 @@ import type { Database } from '@/integrations/supabase/types';
 export const createMockRealtimeChannel = (): RealtimeChannel => {
   const channel: RealtimeChannel = {
     topic: 'realtime:test',
-    subscribe: vi.fn((callback?: (status: CHANNEL_STATES) => void) => {
-      if (callback) callback('SUBSCRIBED' as CHANNEL_STATES);
+    subscribe: vi.fn((callback?: (status: 'SUBSCRIBED' | 'CLOSED' | 'TIMED_OUT' | 'CHANNEL_ERROR') => void) => {
+      if (callback) callback('SUBSCRIBED');
       return channel;
     }),
     unsubscribe: vi.fn(),
@@ -62,12 +62,12 @@ export const createMockRealtimeChannel = (): RealtimeChannel => {
       binaryDecode: vi.fn(),
     } as unknown as RealtimeClient,
     bindings: {},
-    state: 'SUBSCRIBED' as CHANNEL_STATES,
+    state: 'SUBSCRIBED',
     presenceState: vi.fn(),
     joinedOnce: false,
-    rejoinTimer: undefined as unknown as ReturnType<typeof setTimeout>,
+    rejoinTimer: 0,
     rejoinAttempts: 0,
-    timeout: undefined as unknown as ReturnType<typeof setTimeout>,
+    timeout: 0,
     push: vi.fn(),
     leave: vi.fn(),
     trigger: vi.fn(),
