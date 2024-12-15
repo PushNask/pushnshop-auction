@@ -1,5 +1,5 @@
 import { vi } from 'vitest';
-import type { RealtimeChannel, RealtimePresence, RealtimeChannelOptions } from '@supabase/supabase-js';
+import type { RealtimeChannel, RealtimePresence, RealtimeChannelOptions, RealtimeClient } from '@supabase/supabase-js';
 
 enum CHANNEL_STATES {
   CLOSED = 'CLOSED',
@@ -51,6 +51,52 @@ export const createSupabaseMock = () => ({
       }
     };
 
+    // Create a mock RealtimeClient
+    const mockSocket = {
+      accessTokenValue: null,
+      apiKey: '',
+      channels: [],
+      endPoint: '',
+      headers: {},
+      params: {},
+      timeout: 10000,
+      transport: null,
+      heartbeatIntervalMs: 30000,
+      heartbeatTimer: null,
+      pendingHeartbeatRef: null,
+      ref: 0,
+      reconnectAfterMs: () => 10000,
+      reconnectTimer: null,
+      connect: vi.fn(),
+      disconnect: vi.fn(),
+      log: vi.fn(),
+      connectionState: vi.fn(),
+      isConnected: vi.fn(),
+      remove: vi.fn(),
+      push: vi.fn(),
+      makeRef: vi.fn(),
+      leaveOpenTopic: vi.fn(),
+      getChannelByTopic: vi.fn(),
+      removeChannel: vi.fn(),
+      removeAllChannels: vi.fn(),
+      send: vi.fn(),
+      onConnOpen: vi.fn(),
+      onConnClose: vi.fn(),
+      onConnError: vi.fn(),
+      onConnMessage: vi.fn(),
+      triggerChanError: vi.fn(),
+      connectionStateRecovery: null,
+      encode: vi.fn(),
+      decode: vi.fn(),
+      reconnectAfterMs: vi.fn(),
+      onError: vi.fn(),
+      onMessage: vi.fn(),
+      onOpen: vi.fn(),
+      onClose: vi.fn(),
+      hasLogger: vi.fn(),
+      onConnectionStateChange: vi.fn(),
+    } as unknown as RealtimeClient;
+
     return {
       on: vi.fn().mockReturnThis(),
       subscribe: vi.fn().mockReturnThis(),
@@ -62,7 +108,7 @@ export const createSupabaseMock = () => ({
       presence: mockPresence,
       topic: name,
       params: mockParams,
-      socket: {} as WebSocket,
+      socket: mockSocket,
       bindings: {},
       state: CHANNEL_STATES.CLOSED,
       joinedOnce: false,
