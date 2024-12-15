@@ -1,6 +1,6 @@
 export type Currency = 'XAF' | 'USD';
-export type ListingStatus = 'draft' | 'pending_payment' | 'pending_approval' | 'active' | 'expired' | 'rejected';
-export type Duration = '24' | '48' | '72' | '96' | '120';
+
+export type ProductStatus = 'draft' | 'pending' | 'active' | 'expired';
 
 export interface ProductImage {
   id: string;
@@ -8,23 +8,17 @@ export interface ProductImage {
   alt: string;
   order_number: number;
   file?: File;
-  isNew?: boolean;
-  preview?: string;
 }
 
 export interface Product {
-  id: string;
+  id?: string;
   title: string;
   description: string;
   price: number;
   currency: Currency;
-  quantity: number;
   images: ProductImage[];
-  status: ListingStatus;
-  sellerId: string;
-  sellerWhatsApp?: string;
-  createdAt: string;
-  expiresAt?: string;
-  viewCount: number;
   permanentLinkId?: string;
+  status?: ProductStatus;
+  viewCount?: number;
+  quantity?: number;
 }
