@@ -1,42 +1,44 @@
 import { MetricCard } from "./MetricCard";
-import type { OverviewMetrics } from "@/types/admin-dashboard";
+import type { AdminDashboardMetrics } from "@/types/admin-dashboard";
 
 interface StatsOverviewProps {
-  metrics?: OverviewMetrics;
+  metrics?: AdminDashboardMetrics;
   isLoading: boolean;
 }
 
 export function StatsOverview({ metrics, isLoading }: StatsOverviewProps) {
-  if (isLoading || !metrics) {
+  if (isLoading || !metrics?.overview) {
     return <div>Loading metrics...</div>;
   }
+
+  const { overview } = metrics;
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
       <MetricCard
         title="Total Users"
-        value={metrics.totalUsers}
-        trend={metrics.usersTrend}
+        value={overview.totalUsers}
+        trend={overview.usersTrend}
         icon="users"
       />
       <MetricCard
         title="Active Listings"
-        value={metrics.activeListings}
-        trend={metrics.listingsTrend}
+        value={overview.activeListings}
+        trend={overview.listingsTrend}
         icon="shopping-bag"
       />
       <MetricCard
         title="Total Revenue"
-        value={metrics.totalRevenue}
-        trend={metrics.revenueTrend}
+        value={overview.totalRevenue}
+        trend={overview.revenueTrend}
         format="currency"
         icon="dollar-sign"
       />
       <MetricCard
         title="System Health"
-        value={metrics.systemHealth}
+        value={overview.systemHealth}
         icon="activity"
-        status={`Response Time: ${metrics.systemStatus.responseTime.toFixed(0)}ms`}
+        status={overview.systemStatus ? `Response Time: ${overview.systemStatus.responseTime.toFixed(0)}ms` : undefined}
       />
     </div>
   );

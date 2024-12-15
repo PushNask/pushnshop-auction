@@ -48,7 +48,7 @@ const AdminDashboard = () => {
         </TabsList>
 
         <TabsContent value="overview">
-          {metrics && <StatsOverview metrics={metrics} isLoading={isLoading} />}
+          <StatsOverview metrics={metrics} isLoading={isLoading} />
         </TabsContent>
 
         <TabsContent value="listings">
