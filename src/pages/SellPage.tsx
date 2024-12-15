@@ -53,7 +53,10 @@ const SellPage = () => {
     checkAuth();
   }, [navigate, toast]);
 
-  const handleSubmit = async (formData: FormData) => {
+  const handleSubmit = async (formData: FormData): Promise<{
+    data: null;
+    error: { message: string } | null;
+  }> => {
     try {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error('Not authenticated');
@@ -81,9 +84,10 @@ const SellPage = () => {
       
       return { data: null, error: null };
     } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'An error occurred';
       return { 
         data: null, 
-        error: { message: error instanceof Error ? error.message : 'An error occurred' } 
+        error: { message: errorMessage }
       };
     }
   };
