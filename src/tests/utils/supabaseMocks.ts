@@ -1,7 +1,6 @@
 import { vi } from 'vitest';
-import type { RealtimeChannel, RealtimePresence, RealtimeChannelOptions } from '@supabase/supabase-js';
+import type { RealtimeChannel, RealtimePresence } from '@supabase/supabase-js';
 
-// Define channel states since they're not exported from supabase-js
 enum CHANNEL_STATES {
   CLOSED = 'CLOSED',
   INITIALIZED = 'INITIALIZED',
@@ -12,7 +11,7 @@ enum CHANNEL_STATES {
 }
 
 export const createSupabaseMock = () => ({
-  from: () => ({
+  from: vi.fn(() => ({
     select: vi.fn().mockReturnThis(),
     insert: vi.fn().mockReturnThis(),
     update: vi.fn().mockReturnThis(),
@@ -20,7 +19,7 @@ export const createSupabaseMock = () => ({
     eq: vi.fn().mockReturnThis(),
     single: vi.fn().mockReturnThis(),
     maybeSingle: vi.fn().mockReturnThis()
-  }),
+  })),
   auth: {
     getSession: vi.fn().mockResolvedValue({ data: { session: null }, error: null }),
     signInWithPassword: vi.fn(),
@@ -40,7 +39,7 @@ export const createSupabaseMock = () => ({
       channel: {} as RealtimeChannel
     };
 
-    const channelMock = {
+    return {
       on: vi.fn().mockReturnThis(),
       subscribe: vi.fn().mockReturnThis(),
       unsubscribe: vi.fn(),
@@ -51,7 +50,7 @@ export const createSupabaseMock = () => ({
       presence: mockPresence,
       topic: name,
       params: {},
-      socket: {} as any,
+      socket: {} as WebSocket,
       bindings: {},
       state: CHANNEL_STATES.CLOSED as string,
       joinQueue: [],
@@ -65,32 +64,24 @@ export const createSupabaseMock = () => ({
         scheduleTimeout: vi.fn()
       },
       stateChangeRefs: [],
-      trigger: vi.fn(),
       config: {
-        config: {
-          presence: {
-            key: '',
-          },
-        },
-      } as RealtimeChannelOptions,
+        presence: {
+          key: ''
+        }
+      }
     } as unknown as RealtimeChannel;
-
-    return channelMock;
   },
-  rpc: (
-    fn: string,
-    params?: Record<string, unknown>
-  ) => ({
+  rpc: vi.fn(() => ({
     select: vi.fn().mockReturnThis(),
     execute: vi.fn().mockResolvedValue({ data: null, error: null }),
-  }),
+  })),
   storage: {
-    from: (bucket: string) => ({
+    from: vi.fn(() => ({
       upload: vi.fn(),
       download: vi.fn(),
       remove: vi.fn(),
       list: vi.fn(),
-    }),
+    })),
   },
 });
 
