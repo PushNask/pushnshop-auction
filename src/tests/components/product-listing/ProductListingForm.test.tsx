@@ -1,38 +1,41 @@
-import { render, screen } from '@testing-library/react';
-import { ProductListingForm } from '@/components/ProductListingForm';
-import type { FormData } from '@/types/product-form';
+import { render, screen, fireEvent } from '@testing-library/react';
+import { ProductListingForm } from '@/components/products/ProductListingForm';
+import { vi } from 'vitest';
 
 describe('ProductListingForm', () => {
-  const mockSubmit = async (data: FormData) => {
-    console.log('Form submitted:', data);
-  };
+  const mockSubmit = vi.fn().mockImplementation(async () => ({ data: null, error: null }));
 
-  it('renders correctly', () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
+  it('renders form fields correctly', () => {
     render(<ProductListingForm onSubmit={mockSubmit} />);
-    expect(screen.getByText(/Create Listing/i)).toBeInTheDocument();
-    expect(screen.getByLabelText(/Title/i)).toBeInTheDocument();
-    expect(screen.getByLabelText(/Description/i)).toBeInTheDocument();
+    expect(screen.getByLabelText(/Product Title/i)).toBeInTheDocument();
     expect(screen.getByLabelText(/Price/i)).toBeInTheDocument();
-    expect(screen.getByLabelText(/Currency/i)).toBeInTheDocument();
-    expect(screen.getByLabelText(/Quantity/i)).toBeInTheDocument();
-    expect(screen.getByLabelText(/Duration/i)).toBeInTheDocument();
+    expect(screen.getByLabelText(/Description/i)).toBeInTheDocument();
+    expect(screen.getByLabelText(/Upload Images/i)).toBeInTheDocument();
   });
 
-  it('handles form submission', () => {
+  it('handles form submission', async () => {
     render(<ProductListingForm onSubmit={mockSubmit} />);
-    const submitButton = screen.getByRole('button', { name: /Create Listing/i });
-    expect(submitButton).toBeInTheDocument();
-    expect(submitButton).not.toBeDisabled();
-  });
-
-  it('validates required fields', () => {
-    render(<ProductListingForm onSubmit={mockSubmit} />);
-    const submitButton = screen.getByRole('button', { name: /Create Listing/i });
-    submitButton.click();
     
-    expect(screen.getByText(/Title is required/i)).toBeInTheDocument();
-    expect(screen.getByText(/Description is required/i)).toBeInTheDocument();
-    expect(screen.getByText(/Price is required/i)).toBeInTheDocument();
-    expect(screen.getByText(/At least one image is required/i)).toBeInTheDocument();
+    fireEvent.change(screen.getByLabelText(/Product Title/i), { target: { value: 'Test Product' } });
+    fireEvent.change(screen.getByLabelText(/Price/i), { target: { value: '100' } });
+    fireEvent.change(screen.getByLabelText(/Description/i), { target: { value: 'This is a test product.' } });
+    
+    fireEvent.click(screen.getByRole('button', { name: /Submit/i }));
+
+    expect(mockSubmit).toHaveBeenCalled();
+    expect(mockSubmit).toHaveBeenCalledWith(expect.any(FormData));
+  });
+
+  it('displays validation errors', async () => {
+    render(<ProductListingForm onSubmit={mockSubmit} />);
+    
+    fireEvent.click(screen.getByRole('button', { name: /Submit/i }));
+
+    expect(await screen.findByText(/Product Title is required/i)).toBeInTheDocument();
+    expect(await screen.findByText(/Price is required/i)).toBeInTheDocument();
   });
 });

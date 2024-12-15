@@ -23,7 +23,7 @@ export const SystemHealthMonitor = ({
         if (error) throw error;
         
         if (data) {
-          setMetrics(data as SystemMetrics);
+          setMetrics(data as unknown as SystemMetrics);
         }
 
         const { data: alertsData } = await supabase

@@ -1,89 +1,34 @@
-import { useState } from 'react';
-import { useAnalytics } from '@/hooks/useAnalytics';
-import { MetricsChart } from './MetricsChart';
-import { StatCard } from './StatCard';
-import { Card } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { LoadingOverlay } from '@/components/loading/LoadingOverlay';
-import { Users, ShoppingBag, DollarSign, Activity } from 'lucide-react';
-import { useTranslation } from 'react-i18next';
-import type { AnalyticsData } from '@/types/analytics';
+import { useAnalytics } from "@/hooks/useAnalytics";
+import { Card } from "@/components/ui/card";
+import { LoadingOverlay } from "@/components/loading/LoadingOverlay";
 
-export function AnalyticsDashboard() {
-  const { t } = useTranslation();
-  const [timeRange, setTimeRange] = useState<'24h' | '7d' | '30d' | '90d'>('7d');
-  const { metrics, loading } = useAnalytics(timeRange);
+const AnalyticsDashboard = () => {
+  const { metrics, isLoading, error } = useAnalytics();
+
+  if (error) {
+    return <div>Error loading analytics: {error.message}</div>;
+  }
 
   return (
-    <LoadingOverlay loading={loading}>
+    <LoadingOverlay loading={isLoading}>
       <div className="space-y-6">
-        <div className="flex justify-between items-center">
-          <h1 className="text-2xl font-bold">{t('analytics.title')}</h1>
-          <div className="flex gap-2">
-            <Button
-              variant={timeRange === '7d' ? 'default' : 'outline'}
-              onClick={() => setTimeRange('7d')}
-            >
-              {t('analytics.timeframes.7d')}
-            </Button>
-            <Button
-              variant={timeRange === '30d' ? 'default' : 'outline'}
-              onClick={() => setTimeRange('30d')}
-            >
-              {t('analytics.timeframes.30d')}
-            </Button>
-            <Button
-              variant={timeRange === '90d' ? 'default' : 'outline'}
-              onClick={() => setTimeRange('90d')}
-            >
-              {t('analytics.timeframes.90d')}
-            </Button>
-          </div>
-        </div>
-
-        {metrics && (
-          <>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-              <StatCard
-                title="Total Views"
-                value={metrics.views}
-                trend={metrics.trends.viewsTrend}
-                icon={Users}
-              />
-              <StatCard
-                title="Total Clicks"
-                value={metrics.clicks}
-                trend={metrics.trends.clicksTrend}
-                icon={ShoppingBag}
-              />
-              <StatCard
-                title="Conversions"
-                value={metrics.conversions}
-                trend={metrics.trends.conversionTrend}
-                icon={Activity}
-              />
-              <StatCard
-                title="Revenue"
-                value={metrics.revenue}
-                trend={metrics.trends.revenueTrend}
-                icon={DollarSign}
-                format="currency"
-              />
-            </div>
-
-            <Card className="p-6">
-              <MetricsChart
-                title="Performance Over Time"
-                data={metrics.data}
-                dataKey="views"
-                color="#0077B6"
-              />
-            </Card>
-          </>
-        )}
+        <Card>
+          <h2 className="text-lg font-semibold">Analytics Overview</h2>
+          <p>Total Views: {metrics.views}</p>
+          <p>Total Clicks: {metrics.clicks}</p>
+          <p>Total Conversions: {metrics.conversions}</p>
+          <p>Total Revenue: {metrics.revenue}</p>
+        </Card>
+        <Card>
+          <h2 className="text-lg font-semibold">Trends</h2>
+          <p>Views Trend: {metrics.trends.viewsTrend}</p>
+          <p>Clicks Trend: {metrics.trends.clicksTrend}</p>
+          <p>Conversion Trend: {metrics.trends.conversionTrend}</p>
+          <p>Revenue Trend: {metrics.trends.revenueTrend}</p>
+        </Card>
       </div>
     </LoadingOverlay>
   );
-}
+};
 
 export default AnalyticsDashboard;
