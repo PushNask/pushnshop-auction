@@ -15,8 +15,7 @@ import { BasicInfoSection } from './BasicInfoSection';
 import { PriceSection } from './PriceSection';
 import { CategorySection } from './CategorySection';
 import { DurationSection } from './DurationSection';
-import type { ProductImage, FormData } from '@/types/product-form';
-import type { Duration } from '@/types/product';
+import type { ProductImage, FormData, Duration } from '@/types/product';
 
 export const EnhancedProductForm = () => {
   const { toast } = useToast();

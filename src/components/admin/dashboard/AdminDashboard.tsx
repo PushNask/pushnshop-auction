@@ -1,25 +1,15 @@
 import { useQuery } from "@tanstack/react-query";
-import { Card } from "@/components/ui/card";
 import { supabase } from "@/integrations/supabase/client";
-import {
-  ResponsiveContainer,
-  LineChart,
-  Line,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  PieChart,
-  Pie,
-  Cell,
-  BarChart,
-  Bar
-} from 'recharts';
 import type { AdminDashboardMetrics } from "@/types/admin-dashboard";
+import { StatsOverview } from "./StatsOverview";
+import { PaymentVerification } from "./PaymentVerification";
+import SystemMonitoring from "../monitoring/SystemMonitoring";
+import { UserManagement } from "../users/UserManagement";
+import { PendingListings } from "../listings/PendingListings";
+import AnalyticsDashboard from "@/components/analytics/AnalyticsDashboard";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
-const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042'];
-
-export function AdminDashboard() {
+const AdminDashboard = () => {
   const { data: metrics, isLoading } = useQuery({
     queryKey: ["admin-metrics"],
     queryFn: async () => {
@@ -27,85 +17,50 @@ export function AdminDashboard() {
         time_range: "7d"
       });
       if (error) throw error;
-      return data as AdminDashboardMetrics;
+      return data as unknown as AdminDashboardMetrics;
     }
   });
 
-  if (isLoading) {
-    return <div>Loading...</div>;
-  }
-
-  if (!metrics) {
-    return <div>No data available</div>;
-  }
-
   return (
-    <div className="space-y-6">
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <Card className="p-4">
-          <h3 className="text-lg font-semibold mb-4">User Growth</h3>
-          <div className="h-[300px]">
-            <ResponsiveContainer width="100%" height="100%">
-              <LineChart data={metrics.userMetrics.growth}>
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="date" />
-                <YAxis />
-                <Tooltip />
-                <Line
-                  type="monotone"
-                  dataKey="count"
-                  stroke="#8884d8"
-                  name="New Users"
-                />
-              </LineChart>
-            </ResponsiveContainer>
-          </div>
-        </Card>
+    <div className="container mx-auto p-6 space-y-6">
+      <h1 className="text-2xl font-bold">Admin Dashboard</h1>
+      
+      <Tabs defaultValue="overview" className="space-y-6">
+        <TabsList>
+          <TabsTrigger value="overview">Overview</TabsTrigger>
+          <TabsTrigger value="listings">Listings</TabsTrigger>
+          <TabsTrigger value="payments">Payments</TabsTrigger>
+          <TabsTrigger value="users">Users</TabsTrigger>
+          <TabsTrigger value="system">System</TabsTrigger>
+          <TabsTrigger value="analytics">Analytics</TabsTrigger>
+        </TabsList>
 
-        <Card className="p-4">
-          <h3 className="text-lg font-semibold mb-4">User Demographics</h3>
-          <div className="h-[300px]">
-            <ResponsiveContainer width="100%" height="100%">
-              <PieChart>
-                <Pie
-                  data={metrics.userMetrics.demographics}
-                  dataKey="count"
-                  nameKey="role"
-                  cx="50%"
-                  cy="50%"
-                  outerRadius={100}
-                  label
-                >
-                  {metrics.userMetrics.demographics.map((_, index) => (
-                    <Cell
-                      key={`cell-${index}`}
-                      fill={COLORS[index % COLORS.length]}
-                    />
-                  ))}
-                </Pie>
-                <Tooltip />
-              </PieChart>
-            </ResponsiveContainer>
-          </div>
-        </Card>
-      </div>
+        <TabsContent value="overview">
+          <StatsOverview metrics={metrics} isLoading={isLoading} />
+        </TabsContent>
 
-      <Card className="p-4">
-        <h3 className="text-lg font-semibold mb-4">Product Categories</h3>
-        <div className="h-[300px]">
-          <ResponsiveContainer width="100%" height="100%">
-            <BarChart data={metrics.productMetrics.categories}>
-              <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="status" />
-              <YAxis />
-              <Tooltip />
-              <Bar dataKey="count" fill="#8884d8" />
-            </BarChart>
-          </ResponsiveContainer>
-        </div>
-      </Card>
+        <TabsContent value="listings">
+          <PendingListings />
+        </TabsContent>
+
+        <TabsContent value="payments">
+          <PaymentVerification />
+        </TabsContent>
+
+        <TabsContent value="users">
+          <UserManagement />
+        </TabsContent>
+
+        <TabsContent value="system">
+          <SystemMonitoring />
+        </TabsContent>
+
+        <TabsContent value="analytics">
+          <AnalyticsDashboard />
+        </TabsContent>
+      </Tabs>
     </div>
   );
-}
+};
 
 export default AdminDashboard;
