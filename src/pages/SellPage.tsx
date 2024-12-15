@@ -5,6 +5,11 @@ import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import type { FormData } from "@/types/product-form";
 
+interface SubmitResponse {
+  data: null;
+  error: { message: string } | null;
+}
+
 const SellPage = () => {
   const { toast } = useToast();
   const navigate = useNavigate();
@@ -53,10 +58,7 @@ const SellPage = () => {
     checkAuth();
   }, [navigate, toast]);
 
-  const handleSubmit = async (formData: FormData): Promise<{
-    data: null;
-    error: { message: string } | null;
-  }> => {
+  const handleSubmit = async (formData: FormData): Promise<SubmitResponse> => {
     try {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error('Not authenticated');
