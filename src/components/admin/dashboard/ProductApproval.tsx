@@ -1,36 +1,48 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { Loader2, CheckCircle, XCircle } from 'lucide-react';
 import type { Product } from '@/types/product';
+import { mapDbProductToProduct } from '@/utils/product';
 
 export const ProductApproval = () => {
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
   const [pendingProducts, setPendingProducts] = useState<Product[]>([]);
 
+  useEffect(() => {
+    fetchPendingProducts();
+  }, []);
+
   const fetchPendingProducts = async () => {
-    const { data, error } = await supabase
-      .from('products')
-      .select(`
-        *,
-        product_images (*),
-        users!products_seller_id_fkey (
-          whatsapp_number,
-          full_name
-        )
-      `)
-      .eq('status', 'pending_approval')
-      .order('created_at', { ascending: false });
+    try {
+      const { data, error } = await supabase
+        .from('products')
+        .select(`
+          *,
+          product_images (*),
+          users!products_seller_id_fkey (
+            whatsapp_number,
+            full_name
+          )
+        `)
+        .eq('status', 'pending_approval')
+        .order('created_at', { ascending: false });
 
-    if (error) {
+      if (error) throw error;
+
+      const mappedProducts = (data || []).map(dbProduct => mapDbProductToProduct(dbProduct));
+      setPendingProducts(mappedProducts);
+    } catch (error) {
       console.error('Error fetching pending products:', error);
-      return;
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "Failed to fetch pending products"
+      });
     }
-
-    setPendingProducts(data || []);
   };
 
   const handleApproval = async (productId: string, approved: boolean) => {
@@ -46,16 +58,19 @@ export const ProductApproval = () => {
       if (updateError) throw updateError;
 
       // Create notification for seller
-      const { error: notificationError } = await supabase
-        .from('notifications')
-        .insert({
-          user_id: pendingProducts.find(p => p.id === productId)?.sellerId,
-          type: 'product_status',
-          title: `Product ${approved ? 'Approved' : 'Rejected'}`,
-          message: `Your product listing has been ${approved ? 'approved' : 'rejected'}.`
-        });
+      const product = pendingProducts.find(p => p.id === productId);
+      if (product?.sellerId) {
+        const { error: notificationError } = await supabase
+          .from('notifications')
+          .insert({
+            user_id: product.sellerId,
+            type: 'product_status',
+            title: `Product ${approved ? 'Approved' : 'Rejected'}`,
+            message: `Your product listing has been ${approved ? 'approved' : 'rejected'}.`
+          });
 
-      if (notificationError) throw notificationError;
+        if (notificationError) throw notificationError;
+      }
 
       toast({
         title: 'Success',
@@ -94,8 +109,10 @@ export const ProductApproval = () => {
                     <p className="text-sm text-muted-foreground">{product.description}</p>
                     <div className="mt-2">
                       <p className="text-sm">Price: {product.currency} {product.price}</p>
-                      <p className="text-sm">Seller: {product.users?.full_name}</p>
-                      <p className="text-sm">WhatsApp: {product.users?.whatsapp_number}</p>
+                      <p className="text-sm">Quantity: {product.quantity}</p>
+                      {product.sellerWhatsApp && (
+                        <p className="text-sm">WhatsApp: {product.sellerWhatsApp}</p>
+                      )}
                     </div>
                   </div>
                   <div className="flex gap-2">
