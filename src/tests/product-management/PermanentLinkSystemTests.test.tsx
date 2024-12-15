@@ -15,13 +15,15 @@ describe('Permanent Link System', () => {
     const productId = 'test-product-id';
     const mockSupabase = createSupabaseMock();
     
-    vi.mocked(mockSupabase.from().single).mockResolvedValueOnce({
+    const mockResponse = {
       data: { id: 1, url_key: 'p1', status: 'available' },
       error: null,
       count: null,
       status: 200,
       statusText: 'OK'
-    });
+    };
+
+    vi.mocked(mockSupabase.from().single).mockResolvedValueOnce(mockResponse);
     
     const result = await PermanentLinkManager.assignLink(productId);
     expect(result).toBe('p1');

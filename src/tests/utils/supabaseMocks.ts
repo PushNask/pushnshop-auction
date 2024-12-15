@@ -62,7 +62,7 @@ export const createMockRealtimeChannel = (): RealtimeChannel => {
       binaryDecode: vi.fn(),
     } as unknown as RealtimeClient,
     bindings: {},
-    state: REALTIME_SUBSCRIBE_STATES.SUBSCRIBED,
+    state: REALTIME_SUBSCRIBE_STATES.SUBSCRIBED as unknown as string,
     presenceState: vi.fn(),
     joinedOnce: false,
     rejoinTimer: null,
@@ -97,7 +97,13 @@ export const createPostgrestMock = () => {
     delete: vi.fn().mockReturnThis(),
     upsert: vi.fn().mockReturnThis(),
     eq: vi.fn().mockReturnThis(),
-    single: vi.fn().mockReturnThis(),
+    single: vi.fn().mockImplementation(() => ({
+      data: null,
+      error: null,
+      count: null,
+      status: 200,
+      statusText: 'OK'
+    })),
     maybeSingle: vi.fn().mockReturnThis(),
     url: '',
     headers: {},
