@@ -1,6 +1,5 @@
 import { vi } from 'vitest';
-import type { RealtimeChannel, RealtimePresence, Timer } from '@supabase/supabase-js';
-import { CHANNEL_STATES } from '@supabase/supabase-js';
+import type { RealtimeChannel, RealtimePresence } from '@supabase/supabase-js';
 
 export const createSupabaseMock = () => ({
   from: () => ({
@@ -19,15 +18,6 @@ export const createSupabaseMock = () => ({
     signOut: vi.fn(),
   },
   channel: (name: string) => {
-    const mockTimer: Timer = {
-      timer: null,
-      tries: 0,
-      callback: () => {},
-      timerCalc: () => 1000,
-      reset: () => {},
-      scheduleTimeout: () => {}
-    };
-
     const mockPresence: RealtimePresence = {
       state: {},
       pendingDiffs: [],
@@ -36,10 +26,11 @@ export const createSupabaseMock = () => ({
         onJoin: vi.fn(),
         onLeave: vi.fn(),
         onSync: vi.fn()
-      }
+      },
+      channel: {} as RealtimeChannel
     };
 
-    const channelMock: RealtimeChannel = {
+    const channelMock: Partial<RealtimeChannel> = {
       on: vi.fn().mockReturnThis(),
       subscribe: vi.fn().mockReturnThis(),
       unsubscribe: vi.fn(),
@@ -52,16 +43,23 @@ export const createSupabaseMock = () => ({
       params: {},
       socket: {} as any,
       bindings: {},
-      state: CHANNEL_STATES.closed,
+      state: 'SUBSCRIBED',
       joinQueue: [],
       timeout: 10000,
-      rejoinTimer: mockTimer,
+      rejoinTimer: {
+        timer: null,
+        tries: 0,
+        callback: () => {},
+        timerCalc: () => 1000,
+        reset: vi.fn(),
+        scheduleTimeout: vi.fn()
+      },
       stateChangeRefs: [],
       trigger: vi.fn(),
       config: { broadcast: { ack: true, self: false } }
     };
 
-    return channelMock;
+    return channelMock as RealtimeChannel;
   },
   rpc: (
     fn: string,
