@@ -1,16 +1,12 @@
 import { vi } from 'vitest';
-import { RealtimeChannel, RealtimeClient, RealtimeChannelOptions } from '@supabase/supabase-js';
-import type { PostgrestQueryBuilder, PostgrestSingleResponse } from '@supabase/postgrest-js';
+import type { RealtimeChannel, RealtimeClient } from '@supabase/supabase-js';
+import type { PostgrestQueryBuilder } from '@supabase/postgrest-js';
 import type { Database } from '@/integrations/supabase/types';
 
 // Create a properly typed mock RealtimeChannel
-export const createMockRealtimeChannel = (): RealtimeChannel => {
+export const createMockRealtimeChannel = (): Partial<RealtimeChannel> => {
   const channel: Partial<RealtimeChannel> = {
-    topic: 'realtime:test',
-    subscribe: vi.fn((callback?: (status: string) => void) => {
-      if (callback) callback('SUBSCRIBED');
-      return channel as RealtimeChannel;
-    }),
+    subscribe: vi.fn(() => Promise.resolve('SUBSCRIBED')),
     unsubscribe: vi.fn(),
     on: vi.fn().mockReturnThis(),
     send: vi.fn(),
@@ -19,51 +15,10 @@ export const createMockRealtimeChannel = (): RealtimeChannel => {
     on_broadcast: vi.fn(),
     on_presence: vi.fn(),
     on_postgres_changes: vi.fn(),
-    socket: {
-      accessToken: null,
-      accessTokenValue: null,
-      apiKey: 'test-api-key',
-      channels: [],
-      connect: vi.fn(),
-      disconnect: vi.fn(),
-      isConnected: vi.fn(),
-      endPoint: 'ws://localhost:54321',
-      httpEndpoint: 'http://localhost:54321',
-      maxReconnectAttempts: 5,
-      minReconnectDelay: 1000,
-      maxReconnectDelay: 5000,
-      reconnectAfterMs: vi.fn(),
-      reconnectTimer: null,
-      ref: 0,
-      timeout: 10000,
-      transport: WebSocket,
-      heartbeatIntervalMs: 30000,
-      heartbeatTimer: null,
-      pendingHeartbeatRef: null,
-      params: {},
-      endPointURL: vi.fn(),
-      connectionState: vi.fn(),
-      push: vi.fn(),
-      makeRef: vi.fn(),
-      leaveOpenTopic: vi.fn(),
-      subscribe: vi.fn(),
-      unsubscribe: vi.fn(),
-      log: vi.fn(),
-      hasLogger: vi.fn(),
-      onOpen: vi.fn(),
-      onClose: vi.fn(),
-      onError: vi.fn(),
-      onMessage: vi.fn(),
-      triggerChanError: vi.fn(),
-      connectionStateRecovery: null,
-      encode: vi.fn(),
-      decode: vi.fn(),
-      binaryEncode: vi.fn(),
-      binaryDecode: vi.fn(),
-    } as unknown as RealtimeClient,
+    presenceState: vi.fn(),
+    socket: null as unknown as RealtimeClient,
     bindings: {},
     state: 'SUBSCRIBED',
-    presenceState: vi.fn(),
     joinedOnce: false,
     rejoinTimer: null,
     rejoinAttempts: 0,
@@ -79,12 +34,11 @@ export const createMockRealtimeChannel = (): RealtimeChannel => {
     params: {},
     config: {
       broadcast: { ack: true, self: false },
-      presence: { key: '' },
-      config: {}
-    } as RealtimeChannelOptions
+      presence: { key: '' }
+    }
   };
   
-  return channel as RealtimeChannel;
+  return channel;
 };
 
 export const mockChannel = createMockRealtimeChannel();
@@ -104,7 +58,7 @@ export const createPostgrestMock = () => {
       count: null,
       status: 200,
       statusText: 'OK'
-    } as PostgrestSingleResponse<any>))
+    }))
   };
   return mock as unknown as PostgrestQueryBuilder<Database['public'], any, any>;
 };

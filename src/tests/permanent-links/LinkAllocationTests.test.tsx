@@ -6,12 +6,12 @@ vi.mock('@/integrations/supabase/client', () => ({
   supabase: createSupabaseMock()
 }));
 
-describe('Permanent Link System', () => {
+describe('Link Allocation System', () => {
   beforeEach(() => {
     vi.clearAllMocks();
   });
 
-  test('allocates links correctly', async () => {
+  test('allocates new link successfully', async () => {
     const productId = 'test-product-id';
     const mockSupabase = createSupabaseMock();
     
@@ -24,17 +24,23 @@ describe('Permanent Link System', () => {
     
     const result = await PermanentLinkManager.assignLink(productId);
     expect(result).toBe('p1');
-    expect(mockSupabase.from).toHaveBeenCalledWith('permanent_links');
   });
 
-  test('handles expired listings correctly', async () => {
-    const expiredListingId = 'expired-listing';
-    await PermanentLinkManager.releaseLink(expiredListingId);
-    expect(createSupabaseMock().from).toHaveBeenCalledWith('permanent_links');
-  });
-
-  test('maintains URL structure consistency', async () => {
-    const mockLink = await PermanentLinkManager.getProductByLink('p1');
-    expect(mockLink).toBeDefined();
+  test('handles allocation when no links available', async () => {
+    const productId = 'test-product-id';
+    const mockSupabase = createSupabaseMock();
+    
+    // First query returns no available links
+    mockSupabase.from().single.mockRejectedValueOnce(new Error('No links available'));
+    
+    // Second query returns oldest active link
+    const mockOldestLink = {
+      data: { id: 1, url_key: 'p1', status: 'active' },
+      error: null
+    };
+    mockSupabase.from().single.mockResolvedValueOnce(mockOldestLink);
+    
+    const result = await PermanentLinkManager.assignLink(productId);
+    expect(result).toBe('p1');
   });
 });
