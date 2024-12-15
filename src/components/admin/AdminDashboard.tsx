@@ -74,7 +74,15 @@ const AdminDashboard = () => {
         throw error;
       }
       
-      return data as AdminDashboardMetrics;
+      // Ensure the data matches the AdminDashboardMetrics type
+      const typedData = data as unknown as AdminDashboardMetrics;
+      
+      // Validate the required properties exist
+      if (!typedData?.overview || !typedData?.userMetrics || !typedData?.productMetrics) {
+        throw new Error("Invalid metrics data structure");
+      }
+      
+      return typedData;
     }
   });
 
