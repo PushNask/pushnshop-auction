@@ -1,4 +1,5 @@
-import type { Product, ProductImage } from '@/types/product';
+import type { Product, ProductImage, ProductStatus } from '@/types/product';
+import type { Database } from '@/integrations/supabase/types';
 
 export const DEFAULT_PRODUCT: Product = {
   id: '',
@@ -9,8 +10,7 @@ export const DEFAULT_PRODUCT: Product = {
   images: [],
   status: 'draft',
   quantity: 1,
-  sellerId: '',
-  createdAt: new Date().toISOString(),
+  viewCount: 0
 };
 
 export const validateProduct = (product: Partial<Product>): string[] => {
@@ -40,4 +40,33 @@ export const formatProductImages = (images: ProductImage[]): ProductImage[] => {
     ...image,
     order_number: index,
   }));
+};
+
+type DbProduct = Database['public']['Tables']['products']['Row'] & {
+  product_images: Database['public']['Tables']['product_images']['Row'][];
+  seller?: {
+    whatsapp_number: string | null;
+  };
+};
+
+export const mapDbProductToProduct = (dbProduct: DbProduct): Product => {
+  return {
+    id: dbProduct.id,
+    title: dbProduct.title,
+    description: dbProduct.description,
+    price: Number(dbProduct.price),
+    currency: dbProduct.currency || 'XAF',
+    quantity: dbProduct.quantity,
+    status: dbProduct.status as ProductStatus,
+    images: (dbProduct.product_images || []).map(img => ({
+      id: img.id,
+      url: img.url,
+      alt: img.alt || '',
+      order_number: img.order_number
+    })),
+    viewCount: 0,
+    sellerWhatsApp: dbProduct.seller?.whatsapp_number || '',
+    createdAt: dbProduct.created_at,
+    expiresAt: dbProduct.end_time
+  };
 };

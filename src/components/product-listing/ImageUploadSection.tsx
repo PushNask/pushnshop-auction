@@ -1,91 +1,120 @@
-import { useCallback } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { useState, useCallback } from 'react';
+import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Trash2 } from 'lucide-react';
+import { ImagePlus, X } from 'lucide-react';
 import type { ProductImage } from '@/types/product';
 
-interface ImageUploadSectionProps {
+export interface ImageUploadSectionProps {
   images: ProductImage[];
   onImagesChange: (images: ProductImage[]) => void;
-  maxImages?: number;
+  error?: string;
 }
 
 export const ImageUploadSection = ({
   images,
   onImagesChange,
-  maxImages = 7
+  error
 }: ImageUploadSectionProps) => {
-  const handleFileChange = useCallback(
-    (event: React.ChangeEvent<HTMLInputElement>) => {
-      const files = Array.from(event.target.files || []);
-      if (files.length + images.length > maxImages) {
-        alert(`You can only upload up to ${maxImages} images`);
-        return;
-      }
+  const [isDragging, setIsDragging] = useState(false);
 
-      const newImages: ProductImage[] = files.map((file, index) => ({
-        id: `temp-${Date.now()}-${index}`,
-        url: URL.createObjectURL(file),
-        alt: file.name,
-        order_number: images.length + index,
-        file,
-        isNew: true,
-        preview: URL.createObjectURL(file)
-      }));
+  const handleFileChange = useCallback((files: FileList | null) => {
+    if (!files) return;
 
-      onImagesChange([...images, ...newImages]);
-    },
-    [images, maxImages, onImagesChange]
-  );
+    const newImages: ProductImage[] = Array.from(files).map((file, index) => ({
+      id: `temp-${Date.now()}-${index}`,
+      url: URL.createObjectURL(file),
+      alt: file.name,
+      order_number: images.length + index,
+      file,
+      isNew: true,
+      preview: URL.createObjectURL(file)
+    }));
 
-  const handleRemoveImage = (index: number) => {
-    const newImages = images.filter((_, i) => i !== index);
-    onImagesChange(newImages.map((img, i) => ({ ...img, order_number: i })));
-  };
+    onImagesChange([...images, ...newImages]);
+  }, [images, onImagesChange]);
+
+  const handleDrop = useCallback((e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragging(false);
+    handleFileChange(e.dataTransfer.files);
+  }, [handleFileChange]);
+
+  const handleDragOver = useCallback((e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragging(true);
+  }, []);
+
+  const handleDragLeave = useCallback((e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragging(false);
+  }, []);
+
+  const handleRemoveImage = useCallback((index: number) => {
+    const newImages = [...images];
+    const removed = newImages.splice(index, 1)[0];
+    if (removed.preview) {
+      URL.revokeObjectURL(removed.preview);
+    }
+    onImagesChange(newImages);
+  }, [images, onImagesChange]);
 
   return (
     <Card>
-      <CardHeader>
-        <CardTitle>Product Images</CardTitle>
-      </CardHeader>
-      <CardContent>
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+      <CardContent className="p-4">
+        <div className="flex justify-between items-center mb-4">
+          <h3 className="text-lg font-semibold">
+            Product Images ({images.length}/7)
+          </h3>
+          {images.length < 7 && (
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => document.getElementById('image-upload')?.click()}
+            >
+              <ImagePlus className="w-4 h-4 mr-2" />
+              Add Image
+            </Button>
+          )}
+        </div>
+
+        {error && (
+          <p className="text-red-500 text-sm mb-4">{error}</p>
+        )}
+
+        <input
+          id="image-upload"
+          type="file"
+          className="hidden"
+          accept="image/*"
+          multiple
+          onChange={(e) => handleFileChange(e.target.files)}
+        />
+
+        <div
+          className={`grid grid-cols-2 md:grid-cols-4 gap-4 p-4 border-2 border-dashed rounded-lg transition-colors ${
+            isDragging ? 'border-primary bg-primary/10' : 'border-gray-200'
+          }`}
+          onDrop={handleDrop}
+          onDragOver={handleDragOver}
+          onDragLeave={handleDragLeave}
+        >
           {images.map((image, index) => (
-            <div key={image.id} className="relative aspect-square group">
+            <div key={image.id} className="relative group aspect-square">
               <img
                 src={image.preview || image.url}
                 alt={image.alt}
                 className="w-full h-full object-cover rounded-lg"
               />
-              <Button
-                variant="destructive"
-                size="icon"
-                className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity"
+              <button
                 onClick={() => handleRemoveImage(index)}
+                className="absolute top-2 right-2 p-1 bg-red-500 text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
               >
-                <Trash2 className="h-4 w-4" />
-              </Button>
+                <X className="w-4 h-4" />
+              </button>
             </div>
           ))}
-          {images.length < maxImages && (
-            <label className="border-2 border-dashed border-gray-300 rounded-lg aspect-square flex items-center justify-center cursor-pointer hover:border-primary transition-colors">
-              <input
-                type="file"
-                accept="image/*"
-                multiple
-                className="hidden"
-                onChange={handleFileChange}
-              />
-              <span className="text-sm text-gray-500">Add Image</span>
-            </label>
-          )}
         </div>
-        <p className="text-sm text-gray-500 mt-2">
-          Upload up to {maxImages} images. First image will be the cover.
-        </p>
       </CardContent>
     </Card>
   );
 };
-
-export default ImageUploadSection;
