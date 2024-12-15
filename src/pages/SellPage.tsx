@@ -1,22 +1,27 @@
 import { ProductListingForm } from "@/components/products/ProductListingForm";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/components/ui/use-toast";
+import type { FormData } from "@/types/product-form";
 
 const SellPage = () => {
   const { toast } = useToast();
 
-  const handleSubmit = async (data: FormData): Promise<{ data: any; error: { message: string } }> => {
+  const handleSubmit = async (formData: FormData): Promise<{ data: any; error: { message: string } | null }> => {
     try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error('Not authenticated');
+
       const { error } = await supabase
         .from('products')
-        .insert([
-          {
-            title: data.get('title'),
-            description: data.get('description'),
-            price: parseFloat(data.get('price') as string),
-            // Add other fields as necessary
-          }
-        ]);
+        .insert({
+          title: formData.title,
+          description: formData.description,
+          price: parseFloat(formData.price),
+          currency: formData.currency,
+          quantity: parseInt(formData.quantity),
+          seller_id: user.id,
+          status: 'draft'
+        });
 
       if (error) {
         throw new Error(error.message);

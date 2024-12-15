@@ -1,4 +1,4 @@
-import type { Product } from '@/types/product';
+import type { Product, Currency } from '@/types/product';
 import type { Database } from '@/integrations/supabase/types';
 
 type DbProduct = Database['public']['Tables']['products']['Row'];
@@ -6,10 +6,9 @@ type DbProduct = Database['public']['Tables']['products']['Row'];
 export const mapDbProductToProduct = (dbProduct: DbProduct): Product => {
   return {
     id: dbProduct.id,
-    permanentLinkId: undefined, // This will be set by the listing if available
     title: dbProduct.title,
     description: dbProduct.description,
-    price: Number(dbProduct.price), // Convert from numeric to number
+    price: Number(dbProduct.price),
     currency: dbProduct.currency || 'XAF',
     quantity: dbProduct.quantity,
     images: [], // Will be populated separately
@@ -22,7 +21,7 @@ export const mapDbProductToProduct = (dbProduct: DbProduct): Product => {
   };
 };
 
-export const formatCurrency = (amount: number, currency: string): string => {
+export const formatCurrency = (amount: number, currency: Currency): string => {
   if (currency === 'XAF') {
     return `${amount.toLocaleString()} XAF`;
   }
@@ -30,18 +29,4 @@ export const formatCurrency = (amount: number, currency: string): string => {
     style: 'currency',
     currency: currency
   }).format(amount);
-};
-
-export const getTimeRemaining = (expiresAt: string): string => {
-  const now = new Date();
-  const expiry = new Date(expiresAt);
-  const diff = expiry.getTime() - now.getTime();
-
-  if (diff <= 0) return 'Expired';
-
-  const hours = Math.floor(diff / (1000 * 60 * 60));
-  if (hours < 24) return `${hours}h left`;
-
-  const days = Math.floor(hours / 24);
-  return `${days}d left`;
 };

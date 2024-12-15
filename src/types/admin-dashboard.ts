@@ -1,7 +1,6 @@
-export interface AdminDashboardMetrics {
-  overview: OverviewMetrics;
-  userMetrics: UserMetrics;
-  productMetrics: ProductMetrics;
+export interface SystemStatus {
+  responseTime: number;
+  errorRate: number;
 }
 
 export interface OverviewMetrics {
@@ -11,37 +10,21 @@ export interface OverviewMetrics {
   listingsTrend: number;
   totalRevenue: number;
   revenueTrend: number;
-  systemHealth: 'Excellent' | 'Good' | 'Warning';
+  systemHealth: string;
   systemStatus: SystemStatus;
 }
 
-export interface SystemStatus {
-  responseTime: number;
-  errorRate: number;
-}
-
 export interface UserMetrics {
-  growth: UserGrowthData[];
-  demographics: UserDemographics[];
-}
-
-export interface UserGrowthData {
-  date: string;
-  count: number;
-}
-
-export interface UserDemographics {
-  role: string;
-  count: number;
+  growth: Array<{ date: string; count: number }>;
+  demographics: Array<{ role: string; count: number }>;
 }
 
 export interface ProductMetrics {
-  categories: ProductCategoryData[];
+  categories: Array<{ status: string; count: number }>;
 }
 
-export interface ProductCategoryData {
-  status: string;
-  count: number;
+export interface AdminDashboardMetrics {
+  overview: OverviewMetrics;
+  userMetrics: UserMetrics;
+  productMetrics: ProductMetrics;
 }
-
-export type UserRole = 'seller' | 'buyer' | 'admin';

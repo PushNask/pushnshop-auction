@@ -2,6 +2,8 @@ export type Currency = 'XAF' | 'USD';
 
 export type ListingStatus = 'draft' | 'pending_payment' | 'pending_approval' | 'active' | 'expired' | 'rejected';
 
+export type Duration = '24' | '48' | '72' | '96' | '120';
+
 export interface ProductImage {
   id: string;
   url: string;
@@ -27,5 +29,3 @@ export interface Product {
   expiresAt?: string;
   viewCount: number;
 }
-
-export type Duration = '24' | '48' | '72' | '96' | '120';
