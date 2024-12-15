@@ -1,90 +1,14 @@
-import { useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Loader2 } from "lucide-react";
 import { StatsOverview } from "./StatsOverview";
-import { ProductApproval } from "./ProductApproval";
 import { PaymentVerification } from "./PaymentVerification";
 import { UserManagement } from "../users/UserManagement";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { useQuery } from "@tanstack/react-query";
-import { supabase } from "@/integrations/supabase/client";
-import type { AdminDashboardMetrics } from "@/types/admin-dashboard";
-import { useToast } from "@/hooks/use-toast";
-import { Loader2 } from "lucide-react";
+import { PendingListings } from "../listings/PendingListings";
+import { AdminAuthCheck } from "./AdminAuthCheck";
+import { AdminMetricsProvider, useAdminMetrics } from "./AdminMetricsProvider";
 
-const AdminDashboard = () => {
-  const navigate = useNavigate();
-  const { toast } = useToast();
-
-  useEffect(() => {
-    const checkAuth = async () => {
-      try {
-        const { data: { session }, error: sessionError } = await supabase.auth.getSession();
-        
-        if (sessionError) throw sessionError;
-        
-        if (!session) {
-          toast({
-            title: "Authentication required",
-            description: "Please log in to access the admin dashboard",
-            variant: "destructive"
-          });
-          navigate('/auth');
-          return;
-        }
-
-        const { data: userData, error: userError } = await supabase
-          .from('users')
-          .select('role')
-          .eq('id', session.user.id)
-          .single();
-
-        if (userError) throw userError;
-
-        if (userData?.role !== 'admin') {
-          toast({
-            title: "Access denied",
-            description: "You don't have permission to access the admin dashboard",
-            variant: "destructive"
-          });
-          navigate('/');
-        }
-      } catch (error: any) {
-        console.error('Auth check failed:', error);
-        toast({
-          title: "Error",
-          description: error.message || "Failed to verify authentication",
-          variant: "destructive"
-        });
-        navigate('/auth');
-      }
-    };
-
-    checkAuth();
-  }, [navigate, toast]);
-
-  const { data: metrics, isLoading } = useQuery({
-    queryKey: ["admin-metrics"],
-    queryFn: async () => {
-      const { data, error } = await supabase.rpc("get_admin_dashboard_metrics", {
-        time_range: "7d"
-      });
-      
-      if (error) {
-        console.error("Error fetching metrics:", error);
-        throw error;
-      }
-      
-      // Ensure the data matches the AdminDashboardMetrics type
-      const typedData = data as unknown as AdminDashboardMetrics;
-      
-      // Validate the required properties exist
-      if (!typedData?.overview || !typedData?.userMetrics || !typedData?.productMetrics) {
-        throw new Error("Invalid metrics data structure");
-      }
-      
-      return typedData;
-    }
-  });
+const DashboardContent = () => {
+  const { metrics, isLoading } = useAdminMetrics();
 
   if (isLoading) {
     return (
@@ -101,7 +25,7 @@ const AdminDashboard = () => {
       <Tabs defaultValue="overview" className="space-y-6">
         <TabsList>
           <TabsTrigger value="overview">Overview</TabsTrigger>
-          <TabsTrigger value="products">Products</TabsTrigger>
+          <TabsTrigger value="listings">Listings</TabsTrigger>
           <TabsTrigger value="payments">Payments</TabsTrigger>
           <TabsTrigger value="users">Users</TabsTrigger>
         </TabsList>
@@ -110,8 +34,8 @@ const AdminDashboard = () => {
           <StatsOverview metrics={metrics} isLoading={isLoading} />
         </TabsContent>
 
-        <TabsContent value="products">
-          <ProductApproval />
+        <TabsContent value="listings">
+          <PendingListings />
         </TabsContent>
 
         <TabsContent value="payments">
@@ -123,6 +47,16 @@ const AdminDashboard = () => {
         </TabsContent>
       </Tabs>
     </div>
+  );
+};
+
+const AdminDashboard = () => {
+  return (
+    <AdminAuthCheck>
+      <AdminMetricsProvider>
+        <DashboardContent />
+      </AdminMetricsProvider>
+    </AdminAuthCheck>
   );
 };
 
