@@ -52,9 +52,8 @@ export const createSupabaseMock = () => ({
     };
 
     // Create a mock RealtimeClient
-    const mockSocket = {
-      accessTokenValue: null,
-      apiKey: '',
+    const mockSocket: RealtimeClient = {
+      accessToken: null,
       channels: [],
       endPoint: '',
       headers: {},
@@ -88,7 +87,6 @@ export const createSupabaseMock = () => ({
       connectionStateRecovery: null,
       encode: vi.fn(),
       decode: vi.fn(),
-      reconnectAfterMs: vi.fn(),
       onError: vi.fn(),
       onMessage: vi.fn(),
       onOpen: vi.fn(),
@@ -97,7 +95,7 @@ export const createSupabaseMock = () => ({
       onConnectionStateChange: vi.fn(),
     } as unknown as RealtimeClient;
 
-    return {
+    const channel: ExtendedRealtimeChannel = {
       on: vi.fn().mockReturnThis(),
       subscribe: vi.fn().mockReturnThis(),
       unsubscribe: vi.fn(),
@@ -137,7 +135,9 @@ export const createSupabaseMock = () => ({
       isJoining: () => false,
       isLeaving: () => false,
       replyEventName: (ref: string) => `chan_reply_${ref}`
-    } as ExtendedRealtimeChannel;
+    } as unknown as ExtendedRealtimeChannel;
+
+    return channel;
   },
   rpc: vi.fn(() => ({
     select: vi.fn().mockReturnThis(),
