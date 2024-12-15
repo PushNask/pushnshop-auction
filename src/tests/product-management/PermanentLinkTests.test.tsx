@@ -1,17 +1,19 @@
-import { vi } from 'vitest';
+import { describe, test, expect, beforeEach, vi } from 'vitest';
 import { PermanentLinkManager } from '@/lib/permanentLinks/PermanentLinkManager';
 import { supabase } from '@/integrations/supabase/client';
 
-// Mock Supabase client
 vi.mock('@/integrations/supabase/client', () => ({
   supabase: {
-    from: () => ({
+    from: vi.fn(() => ({
       select: vi.fn().mockReturnThis(),
       insert: vi.fn().mockReturnThis(),
       update: vi.fn().mockReturnThis(),
       eq: vi.fn().mockReturnThis(),
-      single: vi.fn(),
-    }),
+      single: vi.fn().mockResolvedValue({
+        data: { id: 1, url_key: 'p1', status: 'available' },
+        error: null
+      }),
+    })),
   },
 }));
 
@@ -21,46 +23,33 @@ describe('Permanent Link System', () => {
   });
 
   test('allocates links correctly', async () => {
-    const manager = new PermanentLinkManager();
     const productId = 'test-product-id';
     
-    const mockLink = {
-      id: 1,
-      url_key: 'p1',
-      status: 'available',
-    };
-    
-    vi.spyOn(supabase, 'from').mockImplementation(() => ({
-      select: () => ({
-        eq: () => ({
-          single: () => Promise.resolve({ data: mockLink, error: null }),
-        }),
-      }),
-      update: () => ({
-        eq: () => Promise.resolve({ data: null, error: null }),
-      }),
-    }));
-
-    const result = await manager.assignLink(productId);
+    const result = await PermanentLinkManager.assignLink(productId);
     expect(result).toBe('p1');
+    expect(supabase.from).toHaveBeenCalledWith('permanent_links');
   });
 
   test('handles expired listings correctly', async () => {
-    const manager = new PermanentLinkManager();
+    const expiredListingId = 'expired-listing';
     
-    const mockExpiredLink = {
-      id: 1,
-      url_key: 'p1',
-      current_listing_id: 'expired-listing',
-    };
-    
-    vi.spyOn(supabase, 'from').mockImplementation(() => ({
-      update: () => ({
-        eq: () => Promise.resolve({ data: null, error: null }),
-      }),
+    await PermanentLinkManager.releaseLink(expiredListingId);
+    expect(supabase.from).toHaveBeenCalledWith('permanent_links');
+  });
+
+  test('maintains URL structure consistency', async () => {
+    const mockLink = await PermanentLinkManager.getProductByLink('p1');
+    expect(mockLink).toBeDefined();
+  });
+
+  test('handles 404 for invalid links', async () => {
+    vi.mocked(supabase.from).mockImplementationOnce(() => ({
+      select: vi.fn().mockReturnThis(),
+      eq: vi.fn().mockReturnThis(),
+      single: vi.fn().mockResolvedValue({ data: null, error: null }),
     }));
 
-    await manager.releaseLink('expired-listing');
-    expect(supabase.from).toHaveBeenCalledWith('permanent_links');
+    const result = await PermanentLinkManager.getProductByLink('invalid-key');
+    expect(result).toBeNull();
   });
 });
