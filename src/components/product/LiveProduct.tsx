@@ -36,14 +36,6 @@ export const LiveProduct = ({ productId }: LiveProductProps) => {
       
       if (productData) {
         const mappedProduct = mapDbProductToProduct(productData);
-        // Add images and WhatsApp from joined data
-        mappedProduct.images = (productData.product_images || []).map(img => ({
-          id: img.id,
-          url: img.url,
-          alt: img.alt || '',
-          order: img.order_number
-        }));
-        mappedProduct.sellerWhatsApp = productData.users?.whatsapp_number || '';
         setProduct(mappedProduct);
       }
       
@@ -64,11 +56,10 @@ export const LiveProduct = ({ productId }: LiveProductProps) => {
         },
         async (payload) => {
           if (payload.new) {
-            const mappedProduct = mapDbProductToProduct(payload.new as any);
-            // Fetch images and user data since they're not included in the subscription
             const { data: productData } = await supabase
               .from('products')
               .select(`
+                *,
                 product_images (
                   id,
                   url,
@@ -83,16 +74,9 @@ export const LiveProduct = ({ productId }: LiveProductProps) => {
               .single();
 
             if (productData) {
-              mappedProduct.images = (productData.product_images || []).map(img => ({
-                id: img.id,
-                url: img.url,
-                alt: img.alt || '',
-                order: img.order_number
-              }));
-              mappedProduct.sellerWhatsApp = productData.users?.whatsapp_number || '';
+              const mappedProduct = mapDbProductToProduct(productData);
+              setProduct(mappedProduct);
             }
-            
-            setProduct(mappedProduct);
           }
         }
       )
