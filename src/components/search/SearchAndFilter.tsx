@@ -13,7 +13,7 @@ export interface SearchAndFilterProps {
 }
 
 export const SearchAndFilter: React.FC<SearchAndFilterProps> = ({ filters, onFiltersChange }) => {
-  const { loading } = useProductSearch(filters);
+  const { isLoading } = useProductSearch(filters);
 
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     onFiltersChange(prev => ({ ...prev, search: e.target.value }));
@@ -26,12 +26,12 @@ export const SearchAndFilter: React.FC<SearchAndFilterProps> = ({ filters, onFil
           placeholder="Search products..."
           value={filters.search}
           onChange={handleSearchChange}
-          disabled={loading}
+          disabled={isLoading}
         />
       </div>
       <Sheet>
         <SheetTrigger asChild>
-          <Button variant="outline" disabled={loading}>
+          <Button variant="outline" disabled={isLoading}>
             <SlidersHorizontal className="h-4 w-4 mr-2" />
             Filters
           </Button>
