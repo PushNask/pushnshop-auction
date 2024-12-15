@@ -1,5 +1,5 @@
 import { vi } from 'vitest';
-import { RealtimeChannel, RealtimeChannelOptions, RealtimeClient, REALTIME_LISTEN_TYPES, REALTIME_SUBSCRIBE_STATES } from '@supabase/supabase-js';
+import { RealtimeChannel, RealtimeChannelOptions, RealtimeClient, REALTIME_SUBSCRIBE_STATES } from '@supabase/supabase-js';
 import { PostgrestQueryBuilder } from '@supabase/postgrest-js';
 import type { Database } from '@/integrations/supabase/types';
 
@@ -7,7 +7,7 @@ import type { Database } from '@/integrations/supabase/types';
 export const createMockRealtimeChannel = (): Partial<RealtimeChannel> => {
   return {
     subscribe: vi.fn().mockImplementation((callback) => {
-      if (callback) callback('SUBSCRIBED');
+      if (callback) callback(REALTIME_SUBSCRIBE_STATES.SUBSCRIBED);
       return Promise.resolve({} as RealtimeChannel);
     }),
     unsubscribe: vi.fn(),
@@ -21,7 +21,7 @@ export const createMockRealtimeChannel = (): Partial<RealtimeChannel> => {
     presenceState: vi.fn(),
     socket: null as unknown as RealtimeClient,
     bindings: {},
-    state: 'SUBSCRIBED',
+    state: REALTIME_SUBSCRIBE_STATES.SUBSCRIBED,
     joinedOnce: false,
     rejoinTimer: null,
     rejoinAttempts: 0,
@@ -51,25 +51,29 @@ export const mockChannel = createMockRealtimeChannel();
 // Create a properly typed mock PostgrestQueryBuilder
 export const createPostgrestMock = () => {
   const mock = {
-    select: vi.fn(() => mock),
-    insert: vi.fn(() => mock),
-    update: vi.fn(() => mock),
-    delete: vi.fn(() => mock),
-    upsert: vi.fn(() => mock),
-    eq: vi.fn(() => mock),
-    single: vi.fn(() => Promise.resolve({ data: null, error: null })),
-    maybeSingle: vi.fn(() => Promise.resolve({ data: null, error: null })),
-    order: vi.fn(() => mock),
-    limit: vi.fn(() => mock)
+    select: vi.fn(),
+    insert: vi.fn(),
+    update: vi.fn(),
+    delete: vi.fn(),
+    upsert: vi.fn(),
+    eq: vi.fn(),
+    single: vi.fn(),
+    maybeSingle: vi.fn(),
+    order: vi.fn(),
+    limit: vi.fn()
   };
 
-  // Add vi.fn() methods to the mock
-  mock.select = vi.fn(() => mock);
+  // Set up chainable methods
   mock.select.mockReturnValue(mock);
-  mock.select.mockReturnValueOnce = vi.fn((value) => {
-    mock.maybeSingle.mockResolvedValueOnce(value);
-    return mock;
-  });
+  mock.insert.mockReturnValue(mock);
+  mock.update.mockReturnValue(mock);
+  mock.delete.mockReturnValue(mock);
+  mock.upsert.mockReturnValue(mock);
+  mock.eq.mockReturnValue(mock);
+  mock.order.mockReturnValue(mock);
+  mock.limit.mockReturnValue(mock);
+  mock.single.mockResolvedValue({ data: null, error: null });
+  mock.maybeSingle.mockResolvedValue({ data: null, error: null });
 
   return mock;
 };
