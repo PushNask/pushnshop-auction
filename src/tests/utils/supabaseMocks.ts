@@ -17,7 +17,7 @@ export const createSupabaseMock = () => ({
     signOut: vi.fn(),
   },
   channel: (name: string) => {
-    const mockPresence = {
+    const mockPresence: RealtimePresence = {
       state: {},
       channel: {} as RealtimeChannel,
       pendingDiffs: [],
@@ -27,35 +27,30 @@ export const createSupabaseMock = () => ({
         onLeave: vi.fn(),
         onSync: vi.fn()
       }
-    } as RealtimePresence;
+    };
 
-    const channelMock = {
+    const channelMock: RealtimeChannel = {
       on: vi.fn().mockReturnThis(),
       subscribe: vi.fn().mockReturnThis(),
       unsubscribe: vi.fn(),
       send: vi.fn(),
       track: vi.fn(),
-      untrack: vi.fn(),
       push: vi.fn(),
       log: vi.fn(),
       presence: mockPresence,
-      // Add required RealtimeChannel properties
       topic: name,
       params: {},
-      socket: {},
+      socket: {} as any,
       bindings: {},
       state: 'SUBSCRIBED',
       joinQueue: [],
       timeout: 10000,
       rejoinTimer: { timer: null, callback: () => {} },
       stateChangeRefs: [],
-      join: vi.fn(),
-      leave: vi.fn(),
-      _rejoin: vi.fn(),
       trigger: vi.fn()
     };
 
-    return channelMock as unknown as RealtimeChannel;
+    return channelMock;
   },
   rpc: (
     fn: string,

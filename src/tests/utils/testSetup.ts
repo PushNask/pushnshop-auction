@@ -1,10 +1,8 @@
 import '@testing-library/jest-dom';
-import { afterEach, vi } from 'vitest';
+import { afterEach } from 'vitest';
 import { cleanup } from '@testing-library/react';
 import { createClient } from '@supabase/supabase-js';
-import type { SupabaseClient } from '@supabase/supabase-js';
 import type { Database } from '@/integrations/supabase/types';
-import { supabase } from '@/integrations/supabase/client';
 
 // Mock Supabase client
 vi.mock('@/integrations/supabase/client', () => ({
@@ -82,7 +80,7 @@ export const generateTestData = () => ({
   }
 });
 
-export const cleanupTestData = async (supabase: SupabaseClient<Database>, testData: {
+export const cleanupTestData = async (supabase: ReturnType<typeof createTestClient>, testData: {
   productId?: string;
   userId?: string;
   listingId?: string;
@@ -99,9 +97,3 @@ export const cleanupTestData = async (supabase: SupabaseClient<Database>, testDa
     await supabase.auth.admin.deleteUser(userId);
   }
 };
-
-// Define vitest globals
-declare global {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const vi: any;
-}
