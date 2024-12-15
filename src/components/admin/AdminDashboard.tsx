@@ -2,10 +2,8 @@ import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { StatsOverview } from "./dashboard/StatsOverview";
 import { PaymentVerification } from "./dashboard/PaymentVerification";
-import SystemMonitoring from "./monitoring/SystemMonitoring";
 import { UserManagement } from "./users/UserManagement";
 import { PendingListings } from "./listings/PendingListings";
-import AnalyticsDashboard from "@/components/analytics/AnalyticsDashboard";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -64,20 +62,9 @@ const AdminDashboard = () => {
     };
 
     checkAuth();
-
-    // Set up auth state change listener
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
-      if (event === 'SIGNED_OUT' || !session) {
-        navigate('/auth');
-      }
-    });
-
-    return () => {
-      subscription.unsubscribe();
-    };
   }, [navigate, toast]);
 
-  const { data: metrics, isLoading, error } = useQuery({
+  const { data: metrics, isLoading } = useQuery({
     queryKey: ["admin-metrics"],
     queryFn: async () => {
       try {
@@ -86,39 +73,22 @@ const AdminDashboard = () => {
         });
         
         if (error) {
-          toast({
-            title: "Error fetching metrics",
-            description: error.message,
-            variant: "destructive"
-          });
+          console.error("Error fetching metrics:", error);
           throw error;
         }
         
-        return data as unknown as AdminDashboardMetrics;
+        return data as AdminDashboardMetrics;
       } catch (error) {
-        console.error("Error fetching admin metrics:", error);
+        console.error("Error in metrics query:", error);
         throw error;
       }
-    },
-    retry: 1,
-    refetchOnWindowFocus: false
+    }
   });
 
   if (isLoading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
         <Loader2 className="w-8 h-8 animate-spin" />
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div className="container mx-auto p-6">
-        <div className="bg-destructive/15 text-destructive p-4 rounded-lg">
-          <h2 className="font-semibold">Error loading dashboard</h2>
-          <p className="text-sm">{(error as Error).message}</p>
-        </div>
       </div>
     );
   }
@@ -133,8 +103,6 @@ const AdminDashboard = () => {
           <TabsTrigger value="listings">Listings</TabsTrigger>
           <TabsTrigger value="payments">Payments</TabsTrigger>
           <TabsTrigger value="users">Users</TabsTrigger>
-          <TabsTrigger value="system">System</TabsTrigger>
-          <TabsTrigger value="analytics">Analytics</TabsTrigger>
         </TabsList>
 
         <TabsContent value="overview">
@@ -151,14 +119,6 @@ const AdminDashboard = () => {
 
         <TabsContent value="users">
           <UserManagement />
-        </TabsContent>
-
-        <TabsContent value="system">
-          <SystemMonitoring />
-        </TabsContent>
-
-        <TabsContent value="analytics">
-          <AnalyticsDashboard />
         </TabsContent>
       </Tabs>
     </div>
