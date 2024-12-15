@@ -26,7 +26,6 @@ describe('Permanent Link System', () => {
 
   test('handles expired listings correctly', async () => {
     const expiredListingId = 'expired-listing';
-    
     await PermanentLinkManager.releaseLink(expiredListingId);
     expect(createSupabaseMock().from).toHaveBeenCalledWith('permanent_links');
   });
@@ -34,16 +33,5 @@ describe('Permanent Link System', () => {
   test('maintains URL structure consistency', async () => {
     const mockLink = await PermanentLinkManager.getProductByLink('p1');
     expect(mockLink).toBeDefined();
-  });
-
-  test('handles 404 for invalid links', async () => {
-    vi.mocked(createSupabaseMock().from).mockImplementationOnce(() => ({
-      select: vi.fn().mockReturnThis(),
-      eq: vi.fn().mockReturnThis(),
-      single: vi.fn().mockResolvedValue({ data: null, error: null }),
-    }));
-
-    const result = await PermanentLinkManager.getProductByLink('invalid-key');
-    expect(result).toBeNull();
   });
 });

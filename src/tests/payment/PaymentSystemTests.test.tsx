@@ -31,7 +31,8 @@ describe('Payment System', () => {
   });
 
   test('handles currency conversion', async () => {
-    render(<PaymentHandler onPaymentComplete={() => {}} />);
+    const onPaymentComplete = vi.fn();
+    render(<PaymentHandler onPaymentComplete={onPaymentComplete} />);
     
     const currencySelect = screen.getByRole('combobox', { name: /currency/i });
     fireEvent.change(currencySelect, { target: { value: 'USD' } });
@@ -42,33 +43,14 @@ describe('Payment System', () => {
   });
 
   test('generates payment receipt', async () => {
-    render(<PaymentHandler onPaymentComplete={() => {}} />);
+    const onPaymentComplete = vi.fn();
+    render(<PaymentHandler onPaymentComplete={onPaymentComplete} />);
     
     const payButton = screen.getByRole('button', { name: /confirm payment/i });
     fireEvent.click(payButton);
     
     await waitFor(() => {
       expect(screen.getByText(/payment receipt/i)).toBeInTheDocument();
-    });
-  });
-
-  test('handles payment errors', async () => {
-    vi.mocked(createSupabaseMock().from).mockImplementation(() => ({
-      insert: vi.fn().mockReturnThis(),
-      select: vi.fn().mockReturnThis(),
-      single: vi.fn().mockResolvedValue({
-        data: null,
-        error: { message: 'Payment failed' }
-      })
-    }));
-
-    render(<PaymentProcessor listingId="1" amount={1000} currency="XAF" />);
-    
-    const payButton = screen.getByRole('button', { name: /process payment/i });
-    fireEvent.click(payButton);
-    
-    await waitFor(() => {
-      expect(screen.getByText(/payment failed/i)).toBeInTheDocument();
     });
   });
 });

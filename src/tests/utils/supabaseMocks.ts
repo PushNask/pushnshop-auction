@@ -1,63 +1,73 @@
-import { RealtimeChannel, REALTIME_SUBSCRIBE_STATES, REALTIME_PRESENCE_LISTEN_EVENTS } from '@supabase/supabase-js';
 import { vi } from 'vitest';
+import type { RealtimeChannel, RealtimeChannelOptions, REALTIME_SUBSCRIBE_STATES, CHANNEL_STATES } from '@supabase/supabase-js';
+import type { PostgrestQueryBuilder } from '@supabase/postgrest-js';
+import type { Database } from '@/integrations/supabase/types';
 
-export const createMockRealtimeChannel = (): RealtimeChannel => ({
-  on: vi.fn().mockReturnThis(),
-  subscribe: vi.fn().mockImplementation((callback) => {
-    if (callback) callback('SUBSCRIBED');
-    return mockChannel;
-  }),
-  unsubscribe: vi.fn(),
-  send: vi.fn(),
-  track: vi.fn(),
-  untrack: vi.fn(),
-  on_broadcast: vi.fn(),
-  on_presence: vi.fn(),
-  on_postgres_changes: vi.fn(),
-  topic: 'realtime:test',
-  params: {},
-  socket: {
-    accessToken: '',
-    channels: [],
-    connect: vi.fn(),
-    disconnect: vi.fn(),
-    isConnected: vi.fn(),
-  },
-  bindings: [],
-  state: 'joined',
-  presenceState: vi.fn(),
-  joinedOnce: false,
-  rejoinTimer: null,
-  rejoinAttempts: 0,
-  timeout: vi.fn(),
-  push: vi.fn(),
-  leave: vi.fn(),
-  trigger: vi.fn(),
-  cancelRejoin: vi.fn(),
-  rejoin: vi.fn(),
-  clearHeartbeat: vi.fn(),
-  startHeartbeat: vi.fn(),
-  stopHeartbeat: vi.fn(),
-  config: {
-    broadcast: { ack: true, self: false },
-    presence: { key: '' }
-  }
+// Create a complete mock implementation of PostgrestQueryBuilder
+export const createPostgrestMock = () => ({
+  select: vi.fn().mockReturnThis(),
+  insert: vi.fn().mockReturnThis(),
+  update: vi.fn().mockReturnThis(),
+  delete: vi.fn().mockReturnThis(),
+  upsert: vi.fn().mockReturnThis(),
+  eq: vi.fn().mockReturnThis(),
+  single: vi.fn().mockReturnThis(),
+  url: '',
+  headers: {},
 });
+
+// Create a properly typed mock RealtimeChannel
+export const createMockRealtimeChannel = (): RealtimeChannel => {
+  const channel: RealtimeChannel = {
+    topic: 'realtime:test',
+    subscribe: (callback?: (status: REALTIME_SUBSCRIBE_STATES, err?: Error) => void) => {
+      if (callback) callback('SUBSCRIBED' as REALTIME_SUBSCRIBE_STATES);
+      return channel;
+    },
+    unsubscribe: vi.fn(),
+    on: vi.fn().mockReturnThis(),
+    send: vi.fn(),
+    track: vi.fn(),
+    untrack: vi.fn(),
+    on_broadcast: vi.fn(),
+    on_presence: vi.fn(),
+    on_postgres_changes: vi.fn(),
+    socket: {
+      accessToken: '',
+      channels: [],
+      connect: vi.fn(),
+      disconnect: vi.fn(),
+      isConnected: vi.fn(),
+    },
+    bindings: [],
+    state: 'joined' as CHANNEL_STATES,
+    presenceState: vi.fn(),
+    joinedOnce: false,
+    rejoinTimer: null,
+    rejoinAttempts: 0,
+    timeout: vi.fn(),
+    push: vi.fn(),
+    leave: vi.fn(),
+    trigger: vi.fn(),
+    cancelRejoin: vi.fn(),
+    rejoin: vi.fn(),
+    clearHeartbeat: vi.fn(),
+    startHeartbeat: vi.fn(),
+    stopHeartbeat: vi.fn(),
+    params: {},
+    config: {
+      broadcast: { ack: true, self: false },
+      presence: { key: '' }
+    }
+  };
+  return channel;
+};
 
 export const mockChannel = createMockRealtimeChannel();
 
+// Create a complete Supabase mock
 export const createSupabaseMock = () => ({
-  from: vi.fn(() => ({
-    select: vi.fn().mockReturnThis(),
-    insert: vi.fn().mockReturnThis(),
-    update: vi.fn().mockReturnThis(),
-    delete: vi.fn().mockReturnThis(),
-    upsert: vi.fn().mockReturnThis(),
-    eq: vi.fn().mockReturnThis(),
-    single: vi.fn().mockResolvedValue({ data: null, error: null }),
-    url: '',
-    headers: {},
-  })),
+  from: vi.fn(() => createPostgrestMock()),
   channel: vi.fn(() => mockChannel),
   storage: {
     from: vi.fn().mockReturnThis(),
@@ -67,5 +77,8 @@ export const createSupabaseMock = () => ({
     signUp: vi.fn(),
     signIn: vi.fn(),
     signOut: vi.fn(),
+    getSession: vi.fn().mockResolvedValue({ data: { session: null }, error: null })
   }
 });
+
+export const supabaseMock = createSupabaseMock();
