@@ -6,10 +6,9 @@ import { MessageCircle } from 'lucide-react';
 import { ProductGallery } from './ProductGallery';
 import type { Product } from '@/types/product';
 
-// Sample product data for development
 const DEFAULT_PRODUCT: Product = {
   id: '1',
-  permanentLinkId: 1,
+  permanentLinkId: '1', // Changed from number to string
   title: 'Sample Product',
   description: 'Sample product description',
   price: 99.99,

@@ -8,7 +8,7 @@ import { Loader2, AlertCircle } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { uploadProductImage } from '@/lib/storage';
-import type { Product } from '@/types/product';
+import type { Product, ProductImage } from '@/types/product';
 
 interface ProductEditFormProps {
   initialProduct: Partial<Product>;
@@ -32,11 +32,11 @@ export const ProductEditForm = ({ initialProduct, onSuccess }: ProductEditFormPr
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files || []);
-    const newImages = files.map((file, index) => ({
+    const newImages: ProductImage[] = files.map((file, index) => ({
       id: `temp-${Date.now()}-${index}`,
       url: URL.createObjectURL(file),
       alt: file.name,
-      order: product.images?.length || 0 + index,
+      order_number: (product.images?.length || 0) + index,
       file
     }));
 
