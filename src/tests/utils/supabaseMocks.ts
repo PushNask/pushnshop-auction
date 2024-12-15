@@ -10,9 +10,10 @@ enum CHANNEL_STATES {
   ERRORED = 'ERRORED'
 }
 
-interface ExtendedRealtimeChannel extends RealtimeChannel {
+// Create a proper type that extends RealtimeChannel
+type ExtendedRealtimeChannel = RealtimeChannel & {
   emit: (event: string, payload: any) => void;
-}
+};
 
 export const createSupabaseMock = () => ({
   from: vi.fn(() => ({
@@ -56,8 +57,10 @@ export const createSupabaseMock = () => ({
       params: {},
       socket: {} as WebSocket,
       bindings: {},
-      state: CHANNEL_STATES.CLOSED as string,
-      joinQueue: [],
+      state: CHANNEL_STATES.CLOSED,
+      joinedOnce: false,
+      joinPush: null,
+      pushBuffer: [],
       timeout: 10000,
       rejoinTimer: {
         timer: null,
@@ -68,12 +71,14 @@ export const createSupabaseMock = () => ({
         scheduleTimeout: vi.fn()
       },
       stateChangeRefs: [],
-      config: {
-        presence: {
-          key: ''
-        }
-      },
-      emit: vi.fn()
+      emit: vi.fn(),
+      broadcastEndpointURL: () => '',
+      isClosed: () => false,
+      isErrored: () => false,
+      isJoined: () => true,
+      isJoining: () => false,
+      isLeaving: () => false,
+      replyEventName: (ref: string) => `chan_reply_${ref}`
     } as ExtendedRealtimeChannel;
   },
   rpc: vi.fn(() => ({

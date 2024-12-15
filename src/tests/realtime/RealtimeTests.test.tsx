@@ -36,7 +36,7 @@ describe('Realtime Features', () => {
   });
 
   test('synchronizes data across clients', async () => {
-    render(<LiveProduct productId="1" />);
+    const { container } = render(<LiveProduct productId="1" />);
     
     const mockPayload = {
       new: { price: 200, currency: 'XAF' },
@@ -47,7 +47,8 @@ describe('Realtime Features', () => {
     if (onCallback) onCallback(mockPayload);
     
     await waitFor(() => {
-      expect(screen.getByText('XAF 200')).toBeInTheDocument();
+      const element = screen.getByText('XAF 200');
+      expect(element).toBeInTheDocument();
     });
   });
 });
