@@ -4,8 +4,7 @@ import {
   RealtimeChannelOptions, 
   RealtimeClient, 
   REALTIME_SUBSCRIBE_STATES,
-  RealtimePresenceState,
-  CHANNEL_STATES
+  RealtimePresenceState
 } from '@supabase/supabase-js';
 import type { Database } from '@/integrations/supabase/types';
 
@@ -29,7 +28,7 @@ export const createMockRealtimeChannel = (): Partial<RealtimeChannel> => {
     presenceState: vi.fn().mockReturnValue({} as RealtimePresenceState),
     socket: null as unknown as RealtimeClient,
     bindings: {},
-    state: CHANNEL_STATES.SUBSCRIBED,
+    state: 'SUBSCRIBED',
     joinedOnce: false,
     rejoinTimer: null,
     rejoinAttempts: 0,
@@ -46,8 +45,11 @@ export const createMockRealtimeChannel = (): Partial<RealtimeChannel> => {
     config: {
       broadcast: { self: true },
       presence: { key: '' },
-      config: {}
-    } as unknown as RealtimeChannelOptions
+      config: {
+        broadcast: { ack: true },
+        presence: { key: '' }
+      }
+    } as RealtimeChannelOptions
   };
 };
 
