@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -27,9 +28,18 @@ export const ProductCard = ({
   onAction,
   actionLabel = 'View Details'
 }: ProductCardProps) => {
+  const [isGalleryOpen, setIsGalleryOpen] = useState(false);
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
+
   return (
     <Card className="overflow-hidden">
-      <ProductGallery images={product.images} />
+      <ProductGallery 
+        images={product.images}
+        isOpen={isGalleryOpen}
+        onClose={() => setIsGalleryOpen(false)}
+        currentIndex={currentImageIndex}
+        onIndexChange={setCurrentImageIndex}
+      />
       <div className="p-4">
         <div className="flex justify-between items-start mb-2">
           <h3 className="text-lg font-semibold">{product.title}</h3>

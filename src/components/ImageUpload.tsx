@@ -45,8 +45,9 @@ const ImageUpload = ({ images = [], onChange, error }: ImageUploadProps) => {
           url: URL.createObjectURL(file),
           alt: file.name || 'Product image',
           order_number: images.length + acc.length,
+          file,
           isNew: true,
-          file
+          preview: URL.createObjectURL(file)
         });
       }
       return acc;
@@ -95,7 +96,7 @@ const ImageUpload = ({ images = [], onChange, error }: ImageUploadProps) => {
           {Array.isArray(images) && images.map((image) => (
             <div key={image.id} className="relative aspect-square">
               <img
-                src={image.url}
+                src={image.preview || image.url}
                 alt={image.alt}
                 className="w-full h-full object-cover rounded-lg"
               />
