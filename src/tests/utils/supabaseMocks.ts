@@ -1,5 +1,6 @@
 import { vi } from 'vitest';
-import type { RealtimeChannel, RealtimePresence } from '@supabase/supabase-js';
+import type { RealtimeChannel, RealtimePresence, RealtimeChannelOptions } from '@supabase/supabase-js';
+import { CHANNEL_STATES } from '@supabase/supabase-js';
 
 export const createSupabaseMock = () => ({
   from: () => ({
@@ -43,7 +44,7 @@ export const createSupabaseMock = () => ({
       params: {},
       socket: {} as any,
       bindings: {},
-      state: 'SUBSCRIBED',
+      state: CHANNEL_STATES.CLOSED,
       joinQueue: [],
       timeout: 10000,
       rejoinTimer: {
@@ -56,7 +57,10 @@ export const createSupabaseMock = () => ({
       },
       stateChangeRefs: [],
       trigger: vi.fn(),
-      config: { broadcast: { ack: true, self: false } }
+      config: {
+        broadcast: { ack: true, self: false },
+        presence: { key: '' }
+      } as RealtimeChannelOptions
     };
 
     return channelMock as RealtimeChannel;
