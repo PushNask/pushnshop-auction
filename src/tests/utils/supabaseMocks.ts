@@ -45,7 +45,12 @@ export const createMockRealtimeChannel = (): Partial<RealtimeChannel> => {
     config: {
       broadcast: { ack: false, self: false },
       presence: { key: '' },
-      postgres_changes: []
+      postgres_changes: [],
+      config: {
+        broadcast: { ack: false, self: false },
+        presence: { key: '' },
+        postgres_changes: []
+      }
     } as RealtimeChannelOptions
   };
 };
