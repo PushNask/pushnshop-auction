@@ -7,7 +7,7 @@ import type { Database } from '@/integrations/supabase/types';
 export const createMockRealtimeChannel = (): Partial<RealtimeChannel> => {
   return {
     subscribe: vi.fn().mockImplementation((callback) => {
-      if (callback) callback(REALTIME_SUBSCRIBE_STATES.SUBSCRIBED);
+      if (callback) callback('SUBSCRIBED');
       return Promise.resolve({} as RealtimeChannel);
     }),
     unsubscribe: vi.fn(),
@@ -21,7 +21,7 @@ export const createMockRealtimeChannel = (): Partial<RealtimeChannel> => {
     presenceState: vi.fn(),
     socket: null as unknown as RealtimeClient,
     bindings: {},
-    state: REALTIME_SUBSCRIBE_STATES.SUBSCRIBED,
+    state: 'SUBSCRIBED',
     joinedOnce: false,
     rejoinTimer: null,
     rejoinAttempts: 0,
@@ -51,31 +51,27 @@ export const mockChannel = createMockRealtimeChannel();
 // Create a properly typed mock PostgrestQueryBuilder
 export const createPostgrestMock = () => {
   const mock = {
-    select: vi.fn().mockReturnThis(),
-    insert: vi.fn().mockReturnThis(),
-    update: vi.fn().mockReturnThis(),
-    delete: vi.fn().mockReturnThis(),
-    upsert: vi.fn().mockReturnThis(),
-    eq: vi.fn().mockReturnThis(),
-    single: vi.fn().mockImplementation(() => Promise.resolve({
-      data: null,
-      error: null
-    })),
-    maybeSingle: vi.fn().mockImplementation(() => Promise.resolve({
-      data: null,
-      error: null
-    })),
-    order: vi.fn().mockReturnThis(),
-    limit: vi.fn().mockReturnThis()
+    select: vi.fn(() => mock),
+    insert: vi.fn(() => mock),
+    update: vi.fn(() => mock),
+    delete: vi.fn(() => mock),
+    upsert: vi.fn(() => mock),
+    eq: vi.fn(() => mock),
+    single: vi.fn(() => Promise.resolve({ data: null, error: null })),
+    maybeSingle: vi.fn(() => Promise.resolve({ data: null, error: null })),
+    order: vi.fn(() => mock),
+    limit: vi.fn(() => mock)
   };
 
-  return {
-    ...mock,
-    mockResolvedValueOnce: (value: any) => {
-      mock.select.mockImplementationOnce(() => Promise.resolve(value));
-      return mock;
-    }
-  } as unknown as PostgrestQueryBuilder<Database['public'], any, any>;
+  // Add vi.fn() methods to the mock
+  mock.select = vi.fn(() => mock);
+  mock.select.mockReturnValue(mock);
+  mock.select.mockReturnValueOnce = vi.fn((value) => {
+    mock.maybeSingle.mockResolvedValueOnce(value);
+    return mock;
+  });
+
+  return mock;
 };
 
 // Create a complete Supabase mock

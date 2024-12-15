@@ -21,10 +21,7 @@ describe('Link Allocation System', () => {
     };
 
     const postgrestMock = mockSupabase.from();
-    postgrestMock.select.mockReturnValueOnce({
-      ...postgrestMock,
-      maybeSingle: vi.fn().mockResolvedValueOnce(mockResponse)
-    });
+    postgrestMock.select.mockReturnValueOnce(mockResponse);
     
     const result = await PermanentLinkManager.assignLink(productId);
     expect(result).toBe('p1');
@@ -37,20 +34,14 @@ describe('Link Allocation System', () => {
     const postgrestMock = mockSupabase.from();
     
     // First query returns no available links
-    postgrestMock.select.mockReturnValueOnce({
-      ...postgrestMock,
-      maybeSingle: vi.fn().mockResolvedValueOnce({ data: null, error: null })
-    });
+    postgrestMock.select.mockReturnValueOnce({ data: null, error: null });
     
     // Second query returns oldest active link
     const mockOldestLink = {
       data: { id: 1, url_key: 'p1', status: 'active' },
       error: null
     };
-    postgrestMock.select.mockReturnValueOnce({
-      ...postgrestMock,
-      maybeSingle: vi.fn().mockResolvedValueOnce(mockOldestLink)
-    });
+    postgrestMock.select.mockReturnValueOnce(mockOldestLink);
     
     const result = await PermanentLinkManager.assignLink(productId);
     expect(result).toBe('p1');
