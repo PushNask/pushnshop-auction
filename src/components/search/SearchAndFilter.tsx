@@ -1,15 +1,15 @@
-import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { SlidersHorizontal } from "lucide-react";
-import { FilterContent } from "./FilterContent";
-import { useProductSearch } from "@/hooks/useProductSearch";
-import type { Filters } from "@/types/filters";
-import type { Dispatch, SetStateAction } from "react";
+import React from 'react';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Sheet, SheetTrigger, SheetContent } from '@/components/ui/sheet';
+import { SlidersHorizontal } from 'lucide-react';
+import { FilterContent } from './FilterContent';
+import { useProductSearch } from '@/hooks/useProductSearch';
+import type { Filters } from '@/types/filters';
 
-export interface SearchAndFilterProps {
+interface SearchAndFilterProps {
   filters: Filters;
-  onFiltersChange: Dispatch<SetStateAction<Filters>>;
+  onFiltersChange: React.Dispatch<React.SetStateAction<Filters>>;
 }
 
 export const SearchAndFilter: React.FC<SearchAndFilterProps> = ({ filters, onFiltersChange }) => {
@@ -20,9 +20,10 @@ export const SearchAndFilter: React.FC<SearchAndFilterProps> = ({ filters, onFil
   };
 
   return (
-    <div className="flex gap-4 mb-6">
+    <div className="flex gap-4 items-center">
       <div className="flex-1">
         <Input
+          type="search"
           placeholder="Search products..."
           value={filters.search}
           onChange={handleSearchChange}
@@ -37,12 +38,11 @@ export const SearchAndFilter: React.FC<SearchAndFilterProps> = ({ filters, onFil
           </Button>
         </SheetTrigger>
         <SheetContent>
-          <SheetHeader>
-            <SheetTitle>Filters</SheetTitle>
-          </SheetHeader>
           <FilterContent filters={filters} onFiltersChange={onFiltersChange} />
         </SheetContent>
       </Sheet>
     </div>
   );
 };
+
+export default SearchAndFilter;
