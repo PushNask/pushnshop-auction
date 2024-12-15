@@ -1,5 +1,5 @@
 import { vi } from 'vitest';
-import type { RealtimeChannel, RealtimeChannelOptions, REALTIME_SUBSCRIBE_STATES, CHANNEL_STATES } from '@supabase/supabase-js';
+import type { RealtimeChannel, RealtimeChannelOptions } from '@supabase/supabase-js';
 import type { PostgrestQueryBuilder } from '@supabase/postgrest-js';
 import type { Database } from '@/integrations/supabase/types';
 
@@ -20,8 +20,8 @@ export const createPostgrestMock = () => ({
 export const createMockRealtimeChannel = (): RealtimeChannel => {
   const channel: RealtimeChannel = {
     topic: 'realtime:test',
-    subscribe: (callback?: (status: REALTIME_SUBSCRIBE_STATES, err?: Error) => void) => {
-      if (callback) callback('SUBSCRIBED' as REALTIME_SUBSCRIBE_STATES);
+    subscribe: (callback?: (status: 'SUBSCRIBED' | 'CLOSED' | 'TIMED_OUT' | 'CHANNEL_ERROR', err?: Error) => void) => {
+      if (callback) callback('SUBSCRIBED');
       return channel;
     },
     unsubscribe: vi.fn(),
@@ -33,14 +33,14 @@ export const createMockRealtimeChannel = (): RealtimeChannel => {
     on_presence: vi.fn(),
     on_postgres_changes: vi.fn(),
     socket: {
-      accessToken: '',
+      accessToken: async () => 'mock-token',
       channels: [],
       connect: vi.fn(),
       disconnect: vi.fn(),
       isConnected: vi.fn(),
     },
-    bindings: [],
-    state: 'joined' as CHANNEL_STATES,
+    bindings: {},
+    state: 'joined',
     presenceState: vi.fn(),
     joinedOnce: false,
     rejoinTimer: null,

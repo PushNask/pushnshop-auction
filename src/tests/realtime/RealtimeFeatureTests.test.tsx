@@ -1,7 +1,7 @@
 import { render, screen, waitFor } from '@testing-library/react';
 import { vi, describe, test, expect, beforeEach } from 'vitest';
 import { LiveProduct } from '@/components/product/LiveProduct';
-import { createSupabaseMock, createMockRealtimeChannel, mockChannel } from '../utils/supabaseMocks';
+import { createSupabaseMock, createMockRealtimeChannel } from '../utils/supabaseMocks';
 
 vi.mock('@/integrations/supabase/client', () => ({
   supabase: createSupabaseMock()
@@ -24,11 +24,11 @@ describe('Realtime Features', () => {
     const customMockChannel = createMockRealtimeChannel();
     customMockChannel.subscribe = vi.fn()
       .mockImplementationOnce((callback) => {
-        if (callback) callback('CLOSED' as REALTIME_SUBSCRIBE_STATES, new Error('Connection lost'));
+        if (callback) callback('CLOSED', new Error('Connection lost'));
         return customMockChannel;
       })
       .mockImplementationOnce((callback) => {
-        if (callback) callback('SUBSCRIBED' as REALTIME_SUBSCRIBE_STATES);
+        if (callback) callback('SUBSCRIBED');
         return customMockChannel;
       });
 
