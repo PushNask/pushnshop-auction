@@ -3,10 +3,17 @@ import { supabase } from "@/integrations/supabase/client";
 import type { Product, DbProduct } from "@/types/product";
 import type { Filters } from "@/types/filters";
 import { mapDbProductToProduct } from "@/utils/product";
+import { useState, useCallback } from "react";
 
-export const useProductSearch = (filters: Filters) => {
-  return useQuery({
-    queryKey: ['products', filters],
+export const useProductSearch = () => {
+  const [searchTerm, setSearchTerm] = useState("");
+
+  const handleSearch = useCallback((term: string) => {
+    setSearchTerm(term);
+  }, []);
+
+  const query = useQuery({
+    queryKey: ['products', searchTerm],
     queryFn: async () => {
       let query = supabase
         .from('products')
@@ -26,16 +33,8 @@ export const useProductSearch = (filters: Filters) => {
         `)
         .order('created_at', { ascending: false });
 
-      if (filters.search) {
-        query = query.ilike('title', `%${filters.search}%`);
-      }
-
-      if (filters.minPrice !== undefined) {
-        query = query.gte('price', filters.minPrice);
-      }
-
-      if (filters.maxPrice !== undefined) {
-        query = query.lte('price', filters.maxPrice);
+      if (searchTerm) {
+        query = query.ilike('title', `%${searchTerm}%`);
       }
 
       const { data, error } = await query;
@@ -47,4 +46,10 @@ export const useProductSearch = (filters: Filters) => {
       return (data || []).map((item: DbProduct) => mapDbProductToProduct(item));
     }
   });
+
+  return {
+    ...query,
+    handleSearch,
+    searchTerm
+  };
 };

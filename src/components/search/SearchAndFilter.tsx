@@ -17,6 +17,7 @@ export const SearchAndFilter: React.FC<SearchAndFilterProps> = ({ filters, onFil
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     handleSearch(e.target.value);
+    onFiltersChange({ ...filters, search: e.target.value });
   };
 
   return (
@@ -26,6 +27,7 @@ export const SearchAndFilter: React.FC<SearchAndFilterProps> = ({ filters, onFil
           type="search"
           placeholder="Search products..."
           onChange={handleInputChange}
+          value={filters.search}
           disabled={isLoading}
           className="w-full"
         />
