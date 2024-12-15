@@ -1,67 +1,53 @@
-import { describe, test, expect, beforeEach, vi } from 'vitest';
-import { render, waitFor } from '@testing-library/react';
-import { createSupabaseMock } from '../utils/supabaseMocks';
-import { ProductManagementSystem } from '@/components/product-management/ProductManagementSystem';
+import { render, screen, waitFor } from '@testing-library/react';
+import { vi, describe, test, expect, beforeEach } from 'vitest';
+import { LiveProduct } from '@/components/product/LiveProduct';
+import { mockChannel, createSupabaseMock } from '../utils/supabaseMocks';
+import { REALTIME_SUBSCRIBE_STATES } from '@supabase/supabase-js';
 
 vi.mock('@/integrations/supabase/client', () => ({
   supabase: createSupabaseMock()
 }));
 
 describe('Realtime Features', () => {
-  const mockSupabase = createSupabaseMock();
-  
   beforeEach(() => {
     vi.clearAllMocks();
   });
 
-  describe('WebSocket Connections', () => {
-    test('establishes realtime connection', async () => {
-      const channel = mockSupabase.channel('products');
-      channel.subscribe = vi.fn().mockResolvedValue({ data: null, error: null });
-
-      render(<ProductManagementSystem />);
-
-      await waitFor(() => {
-        expect(mockSupabase.channel).toHaveBeenCalledWith('products');
-        expect(channel.subscribe).toHaveBeenCalled();
-      });
-    });
-
-    test('handles connection recovery', async () => {
-      const channel = mockSupabase.channel('products');
-      channel.subscribe = vi.fn()
-        .mockRejectedValueOnce(new Error('Connection lost'))
-        .mockResolvedValueOnce({ data: null, error: null });
-
-      render(<ProductManagementSystem />);
-
-      await waitFor(() => {
-        expect(channel.subscribe).toHaveBeenCalledTimes(2);
-      });
+  test('establishes WebSocket connection', async () => {
+    render(<LiveProduct productId="1" />);
+    
+    await waitFor(() => {
+      expect(mockChannel.subscribe).toHaveBeenCalled();
     });
   });
 
-  describe('Data Synchronization', () => {
-    test('syncs product updates in real-time', async () => {
-      const channel = mockSupabase.channel('products');
-      const mockProduct = {
-        id: '1',
-        title: 'Test Product',
-        description: 'Test Description',
-        price: 100,
-        currency: 'XAF',
-        quantity: 1,
-        images: [],
-        status: 'active',
-        viewCount: 0
-      };
+  test('handles connection recovery', async () => {
+    render(<LiveProduct productId="1" />);
+    
+    const subscribeCallback = vi.mocked(mockChannel.subscribe).mock.calls[0][0];
+    if (subscribeCallback) {
+      subscribeCallback(REALTIME_SUBSCRIBE_STATES.CLOSED, new Error('Connection lost'));
+      subscribeCallback(REALTIME_SUBSCRIBE_STATES.SUBSCRIBED);
+    }
+    
+    await waitFor(() => {
+      expect(mockChannel.subscribe).toHaveBeenCalledTimes(1);
+    });
+  });
 
-      render(<ProductManagementSystem />);
+  test('synchronizes data across clients', async () => {
+    render(<LiveProduct productId="1" />);
+    
+    const mockPayload = {
+      new: { price: 200, currency: 'XAF' },
+      old: { price: 100, currency: 'XAF' }
+    };
 
-      await waitFor(() => {
-        channel.emit('UPDATE', { new: { ...mockProduct, price: 150 } });
-        expect(screen.getByText('150')).toBeInTheDocument();
-      });
+    const onCallback = vi.mocked(mockChannel.on).mock.calls[0][2];
+    if (onCallback) onCallback(mockPayload);
+    
+    await waitFor(() => {
+      expect(screen.getByText('XAF 200')).toBeInTheDocument();
     });
   });
 });

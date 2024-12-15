@@ -10,6 +10,10 @@ enum CHANNEL_STATES {
   ERRORED = 'ERRORED'
 }
 
+interface ExtendedRealtimeChannel extends RealtimeChannel {
+  emit: (event: string, payload: any) => void;
+}
+
 export const createSupabaseMock = () => ({
   from: vi.fn(() => ({
     select: vi.fn().mockReturnThis(),
@@ -26,7 +30,7 @@ export const createSupabaseMock = () => ({
     signUp: vi.fn(),
     signOut: vi.fn(),
   },
-  channel: (name: string) => {
+  channel: (name: string): ExtendedRealtimeChannel => {
     const mockPresence: RealtimePresence = {
       state: {},
       pendingDiffs: [],
@@ -70,7 +74,7 @@ export const createSupabaseMock = () => ({
         }
       },
       emit: vi.fn()
-    } as unknown as RealtimeChannel;
+    } as ExtendedRealtimeChannel;
   },
   rpc: vi.fn(() => ({
     select: vi.fn().mockReturnThis(),

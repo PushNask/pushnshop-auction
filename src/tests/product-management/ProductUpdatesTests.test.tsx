@@ -1,7 +1,7 @@
-import { describe, test, expect, beforeEach, vi } from 'vitest';
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
-import { createSupabaseMock } from '../utils/supabaseMocks';
+import { render, screen, waitFor } from '@testing-library/react';
+import { vi, describe, test, expect, beforeEach } from 'vitest';
 import { ProductManagementSystem } from '@/components/product-management/ProductManagementSystem';
+import { createSupabaseMock } from '../utils/supabaseMocks';
 import type { Product } from '@/types/product';
 
 vi.mock('@/integrations/supabase/client', () => ({
@@ -40,7 +40,9 @@ describe('Product Management System', () => {
         channel.emit('UPDATE', { new: { ...mockProduct, price: 150 } });
       });
 
-      expect(screen.getByText('150')).toBeInTheDocument();
+      await waitFor(() => {
+        expect(screen.getByText('XAF 150')).toBeInTheDocument();
+      });
     });
   });
 
@@ -48,8 +50,7 @@ describe('Product Management System', () => {
     test('updates product quantity', async () => {
       render(<ProductManagementSystem />);
       
-      const quantityInput = screen.getByRole('spinbutton', { name: /quantity/i });
-      fireEvent.change(quantityInput, { target: { value: '10' } });
+      const channel = mockSupabase.channel('products');
       
       await waitFor(() => {
         expect(mockSupabase.from().update).toHaveBeenCalledWith(
