@@ -9,14 +9,14 @@ import type { Filters } from '@/types/filters';
 
 interface SearchAndFilterProps {
   filters: Filters;
-  onFiltersChange: React.Dispatch<React.SetStateAction<Filters>>;
+  onFiltersChange: (filters: Filters) => void;
 }
 
 export const SearchAndFilter: React.FC<SearchAndFilterProps> = ({ filters, onFiltersChange }) => {
-  const { isLoading } = useProductSearch(filters);
+  const { isLoading, handleSearch } = useProductSearch();
 
-  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    onFiltersChange(prev => ({ ...prev, search: e.target.value }));
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    handleSearch(e.target.value);
   };
 
   return (
@@ -25,9 +25,9 @@ export const SearchAndFilter: React.FC<SearchAndFilterProps> = ({ filters, onFil
         <Input
           type="search"
           placeholder="Search products..."
-          value={filters.search}
-          onChange={handleSearchChange}
+          onChange={handleInputChange}
           disabled={isLoading}
+          className="w-full"
         />
       </div>
       <Sheet>
