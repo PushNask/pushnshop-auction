@@ -29,7 +29,7 @@ export const createMockRealtimeChannel = (): Partial<RealtimeChannel> => {
     presenceState: vi.fn().mockReturnValue({} as RealtimePresenceState),
     socket: null as unknown as RealtimeClient,
     bindings: {},
-    state: 'SUBSCRIBED',
+    state: REALTIME_SUBSCRIBE_STATES.SUBSCRIBED,
     joinedOnce: false,
     rejoinTimer: null,
     rejoinAttempts: 0,
@@ -44,18 +44,14 @@ export const createMockRealtimeChannel = (): Partial<RealtimeChannel> => {
     stopHeartbeat: vi.fn(),
     params: {},
     config: {
-      config: {
-        presence: {
-          key: ''
-        }
-      }
+      broadcast: { self: true },
+      presence: { key: '' }
     } as unknown as RealtimeChannelOptions
   };
 };
 
 export const mockChannel = createMockRealtimeChannel();
 
-// Create a properly typed mock PostgrestQueryBuilder
 export const createPostgrestMock = () => {
   const mock = {
     select: vi.fn(),
