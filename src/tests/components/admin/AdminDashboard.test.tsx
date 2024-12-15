@@ -1,29 +1,15 @@
-import { describe, it, expect, vi } from 'vitest';
 import { render, screen } from '@testing-library/react';
+import { describe, it, expect } from 'vitest';
 import AdminDashboard from '@/components/admin/dashboard/AdminDashboard';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { BrowserRouter } from 'react-router-dom';
-
-// Mock useAuthCheck hook
-vi.mock('@/hooks/useAuthCheck', () => ({
-  useAuthCheck: () => ({
-    isAuthorized: true,
-    isChecking: false
-  })
-}));
 
 describe('AdminDashboard', () => {
-  const queryClient = new QueryClient();
+  it('renders the admin dashboard', () => {
+    render(<AdminDashboard />);
+    expect(screen.getByText(/Admin Dashboard/i)).toBeInTheDocument();
+  });
 
-  it('renders dashboard when authorized', () => {
-    render(
-      <BrowserRouter>
-        <QueryClientProvider client={queryClient}>
-          <AdminDashboard />
-        </QueryClientProvider>
-      </BrowserRouter>
-    );
-
-    expect(screen.getByText('Admin Dashboard')).toBeInTheDocument();
+  it('displays loading state', () => {
+    render(<AdminDashboard />);
+    expect(screen.getByText(/Loading metrics.../i)).toBeInTheDocument();
   });
 });
