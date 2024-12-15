@@ -61,3 +61,11 @@ export interface DbProduct {
     whatsapp_number: string | null;
   };
 }
+
+export interface ProductGalleryProps {
+  images: ProductImage[];
+  isOpen: boolean;
+  onClose: () => void;
+  currentIndex: number;
+  onIndexChange: (index: number) => void;
+}

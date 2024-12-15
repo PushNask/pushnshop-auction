@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
-import type { Product } from '@/types/product';
+import type { Product, DbProduct } from '@/types/product';
 import { mapDbProductToProduct } from '@/utils/product';
 
 export const useRealtimeProducts = (initialProducts: Product[] = []) => {
@@ -18,7 +18,6 @@ export const useRealtimeProducts = (initialProducts: Product[] = []) => {
         },
         async (payload) => {
           if (payload.new) {
-            // Fetch complete product data including images
             const { data: productData } = await supabase
               .from('products')
               .select(`
@@ -27,7 +26,9 @@ export const useRealtimeProducts = (initialProducts: Product[] = []) => {
                   id,
                   url,
                   alt,
-                  order_number
+                  order_number,
+                  product_id,
+                  created_at
                 ),
                 users!products_seller_id_fkey (
                   whatsapp_number
@@ -37,7 +38,7 @@ export const useRealtimeProducts = (initialProducts: Product[] = []) => {
               .single();
 
             if (productData) {
-              const mappedProduct = mapDbProductToProduct(productData);
+              const mappedProduct = mapDbProductToProduct(productData as DbProduct);
               setProducts(prev => [...prev, mappedProduct]);
             }
           }
@@ -52,7 +53,6 @@ export const useRealtimeProducts = (initialProducts: Product[] = []) => {
         },
         async (payload) => {
           if (payload.new) {
-            // Fetch complete product data including images
             const { data: productData } = await supabase
               .from('products')
               .select(`
@@ -61,7 +61,9 @@ export const useRealtimeProducts = (initialProducts: Product[] = []) => {
                   id,
                   url,
                   alt,
-                  order_number
+                  order_number,
+                  product_id,
+                  created_at
                 ),
                 users!products_seller_id_fkey (
                   whatsapp_number
@@ -71,7 +73,7 @@ export const useRealtimeProducts = (initialProducts: Product[] = []) => {
               .single();
 
             if (productData) {
-              const mappedProduct = mapDbProductToProduct(productData);
+              const mappedProduct = mapDbProductToProduct(productData as DbProduct);
               setProducts(prev => 
                 prev.map(p => p.id === mappedProduct.id ? mappedProduct : p)
               );
