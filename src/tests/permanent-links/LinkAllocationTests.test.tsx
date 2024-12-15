@@ -17,11 +17,14 @@ describe('Link Allocation System', () => {
     
     const mockResponse = {
       data: { id: 1, url_key: 'p1', status: 'available' },
-      error: null
+      error: null,
+      count: null,
+      status: 200,
+      statusText: 'OK'
     };
 
     const postgrestMock = mockSupabase.from();
-    postgrestMock.single.mockResolvedValueOnce(mockResponse);
+    vi.spyOn(postgrestMock, 'single').mockResolvedValueOnce(mockResponse);
     
     const result = await PermanentLinkManager.assignLink(productId);
     expect(result).toBe('p1');
@@ -30,16 +33,20 @@ describe('Link Allocation System', () => {
   test('handles allocation when no links available', async () => {
     const productId = 'test-product-id';
     const mockSupabase = createSupabaseMock();
+    const postgrestMock = mockSupabase.from();
     
     // First query returns no available links
-    mockSupabase.from().single.mockRejectedValueOnce(new Error('No links available'));
+    vi.spyOn(postgrestMock, 'single').mockRejectedValueOnce(new Error('No links available'));
     
     // Second query returns oldest active link
     const mockOldestLink = {
       data: { id: 1, url_key: 'p1', status: 'active' },
-      error: null
+      error: null,
+      count: null,
+      status: 200,
+      statusText: 'OK'
     };
-    mockSupabase.from().single.mockResolvedValueOnce(mockOldestLink);
+    vi.spyOn(postgrestMock, 'single').mockResolvedValueOnce(mockOldestLink);
     
     const result = await PermanentLinkManager.assignLink(productId);
     expect(result).toBe('p1');
