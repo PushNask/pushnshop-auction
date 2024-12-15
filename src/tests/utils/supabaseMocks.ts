@@ -40,7 +40,10 @@ export const createMockRealtimeChannel = (): Partial<RealtimeChannel> => {
     config: {
       broadcast: { ack: true, self: false },
       presence: { key: '' },
-      config: {} as RealtimeChannelOptions['config']
+      config: {
+        broadcast: { ack: true, self: false },
+        presence: { key: '' }
+      }
     } as unknown as RealtimeChannelOptions
   };
 };
