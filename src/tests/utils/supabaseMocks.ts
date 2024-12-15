@@ -1,5 +1,5 @@
 import { vi } from 'vitest';
-import { RealtimeChannel, RealtimeClient, RealtimeChannelOptions, REALTIME_SUBSCRIBE_STATES, REALTIME_PRESENCE_LISTEN_EVENTS } from '@supabase/supabase-js';
+import { RealtimeChannel, RealtimeClient, RealtimeChannelOptions, REALTIME_SUBSCRIBE_STATES, CHANNEL_STATES } from '@supabase/supabase-js';
 import type { PostgrestQueryBuilder } from '@supabase/postgrest-js';
 import type { Database } from '@/integrations/supabase/types';
 
@@ -62,10 +62,10 @@ export const createMockRealtimeChannel = (): RealtimeChannel => {
       binaryDecode: vi.fn(),
     } as unknown as RealtimeClient,
     bindings: {},
-    state: REALTIME_SUBSCRIBE_STATES.SUBSCRIBED,
+    state: CHANNEL_STATES.joined,
     presenceState: vi.fn(),
     joinedOnce: false,
-    rejoinTimer: 0,
+    rejoinTimer: setTimeout(() => {}, 0) as unknown as number,
     rejoinAttempts: 0,
     timeout: vi.fn(),
     push: vi.fn(),
@@ -96,9 +96,10 @@ export const createPostgrestMock = () => ({
   upsert: vi.fn().mockReturnThis(),
   eq: vi.fn().mockReturnThis(),
   single: vi.fn().mockReturnThis(),
+  maybeSingle: vi.fn().mockReturnThis(),
   url: '',
   headers: {},
-}) as unknown as PostgrestQueryBuilder<Database['public'], 'public', any>;
+}) as unknown as PostgrestQueryBuilder<Database['public'], any, any>;
 
 // Create a complete Supabase mock
 export const createSupabaseMock = () => ({
