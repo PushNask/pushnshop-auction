@@ -53,7 +53,7 @@ const SellPage = () => {
     checkAuth();
   }, [navigate, toast]);
 
-  const handleSubmit = async (formData: FormData): Promise<{ data: any; error: { message: string } | null }> => {
+  const handleSubmit = async (formData: FormData) => {
     try {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error('Not authenticated');
