@@ -43,14 +43,16 @@ export const createMockRealtimeChannel = (): Partial<RealtimeChannel> => {
     stopHeartbeat: vi.fn(),
     params: {},
     config: {
-      presence: {
-        key: ''
-      },
-      broadcast: {
-        self: true,
-        ack: true
+      config: {
+        presence: {
+          key: ''
+        },
+        broadcast: {
+          self: true,
+          ack: true
+        }
       }
-    } as RealtimeChannelOptions
+    } as unknown as RealtimeChannelOptions
   };
 };
 
