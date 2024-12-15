@@ -20,7 +20,8 @@ describe('Permanent Link System', () => {
       error: null
     };
 
-    mockSupabase.from().single.mockResolvedValueOnce(mockResponse);
+    const postgrestMock = mockSupabase.from();
+    postgrestMock.maybeSingle.mockResolvedValueOnce(mockResponse);
     
     const result = await PermanentLinkManager.assignLink(productId);
     expect(result).toBe('p1');

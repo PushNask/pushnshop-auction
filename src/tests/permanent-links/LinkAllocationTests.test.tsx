@@ -21,7 +21,7 @@ describe('Link Allocation System', () => {
     };
 
     const postgrestMock = mockSupabase.from();
-    vi.spyOn(postgrestMock, 'maybeSingle').mockResolvedValueOnce(mockResponse);
+    postgrestMock.maybeSingle.mockResolvedValueOnce(mockResponse);
     
     const result = await PermanentLinkManager.assignLink(productId);
     expect(result).toBe('p1');
@@ -34,14 +34,14 @@ describe('Link Allocation System', () => {
     const postgrestMock = mockSupabase.from();
     
     // First query returns no available links
-    vi.spyOn(postgrestMock, 'maybeSingle').mockRejectedValueOnce(new Error('No links available'));
+    postgrestMock.maybeSingle.mockRejectedValueOnce(new Error('No links available'));
     
     // Second query returns oldest active link
     const mockOldestLink = {
       data: { id: 1, url_key: 'p1', status: 'active' },
       error: null
     };
-    vi.spyOn(postgrestMock, 'maybeSingle').mockResolvedValueOnce(mockOldestLink);
+    postgrestMock.maybeSingle.mockResolvedValueOnce(mockOldestLink);
     
     const result = await PermanentLinkManager.assignLink(productId);
     expect(result).toBe('p1');

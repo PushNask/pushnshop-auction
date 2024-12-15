@@ -17,14 +17,11 @@ describe('Permanent Link System', () => {
     
     const mockResponse = {
       data: { id: 1, url_key: 'p1', status: 'available' },
-      error: null,
-      count: null,
-      status: 200,
-      statusText: 'OK'
+      error: null
     };
 
     const postgrestMock = mockSupabase.from();
-    postgrestMock.single.mockResolvedValueOnce(mockResponse);
+    postgrestMock.maybeSingle.mockResolvedValueOnce(mockResponse);
     
     const result = await PermanentLinkManager.assignLink(productId);
     expect(result).toBe('p1');
