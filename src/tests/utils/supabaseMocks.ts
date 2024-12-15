@@ -1,4 +1,5 @@
 import { RealtimeChannel, RealtimeChannelOptions, RealtimePresence } from '@supabase/supabase-js';
+import { jest } from '@jest/globals';
 
 export const createSupabaseMock = () => ({
   from: () => ({
@@ -16,26 +17,37 @@ export const createSupabaseMock = () => ({
     signUp: jest.fn(),
     signOut: jest.fn(),
   },
-  channel: (name: string): RealtimeChannel => ({
-    on: jest.fn().mockReturnThis(),
-    subscribe: jest.fn().mockReturnThis(),
-    unsubscribe: jest.fn(),
-    send: jest.fn(),
-    track: jest.fn(),
-    untrack: jest.fn(),
-    status: 'SUBSCRIBED',
-    join: jest.fn(),
-    leave: jest.fn(),
-    push: jest.fn(),
-    log: jest.fn(),
-    presence: {
+  channel: (name: string): RealtimeChannel => {
+    const mockPresence: RealtimePresence = {
       state: {},
       untrack: jest.fn(),
       onJoin: jest.fn(),
       onLeave: jest.fn(),
       onSync: jest.fn(),
-    } as RealtimePresence,
-  }),
+      channel: {} as any,
+      pendingDiffs: [],
+      joinRef: null,
+      caller: {
+        onJoin: jest.fn(),
+        onLeave: jest.fn(),
+        onSync: jest.fn()
+      }
+    };
+
+    return {
+      on: jest.fn().mockReturnThis(),
+      subscribe: jest.fn().mockReturnThis(),
+      unsubscribe: jest.fn(),
+      send: jest.fn(),
+      track: jest.fn(),
+      untrack: jest.fn(),
+      join: jest.fn(),
+      leave: jest.fn(),
+      push: jest.fn(),
+      log: jest.fn(),
+      presence: mockPresence
+    } as unknown as RealtimeChannel;
+  },
   rpc: (
     fn: string,
     params?: Record<string, unknown>
@@ -54,15 +66,19 @@ export const createSupabaseMock = () => ({
 });
 
 export const createMockRealtimeChannel = (): Partial<RealtimeChannel> => {
-  const channelOptions: RealtimeChannelOptions = {
-    config: {
-      broadcast: {
-        ack: false,
-        self: false
-      },
-      presence: {
-        key: ''
-      }
+  const mockPresence: RealtimePresence = {
+    state: {},
+    untrack: jest.fn(),
+    onJoin: jest.fn(),
+    onLeave: jest.fn(),
+    onSync: jest.fn(),
+    channel: {} as any,
+    pendingDiffs: [],
+    joinRef: null,
+    caller: {
+      onJoin: jest.fn(),
+      onLeave: jest.fn(),
+      onSync: jest.fn()
     }
   };
 
@@ -70,22 +86,14 @@ export const createMockRealtimeChannel = (): Partial<RealtimeChannel> => {
     on: jest.fn().mockReturnThis(),
     subscribe: jest.fn().mockReturnThis(),
     unsubscribe: jest.fn(),
-    options: channelOptions,
     send: jest.fn(),
     track: jest.fn(),
     untrack: jest.fn(),
-    status: 'SUBSCRIBED',
     join: jest.fn(),
     leave: jest.fn(),
     push: jest.fn(),
     log: jest.fn(),
-    presence: {
-      state: {},
-      untrack: jest.fn(),
-      onJoin: jest.fn(),
-      onLeave: jest.fn(),
-      onSync: jest.fn(),
-    } as RealtimePresence,
+    presence: mockPresence
   };
 };
 
