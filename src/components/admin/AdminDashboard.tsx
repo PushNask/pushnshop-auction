@@ -21,7 +21,7 @@ const AdminDashboard = () => {
         time_range: "7d"
       });
       if (error) throw error;
-      return data as AdminDashboardMetrics;
+      return data as unknown as AdminDashboardMetrics;
     }
   });
 
@@ -48,7 +48,7 @@ const AdminDashboard = () => {
         </TabsList>
 
         <TabsContent value="overview">
-          {metrics && <StatsOverview metrics={metrics.overview} isLoading={isLoading} />}
+          {metrics && <StatsOverview metrics={metrics} isLoading={isLoading} />}
         </TabsContent>
 
         <TabsContent value="listings">

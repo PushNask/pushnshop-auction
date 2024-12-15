@@ -1,22 +1,18 @@
-import { LoadingSpinner } from "./LoadingSpinner";
+import { Loader2 } from 'lucide-react';
 
 interface LoadingOverlayProps {
-  children: React.ReactNode;
   loading: boolean;
-  blur?: boolean;
+  children?: React.ReactNode;
 }
 
-export function LoadingOverlay({ children, loading, blur = true }: LoadingOverlayProps) {
-  if (!loading) return <>{children}</>;
+export const LoadingOverlay = ({ loading, children }: LoadingOverlayProps) => {
+  if (loading) {
+    return (
+      <div className="flex justify-center items-center min-h-[200px]">
+        <Loader2 className="w-8 h-8 animate-spin" />
+      </div>
+    );
+  }
 
-  return (
-    <div className="relative">
-      <div className={`absolute inset-0 ${blur ? 'backdrop-blur-sm' : ''} bg-background/50 flex items-center justify-center z-50`}>
-        <LoadingSpinner size="large" />
-      </div>
-      <div className="opacity-50 pointer-events-none">
-        {children}
-      </div>
-    </div>
-  );
-}
+  return <>{children}</>;
+};

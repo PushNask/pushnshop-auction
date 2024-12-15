@@ -28,4 +28,4 @@ export interface Product {
   viewCount: number;
 }
 
-export type Duration = '24h' | '48h' | '72h' | '96h' | '120h';
+export type Duration = '24' | '48' | '72' | '96' | '120';
