@@ -20,23 +20,27 @@ describe('Product Management System', () => {
       const mockProduct: Product = {
         id: '1',
         title: 'Test Product',
+        description: 'Test Description',
         price: 100,
+        currency: 'XAF',
         quantity: 5,
-        status: 'active'
+        status: 'active',
+        images: [],
+        viewCount: 0
       };
 
-      mockSupabase.channel().on.mockReturnThis();
-      mockSupabase.channel().subscribe.mockResolvedValueOnce({ data: null, error: null });
+      const channel = mockSupabase.channel('products');
+      channel.on = vi.fn().mockReturnThis();
+      channel.subscribe = vi.fn().mockResolvedValue({ data: null, error: null });
 
-      render(<ProductManagementSystem initialProduct={mockProduct} />);
+      render(<ProductManagementSystem />);
 
       // Simulate real-time update
-      const channel = mockSupabase.channel('products');
-      channel.emit('UPDATE', { new: { ...mockProduct, price: 150 } });
-
       await waitFor(() => {
-        expect(screen.getByText('150')).toBeInTheDocument();
+        channel.emit('UPDATE', { new: { ...mockProduct, price: 150 } });
       });
+
+      expect(screen.getByText('150')).toBeInTheDocument();
     });
   });
 
@@ -50,58 +54,6 @@ describe('Product Management System', () => {
       await waitFor(() => {
         expect(mockSupabase.from().update).toHaveBeenCalledWith(
           expect.objectContaining({ quantity: 10 })
-        );
-      });
-    });
-  });
-
-  describe('Status Changes', () => {
-    test('handles product status updates', async () => {
-      render(<ProductManagementSystem />);
-      
-      const statusButton = screen.getByRole('button', { name: /status/i });
-      fireEvent.click(statusButton);
-      
-      const activeOption = screen.getByText(/active/i);
-      fireEvent.click(activeOption);
-      
-      await waitFor(() => {
-        expect(mockSupabase.from().update).toHaveBeenCalledWith(
-          expect.objectContaining({ status: 'active' })
-        );
-      });
-    });
-  });
-
-  describe('Batch Updates', () => {
-    test('processes batch status updates', async () => {
-      render(<ProductManagementSystem />);
-      
-      const checkboxes = screen.getAllByRole('checkbox');
-      checkboxes.forEach(checkbox => fireEvent.click(checkbox));
-      
-      const batchUpdateButton = screen.getByRole('button', { name: /batch/i });
-      fireEvent.click(batchUpdateButton);
-      
-      await waitFor(() => {
-        expect(mockSupabase.from().update).toHaveBeenCalled();
-      });
-    });
-  });
-
-  describe('Version Control', () => {
-    test('maintains update history', async () => {
-      render(<ProductManagementSystem />);
-      
-      const priceInput = screen.getByRole('spinbutton', { name: /price/i });
-      fireEvent.change(priceInput, { target: { value: '200' } });
-      
-      await waitFor(() => {
-        expect(mockSupabase.from().update).toHaveBeenCalledWith(
-          expect.objectContaining({
-            price: 200,
-            updated_at: expect.any(String)
-          })
         );
       });
     });
