@@ -10,18 +10,34 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import type { AdminDashboardMetrics } from "@/types/admin-dashboard";
+import { useToast } from "@/hooks/use-toast";
 
 const AdminDashboard = () => {
   const { isAuthorized, isChecking } = useAuthCheck();
+  const { toast } = useToast();
 
   const { data: metrics, isLoading } = useQuery({
     queryKey: ["admin-metrics"],
     queryFn: async () => {
-      const { data, error } = await supabase.rpc("get_admin_dashboard_metrics", {
-        time_range: "7d"
-      });
-      if (error) throw error;
-      return data as unknown as AdminDashboardMetrics;
+      try {
+        const { data, error } = await supabase.rpc("get_admin_dashboard_metrics", {
+          time_range: "7d"
+        });
+        
+        if (error) {
+          toast({
+            title: "Error fetching metrics",
+            description: error.message,
+            variant: "destructive"
+          });
+          throw error;
+        }
+        
+        return data as unknown as AdminDashboardMetrics;
+      } catch (error) {
+        console.error("Error fetching admin metrics:", error);
+        throw error;
+      }
     }
   });
 

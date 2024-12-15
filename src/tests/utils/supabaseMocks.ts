@@ -1,111 +1,92 @@
-import { vi } from 'vitest';
-import { 
-  RealtimeChannel, 
-  RealtimeChannelOptions, 
-  RealtimeClient, 
-  REALTIME_SUBSCRIBE_STATES,
-  RealtimePresenceState
-} from '@supabase/supabase-js';
-import type { Database } from '@/integrations/supabase/types';
+import { RealtimeChannel, RealtimeChannelOptions } from '@supabase/supabase-js';
 
-// Create a properly typed mock RealtimeChannel
-export const createMockRealtimeChannel = (): Partial<RealtimeChannel> => {
-  return {
-    subscribe: vi.fn().mockImplementation((callback) => {
-      if (callback) callback(REALTIME_SUBSCRIBE_STATES.SUBSCRIBED);
-      return Promise.resolve({
-        unsubscribe: vi.fn(),
-      } as unknown as RealtimeChannel);
-    }),
-    unsubscribe: vi.fn(),
-    on: vi.fn().mockReturnThis(),
-    send: vi.fn(),
-    track: vi.fn(),
-    untrack: vi.fn(),
-    on_broadcast: vi.fn(),
-    on_presence: vi.fn(),
-    on_postgres_changes: vi.fn(),
-    presenceState: vi.fn().mockReturnValue({} as RealtimePresenceState),
-    socket: null as unknown as RealtimeClient,
-    bindings: {},
-    state: REALTIME_SUBSCRIBE_STATES.SUBSCRIBED as any,
-    joinedOnce: false,
-    rejoinTimer: null,
-    rejoinAttempts: 0,
-    timeout: null,
-    push: vi.fn(),
-    leave: vi.fn(),
-    trigger: vi.fn(),
-    cancelRejoin: vi.fn(),
-    rejoin: vi.fn(),
-    clearHeartbeat: vi.fn(),
-    startHeartbeat: vi.fn(),
-    stopHeartbeat: vi.fn(),
-    params: {},
-    config: {
-      broadcast: { ack: false, self: false },
-      presence: { key: '' },
-      postgres_changes: [],
-      config: {
-        broadcast: { ack: false, self: false },
-        presence: { key: '' },
-        postgres_changes: []
-      }
-    } as unknown as RealtimeChannelOptions
-  };
-};
-
-export const mockChannel = createMockRealtimeChannel();
-
-export const createPostgrestMock = () => {
-  const mock = {
-    select: vi.fn(),
-    insert: vi.fn(),
-    update: vi.fn(),
-    delete: vi.fn(),
-    upsert: vi.fn(),
-    eq: vi.fn(),
-    single: vi.fn(),
-    maybeSingle: vi.fn(),
-    order: vi.fn(),
-    limit: vi.fn()
-  };
-
-  // Set up chainable methods
-  mock.select.mockReturnValue(mock);
-  mock.insert.mockReturnValue(mock);
-  mock.update.mockReturnValue(mock);
-  mock.delete.mockReturnValue(mock);
-  mock.upsert.mockReturnValue(mock);
-  mock.eq.mockReturnValue(mock);
-  mock.order.mockReturnValue(mock);
-  mock.limit.mockReturnValue(mock);
-  mock.single.mockResolvedValue({ data: null, error: null });
-  mock.maybeSingle.mockResolvedValue({ data: null, error: null });
-
-  return mock;
-};
-
-// Create a complete Supabase mock
-export const createSupabaseMock = () => ({
-  from: vi.fn(() => createPostgrestMock()),
-  channel: vi.fn(() => mockChannel),
-  rpc: vi.fn().mockImplementation((func: string, params?: any) => {
-    if (func === 'increment_rotation_count') {
-      return Promise.resolve({ data: null, error: null });
-    }
-    return Promise.resolve({ data: null, error: null });
+export const createMockSupabaseClient = () => ({
+  from: () => ({
+    select: jest.fn().mockReturnThis(),
+    insert: jest.fn().mockReturnThis(),
+    update: jest.fn().mockReturnThis(),
+    delete: jest.fn().mockReturnThis(),
+    eq: jest.fn().mockReturnThis(),
+    single: jest.fn().mockReturnThis(),
+  }),
+  auth: {
+    getSession: jest.fn().mockResolvedValue({ data: { session: null }, error: null }),
+    signInWithPassword: jest.fn(),
+    signUp: jest.fn(),
+    signOut: jest.fn(),
+  },
+  channel: (name: string): RealtimeChannel => ({
+    on: jest.fn().mockReturnThis(),
+    subscribe: jest.fn().mockReturnThis(),
+    unsubscribe: jest.fn(),
+    send: jest.fn(),
+    track: jest.fn(),
+    untrack: jest.fn(),
+    status: 'SUBSCRIBED',
+    join: jest.fn(),
+    leave: jest.fn(),
+    push: jest.fn(),
+    log: jest.fn(),
+    presence: {
+      track: jest.fn(),
+      untrack: jest.fn(),
+      state: {},
+      onJoin: jest.fn(),
+      onLeave: jest.fn(),
+      onSync: jest.fn(),
+    },
+  }),
+  rpc: (
+    fn: string,
+    params?: Record<string, unknown>
+  ) => ({
+    select: jest.fn().mockReturnThis(),
+    execute: jest.fn().mockResolvedValue({ data: null, error: null }),
   }),
   storage: {
-    from: vi.fn().mockReturnThis(),
-    upload: vi.fn().mockResolvedValue({ data: { path: 'test.jpg' }, error: null })
+    from: (bucket: string) => ({
+      upload: jest.fn(),
+      download: jest.fn(),
+      remove: jest.fn(),
+      list: jest.fn(),
+    }),
   },
-  auth: {
-    signUp: vi.fn(),
-    signIn: vi.fn(),
-    signOut: vi.fn(),
-    getSession: vi.fn().mockResolvedValue({ data: { session: null }, error: null })
-  }
 });
 
-export const supabaseMock = createSupabaseMock();
+export const createMockRealtimeChannel = (): Partial<RealtimeChannel> => {
+  const channelOptions: RealtimeChannelOptions = {
+    config: {
+      broadcast: {
+        ack: false,
+        self: false
+      },
+      presence: {
+        key: ''
+      },
+      postgres_changes: []
+    }
+  };
+
+  return {
+    on: jest.fn().mockReturnThis(),
+    subscribe: jest.fn().mockReturnThis(),
+    unsubscribe: jest.fn(),
+    options: channelOptions,
+    send: jest.fn(),
+    track: jest.fn(),
+    untrack: jest.fn(),
+    status: 'SUBSCRIBED',
+    join: jest.fn(),
+    leave: jest.fn(),
+    push: jest.fn(),
+    log: jest.fn(),
+    presence: {
+      track: jest.fn(),
+      untrack: jest.fn(),
+      state: {},
+      onJoin: jest.fn(),
+      onLeave: jest.fn(),
+      onSync: jest.fn(),
+    },
+  };
+};
