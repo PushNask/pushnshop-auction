@@ -12,7 +12,7 @@ import type { Database } from '@/integrations/supabase/types';
 export const createMockRealtimeChannel = (): Partial<RealtimeChannel> => {
   return {
     subscribe: vi.fn().mockImplementation((callback) => {
-      if (callback) callback('SUBSCRIBED');
+      if (callback) callback(REALTIME_SUBSCRIBE_STATES.SUBSCRIBED);
       return Promise.resolve({
         unsubscribe: vi.fn(),
       } as unknown as RealtimeChannel);
@@ -28,7 +28,7 @@ export const createMockRealtimeChannel = (): Partial<RealtimeChannel> => {
     presenceState: vi.fn().mockReturnValue({} as RealtimePresenceState),
     socket: null as unknown as RealtimeClient,
     bindings: {},
-    state: 'SUBSCRIBED' as const,
+    state: REALTIME_SUBSCRIBE_STATES.SUBSCRIBED,
     joinedOnce: false,
     rejoinTimer: null,
     rejoinAttempts: 0,
@@ -43,9 +43,15 @@ export const createMockRealtimeChannel = (): Partial<RealtimeChannel> => {
     stopHeartbeat: vi.fn(),
     params: {},
     config: {
-      broadcast: { self: true },
-      presence: { key: '' }
-    } as RealtimeChannelOptions
+      config: {
+        presence: {
+          key: ''
+        },
+        broadcast: {
+          self: true
+        }
+      }
+    } as unknown as RealtimeChannelOptions
   };
 };
 
