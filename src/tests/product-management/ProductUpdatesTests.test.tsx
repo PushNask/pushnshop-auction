@@ -1,30 +1,10 @@
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { vi, describe, test, expect, beforeEach } from 'vitest';
 import { ProductManagementSystem } from '@/components/product-management/ProductManagementSystem';
-import { supabase } from '@/integrations/supabase/client';
+import { createSupabaseMock, mockChannel } from '../utils/supabaseMocks';
 
 vi.mock('@/integrations/supabase/client', () => ({
-  supabase: {
-    from: vi.fn(() => ({
-      select: vi.fn().mockReturnThis(),
-      update: vi.fn().mockReturnThis(),
-      eq: vi.fn().mockReturnThis(),
-      single: vi.fn().mockResolvedValue({
-        data: {
-          id: '1',
-          title: 'Test Product',
-          price: 100,
-          status: 'active',
-          quantity: 1
-        },
-        error: null
-      })
-    })),
-    channel: vi.fn(() => ({
-      on: vi.fn().mockReturnThis(),
-      subscribe: vi.fn()
-    }))
-  }
+  supabase: createSupabaseMock()
 }));
 
 describe('Product Updates', () => {
@@ -36,7 +16,7 @@ describe('Product Updates', () => {
     render(<ProductManagementSystem />);
     
     await waitFor(() => {
-      expect(supabase.channel).toHaveBeenCalled();
+      expect(createSupabaseMock().channel).toHaveBeenCalled();
     });
   });
 
@@ -48,7 +28,7 @@ describe('Product Updates', () => {
     
     await waitFor(() => {
       expect(quantityInput).toHaveValue(5);
-      expect(supabase.from().update).toHaveBeenCalled();
+      expect(createSupabaseMock().from().update).toHaveBeenCalled();
     });
   });
 
@@ -62,7 +42,7 @@ describe('Product Updates', () => {
     fireEvent.click(batchActionButton);
     
     await waitFor(() => {
-      expect(supabase.from().update).toHaveBeenCalled();
+      expect(createSupabaseMock().from().update).toHaveBeenCalled();
     });
   });
 
@@ -73,7 +53,7 @@ describe('Product Updates', () => {
     fireEvent.click(statusButton);
     
     await waitFor(() => {
-      expect(supabase.from().update).toHaveBeenCalled();
+      expect(createSupabaseMock().from().update).toHaveBeenCalled();
     });
   });
 
@@ -86,7 +66,7 @@ describe('Product Updates', () => {
     fireEvent.change(input, { target: { files: [file] } });
     
     await waitFor(() => {
-      expect(supabase.storage.from).toHaveBeenCalled();
+      expect(createSupabaseMock().storage.from).toHaveBeenCalled();
     });
   });
 });

@@ -2,34 +2,12 @@ import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { vi, describe, test, expect, beforeEach } from 'vitest';
 import PaymentHandler from '@/components/payment/PaymentHandler';
 import { PaymentProcessor } from '@/components/payment/PaymentProcessor';
-import { supabase } from '@/integrations/supabase/client';
+import { createSupabaseMock } from '../utils/supabaseMocks';
 
-// Mock the entire supabase client
 vi.mock('@/integrations/supabase/client', () => ({
-  supabase: {
-    from: vi.fn(() => ({
-      insert: vi.fn().mockReturnThis(),
-      select: vi.fn().mockReturnThis(),
-      update: vi.fn().mockReturnThis(),
-      eq: vi.fn().mockReturnThis(),
-      single: vi.fn().mockResolvedValue({
-        data: {
-          id: '1',
-          amount: 1000,
-          currency: 'XAF',
-          status: 'pending'
-        },
-        error: null
-      })
-    })),
-    channel: vi.fn(() => ({
-      on: vi.fn().mockReturnThis(),
-      subscribe: vi.fn()
-    }))
-  }
+  supabase: createSupabaseMock()
 }));
 
-// Mock toast hook
 vi.mock('@/hooks/use-toast', () => ({
   useToast: () => ({
     toast: vi.fn()
@@ -48,7 +26,7 @@ describe('Payment System', () => {
     fireEvent.click(payButton);
     
     await waitFor(() => {
-      expect(supabase.from).toHaveBeenCalledWith('payments');
+      expect(vi.mocked(createSupabaseMock().from)).toHaveBeenCalledWith('payments');
     });
   });
 
@@ -75,7 +53,7 @@ describe('Payment System', () => {
   });
 
   test('handles payment errors', async () => {
-    vi.mocked(supabase.from).mockImplementation(() => ({
+    vi.mocked(createSupabaseMock().from).mockImplementation(() => ({
       insert: vi.fn().mockReturnThis(),
       select: vi.fn().mockReturnThis(),
       single: vi.fn().mockResolvedValue({
