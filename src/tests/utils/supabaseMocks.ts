@@ -28,7 +28,7 @@ export const createMockRealtimeChannel = (): Partial<RealtimeChannel> => {
     presenceState: vi.fn().mockReturnValue({} as RealtimePresenceState),
     socket: null as unknown as RealtimeClient,
     bindings: {},
-    state: 'SUBSCRIBED',
+    state: REALTIME_SUBSCRIBE_STATES.SUBSCRIBED as any, // Type assertion to handle the enum mismatch
     joinedOnce: false,
     rejoinTimer: null,
     rejoinAttempts: 0,
@@ -49,7 +49,7 @@ export const createMockRealtimeChannel = (): Partial<RealtimeChannel> => {
         broadcast: { ack: true },
         presence: { key: '' }
       }
-    } as RealtimeChannelOptions
+    } as unknown as RealtimeChannelOptions
   };
 };
 
