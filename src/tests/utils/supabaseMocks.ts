@@ -5,11 +5,11 @@ import type { Database } from '@/integrations/supabase/types';
 
 // Create a properly typed mock RealtimeChannel
 export const createMockRealtimeChannel = (): RealtimeChannel => {
-  const channel: RealtimeChannel = {
+  const channel: Partial<RealtimeChannel> = {
     topic: 'realtime:test',
-    subscribe: vi.fn((callback?: (status: 'SUBSCRIBED' | 'CLOSED' | 'TIMED_OUT' | 'CHANNEL_ERROR') => void) => {
+    subscribe: vi.fn((callback?: (status: string) => void) => {
       if (callback) callback('SUBSCRIBED');
-      return channel;
+      return channel as RealtimeChannel;
     }),
     unsubscribe: vi.fn(),
     on: vi.fn().mockReturnThis(),
@@ -65,9 +65,9 @@ export const createMockRealtimeChannel = (): RealtimeChannel => {
     state: 'SUBSCRIBED',
     presenceState: vi.fn(),
     joinedOnce: false,
-    rejoinTimer: 0,
+    rejoinTimer: null,
     rejoinAttempts: 0,
-    timeout: 0,
+    timeout: null,
     push: vi.fn(),
     leave: vi.fn(),
     trigger: vi.fn(),
@@ -83,7 +83,8 @@ export const createMockRealtimeChannel = (): RealtimeChannel => {
       config: {}
     } as RealtimeChannelOptions
   };
-  return channel;
+  
+  return channel as RealtimeChannel;
 };
 
 export const mockChannel = createMockRealtimeChannel();
