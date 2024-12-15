@@ -1,5 +1,5 @@
 import { vi } from 'vitest';
-import { RealtimeChannel, RealtimeClient, RealtimeChannelOptions, REALTIME_SUBSCRIBE_STATES } from '@supabase/supabase-js';
+import { RealtimeChannel, RealtimeClient, RealtimeChannelOptions, REALTIME_SUBSCRIBE_STATES, CHANNEL_STATES } from '@supabase/supabase-js';
 import type { PostgrestQueryBuilder, PostgrestSingleResponse } from '@supabase/postgrest-js';
 import type { Database } from '@/integrations/supabase/types';
 
@@ -7,8 +7,8 @@ import type { Database } from '@/integrations/supabase/types';
 export const createMockRealtimeChannel = (): RealtimeChannel => {
   const channel: RealtimeChannel = {
     topic: 'realtime:test',
-    subscribe: vi.fn((callback?: (status: REALTIME_SUBSCRIBE_STATES, err?: Error) => void) => {
-      if (callback) callback(REALTIME_SUBSCRIBE_STATES.SUBSCRIBED);
+    subscribe: vi.fn((callback?: (status: CHANNEL_STATES) => void) => {
+      if (callback) callback('SUBSCRIBED' as CHANNEL_STATES);
       return channel;
     }),
     unsubscribe: vi.fn(),
@@ -62,12 +62,12 @@ export const createMockRealtimeChannel = (): RealtimeChannel => {
       binaryDecode: vi.fn(),
     } as unknown as RealtimeClient,
     bindings: {},
-    state: REALTIME_SUBSCRIBE_STATES.SUBSCRIBED as unknown as REALTIME_SUBSCRIBE_STATES,
+    state: 'SUBSCRIBED' as CHANNEL_STATES,
     presenceState: vi.fn(),
     joinedOnce: false,
-    rejoinTimer: null as unknown as number,
+    rejoinTimer: undefined as unknown as ReturnType<typeof setTimeout>,
     rejoinAttempts: 0,
-    timeout: vi.fn() as unknown as number,
+    timeout: undefined as unknown as ReturnType<typeof setTimeout>,
     push: vi.fn(),
     leave: vi.fn(),
     trigger: vi.fn(),
@@ -81,7 +81,7 @@ export const createMockRealtimeChannel = (): RealtimeChannel => {
       broadcast: { ack: true, self: false },
       presence: { key: '' },
       config: {}
-    } as unknown as RealtimeChannelOptions
+    } as RealtimeChannelOptions
   };
   return channel;
 };
@@ -103,10 +103,7 @@ export const createPostgrestMock = () => {
       count: null,
       status: 200,
       statusText: 'OK'
-    })),
-    maybeSingle: vi.fn().mockReturnThis(),
-    url: '',
-    headers: {},
+    } as PostgrestSingleResponse<any>))
   };
   return mock as unknown as PostgrestQueryBuilder<Database['public'], any, any>;
 };
