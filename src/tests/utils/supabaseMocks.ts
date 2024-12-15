@@ -53,12 +53,9 @@ export const createPostgrestMock = () => {
     delete: vi.fn().mockReturnThis(),
     upsert: vi.fn().mockReturnThis(),
     eq: vi.fn().mockReturnThis(),
-    single: vi.fn().mockImplementation(() => Promise.resolve({
+    maybeSingle: vi.fn().mockImplementation(() => Promise.resolve({
       data: null,
-      error: null,
-      count: null,
-      status: 200,
-      statusText: 'OK'
+      error: null
     })),
     order: vi.fn().mockReturnThis(),
     limit: vi.fn().mockReturnThis()

@@ -1,14 +1,11 @@
 import { supabase } from '@/integrations/supabase/client';
-import type { Database } from '@/integrations/supabase/types';
-
-type PermanentLink = Database['public']['Tables']['permanent_links']['Row'];
+import type { PermanentLink } from '@/types/permanent-links';
 
 export class PermanentLinkManager {
   private static TOTAL_LINKS = 120;
   
   static async initialize() {
     try {
-      // First check if user is authenticated
       const { data: { session } } = await supabase.auth.getSession();
       
       if (!session) {
@@ -53,7 +50,7 @@ export class PermanentLinkManager {
       .eq('status', 'available')
       .order('last_assigned_at', { ascending: true })
       .limit(1)
-      .single();
+      .maybeSingle();
 
     if (findError) {
       console.error('Error finding available link:', findError);
@@ -68,7 +65,7 @@ export class PermanentLinkManager {
         .eq('status', 'active')
         .order('last_assigned_at', { ascending: true })
         .limit(1)
-        .single();
+        .maybeSingle();
 
       if (oldestError || !oldestLink) {
         console.error('Error finding oldest link:', oldestError);
