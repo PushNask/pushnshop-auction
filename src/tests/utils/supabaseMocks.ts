@@ -1,5 +1,5 @@
 import { vi } from 'vitest';
-import { RealtimeChannel, RealtimeClient, RealtimeChannelOptions, REALTIME_SUBSCRIBE_STATES, CHANNEL_STATES } from '@supabase/supabase-js';
+import { RealtimeChannel, RealtimeClient, RealtimeChannelOptions, REALTIME_SUBSCRIBE_STATES } from '@supabase/supabase-js';
 import type { PostgrestQueryBuilder } from '@supabase/postgrest-js';
 import type { Database } from '@/integrations/supabase/types';
 
@@ -62,10 +62,10 @@ export const createMockRealtimeChannel = (): RealtimeChannel => {
       binaryDecode: vi.fn(),
     } as unknown as RealtimeClient,
     bindings: {},
-    state: CHANNEL_STATES.joined,
+    state: REALTIME_SUBSCRIBE_STATES.SUBSCRIBED,
     presenceState: vi.fn(),
     joinedOnce: false,
-    rejoinTimer: setTimeout(() => {}, 0) as unknown as number,
+    rejoinTimer: null as unknown as number,
     rejoinAttempts: 0,
     timeout: vi.fn(),
     push: vi.fn(),
@@ -80,7 +80,7 @@ export const createMockRealtimeChannel = (): RealtimeChannel => {
     config: {
       broadcast: { ack: true, self: false },
       presence: { key: '' }
-    }
+    } as RealtimeChannelOptions
   };
   return channel;
 };
