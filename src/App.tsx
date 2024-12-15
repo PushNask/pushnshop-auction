@@ -15,7 +15,7 @@ const AuthForm = lazy(() => import("@/components/auth/AuthForm"));
 const AboutPage = lazy(() => import("@/pages/AboutPage"));
 const ProductsPage = lazy(() => import("@/pages/ProductsPage"));
 const DashboardPage = lazy(() => import("@/pages/DashboardPage"));
-const AdminDashboard = lazy(() => import("@/components/admin/AdminDashboard"));
+const AdminDashboard = lazy(() => import("@/components/admin/dashboard/AdminDashboard"));
 const UserManagement = lazy(() => import("@/components/admin/users/UserManagement"));
 const SystemMonitoring = lazy(() => import("@/components/admin/monitoring/SystemMonitoring"));
 const ProfilePage = lazy(() => import("@/pages/ProfilePage"));

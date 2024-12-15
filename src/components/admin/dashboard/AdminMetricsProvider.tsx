@@ -33,11 +33,22 @@ export const AdminMetricsProvider = ({ children }: MetricsProviderProps) => {
       
       if (error) throw error;
       
-      if (!data?.overview || !data?.userMetrics || !data?.productMetrics) {
+      // Type guard to validate the data structure
+      const isValidMetrics = (data: any): data is AdminDashboardMetrics => {
+        return (
+          data &&
+          typeof data === 'object' &&
+          'overview' in data &&
+          'userMetrics' in data &&
+          'productMetrics' in data
+        );
+      };
+      
+      if (!isValidMetrics(data)) {
         throw new Error("Invalid metrics data structure");
       }
       
-      return data as AdminDashboardMetrics;
+      return data;
     }
   });
 
