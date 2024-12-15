@@ -1,17 +1,12 @@
+import { useState, useCallback } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import type { Product, DbProduct } from "@/types/product";
-import { mapDbProductToProduct } from "@/utils/product";
-import { useState, useCallback } from "react";
+import type { Product } from "@/types/product";
 
 export const useProductSearch = () => {
   const [searchTerm, setSearchTerm] = useState("");
 
-  const handleSearch = useCallback((term: string) => {
-    setSearchTerm(term);
-  }, []);
-
-  const query = useQuery({
+  const { data: products, isLoading } = useQuery({
     queryKey: ['products', searchTerm],
     queryFn: async () => {
       let query = supabase
@@ -22,15 +17,9 @@ export const useProductSearch = () => {
             id,
             url,
             alt,
-            order_number,
-            product_id,
-            created_at
-          ),
-          users!products_seller_id_fkey (
-            whatsapp_number
+            order_number
           )
-        `)
-        .order('created_at', { ascending: false });
+        `);
 
       if (searchTerm) {
         query = query.ilike('title', `%${searchTerm}%`);
@@ -42,14 +31,19 @@ export const useProductSearch = () => {
         throw error;
       }
 
-      return (data || []).map((item: DbProduct) => mapDbProductToProduct(item));
-    }
+      return data as Product[];
+    },
+    enabled: true,
   });
 
+  const handleSearch = useCallback((term: string) => {
+    setSearchTerm(term);
+  }, []);
+
   return {
-    ...query,
-    handleSearch,
+    products,
+    isLoading,
     searchTerm,
-    isLoading: query.isLoading
+    handleSearch,
   };
 };
