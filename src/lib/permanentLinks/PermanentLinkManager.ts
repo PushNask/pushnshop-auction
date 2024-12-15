@@ -195,7 +195,7 @@ export class PermanentLinkManager {
         status: 'available',
         current_listing_id: null,
         last_assigned_at: null,
-        rotation_count: supabase.raw('rotation_count + 1')
+        rotation_count: supabase.rpc('increment_rotation_count', { link_id: linkId })
       })
       .eq('id', linkId);
 
