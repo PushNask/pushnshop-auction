@@ -18,6 +18,7 @@ export const ProductApproval = () => {
 
   const fetchPendingProducts = async () => {
     try {
+      setIsLoading(true);
       const { data, error } = await supabase
         .from('products')
         .select(`
@@ -28,7 +29,7 @@ export const ProductApproval = () => {
             full_name
           )
         `)
-        .eq('status', 'pending_approval')
+        .eq('status', 'pending')
         .order('created_at', { ascending: false });
 
       if (error) throw error;
@@ -42,12 +43,14 @@ export const ProductApproval = () => {
         title: "Error",
         description: "Failed to fetch pending products"
       });
+    } finally {
+      setIsLoading(false);
     }
   };
 
   const handleApproval = async (productId: string, approved: boolean) => {
-    setIsLoading(true);
     try {
+      setIsLoading(true);
       const newStatus = approved ? 'active' : 'rejected';
       
       const { error: updateError } = await supabase
@@ -84,12 +87,20 @@ export const ProductApproval = () => {
       toast({
         variant: "destructive",
         title: "Error",
-        description: "Failed to update product status",
+        description: "Failed to update product status"
       });
     } finally {
       setIsLoading(false);
     }
   };
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center p-8">
+        <Loader2 className="w-8 h-8 animate-spin" />
+      </div>
+    );
+  }
 
   return (
     <Card>
@@ -122,12 +133,8 @@ export const ProductApproval = () => {
                       onClick={() => handleApproval(product.id, true)}
                       disabled={isLoading}
                     >
-                      {isLoading ? (
-                        <Loader2 className="h-4 w-4 animate-spin" />
-                      ) : (
-                        <CheckCircle className="h-4 w-4 text-green-500" />
-                      )}
-                      <span className="ml-2">Approve</span>
+                      <CheckCircle className="h-4 w-4 text-green-500 mr-2" />
+                      Approve
                     </Button>
                     <Button
                       variant="outline"
@@ -135,12 +142,8 @@ export const ProductApproval = () => {
                       onClick={() => handleApproval(product.id, false)}
                       disabled={isLoading}
                     >
-                      {isLoading ? (
-                        <Loader2 className="h-4 w-4 animate-spin" />
-                      ) : (
-                        <XCircle className="h-4 w-4 text-red-500" />
-                      )}
-                      <span className="ml-2">Reject</span>
+                      <XCircle className="h-4 w-4 text-red-500 mr-2" />
+                      Reject
                     </Button>
                   </div>
                 </div>
@@ -152,3 +155,5 @@ export const ProductApproval = () => {
     </Card>
   );
 };
+
+export default ProductApproval;

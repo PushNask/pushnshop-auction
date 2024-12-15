@@ -15,7 +15,6 @@ const AdminDashboard = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
 
-  // Check authentication and admin status
   useEffect(() => {
     const checkAuth = async () => {
       try {
@@ -33,7 +32,6 @@ const AdminDashboard = () => {
           return;
         }
 
-        // Check if user is admin
         const { data: userData, error: userError } = await supabase
           .from('users')
           .select('role')
@@ -67,21 +65,16 @@ const AdminDashboard = () => {
   const { data: metrics, isLoading } = useQuery({
     queryKey: ["admin-metrics"],
     queryFn: async () => {
-      try {
-        const { data, error } = await supabase.rpc("get_admin_dashboard_metrics", {
-          time_range: "7d"
-        });
-        
-        if (error) {
-          console.error("Error fetching metrics:", error);
-          throw error;
-        }
-        
-        return data as AdminDashboardMetrics;
-      } catch (error) {
-        console.error("Error in metrics query:", error);
+      const { data, error } = await supabase.rpc("get_admin_dashboard_metrics", {
+        time_range: "7d"
+      });
+      
+      if (error) {
+        console.error("Error fetching metrics:", error);
         throw error;
       }
+      
+      return data as AdminDashboardMetrics;
     }
   });
 
