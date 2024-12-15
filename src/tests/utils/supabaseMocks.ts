@@ -1,5 +1,4 @@
-import { RealtimeChannel, RealtimeChannelOptions, RealtimePresence } from '@supabase/supabase-js';
-import { jest } from '@jest/globals';
+import { RealtimeChannel, RealtimePresence } from '@supabase/supabase-js';
 
 export const createSupabaseMock = () => ({
   from: () => ({
@@ -18,21 +17,17 @@ export const createSupabaseMock = () => ({
     signOut: jest.fn(),
   },
   channel: (name: string): RealtimeChannel => {
-    const mockPresence: RealtimePresence = {
+    const mockPresence = {
       state: {},
-      untrack: jest.fn(),
-      onJoin: jest.fn(),
-      onLeave: jest.fn(),
-      onSync: jest.fn(),
-      channel: {} as any,
+      channel: {} as RealtimeChannel,
       pendingDiffs: [],
-      joinRef: null,
+      joinRef: '',
       caller: {
         onJoin: jest.fn(),
         onLeave: jest.fn(),
         onSync: jest.fn()
       }
-    };
+    } as RealtimePresence;
 
     return {
       on: jest.fn().mockReturnThis(),
@@ -46,7 +41,7 @@ export const createSupabaseMock = () => ({
       push: jest.fn(),
       log: jest.fn(),
       presence: mockPresence
-    } as unknown as RealtimeChannel;
+    } as RealtimeChannel;
   },
   rpc: (
     fn: string,
@@ -66,21 +61,17 @@ export const createSupabaseMock = () => ({
 });
 
 export const createMockRealtimeChannel = (): Partial<RealtimeChannel> => {
-  const mockPresence: RealtimePresence = {
+  const mockPresence = {
     state: {},
-    untrack: jest.fn(),
-    onJoin: jest.fn(),
-    onLeave: jest.fn(),
-    onSync: jest.fn(),
-    channel: {} as any,
+    channel: {} as RealtimeChannel,
     pendingDiffs: [],
-    joinRef: null,
+    joinRef: '',
     caller: {
       onJoin: jest.fn(),
       onLeave: jest.fn(),
       onSync: jest.fn()
     }
-  };
+  } as RealtimePresence;
 
   return {
     on: jest.fn().mockReturnThis(),
@@ -89,7 +80,6 @@ export const createMockRealtimeChannel = (): Partial<RealtimeChannel> => {
     send: jest.fn(),
     track: jest.fn(),
     untrack: jest.fn(),
-    join: jest.fn(),
     leave: jest.fn(),
     push: jest.fn(),
     log: jest.fn(),
