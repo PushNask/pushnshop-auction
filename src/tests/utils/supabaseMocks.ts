@@ -23,7 +23,7 @@ export const createMockRealtimeChannel = (): Partial<RealtimeChannel> => {
     presenceState: vi.fn(),
     socket: null as unknown as RealtimeClient,
     bindings: {},
-    state: 'SUBSCRIBED' as unknown as RealtimeChannel['state'],
+    state: 'SUBSCRIBED' as const,
     joinedOnce: false,
     rejoinTimer: null,
     rejoinAttempts: 0,
@@ -44,7 +44,7 @@ export const createMockRealtimeChannel = (): Partial<RealtimeChannel> => {
         broadcast: { ack: true, self: false },
         presence: { key: '' }
       }
-    } as unknown as RealtimeChannelOptions
+    } as RealtimeChannelOptions
   };
 };
 
