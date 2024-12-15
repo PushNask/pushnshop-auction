@@ -11,33 +11,42 @@ const SellPage = () => {
 
   useEffect(() => {
     const checkAuth = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
-      
-      if (!session) {
+      try {
+        const { data: { session } } = await supabase.auth.getSession();
+        
+        if (!session) {
+          toast({
+            variant: "destructive",
+            title: "Authentication Required",
+            description: "Please log in to create a listing",
+          });
+          navigate('/auth');
+          return;
+        }
+
+        const { data: userData, error } = await supabase
+          .from('users')
+          .select('role')
+          .eq('id', session.user.id)
+          .single();
+
+        if (error || !userData || (userData.role !== 'seller' && userData.role !== 'admin')) {
+          toast({
+            variant: "destructive",
+            title: "Access Denied",
+            description: "Only sellers can create listings",
+          });
+          navigate('/');
+          return;
+        }
+      } catch (error) {
+        console.error('Auth check failed:', error);
         toast({
           variant: "destructive",
-          title: "Authentication Required",
-          description: "Please log in to create a listing",
+          title: "Error",
+          description: "Failed to verify authentication",
         });
         navigate('/auth');
-        return;
-      }
-
-      // Check if user is a seller or admin
-      const { data: userData, error } = await supabase
-        .from('users')
-        .select('role')
-        .eq('id', session.user.id)
-        .single();
-
-      if (error || !userData || (userData.role !== 'seller' && userData.role !== 'admin')) {
-        toast({
-          variant: "destructive",
-          title: "Access Denied",
-          description: "Only sellers can create listings",
-        });
-        navigate('/');
-        return;
       }
     };
 
