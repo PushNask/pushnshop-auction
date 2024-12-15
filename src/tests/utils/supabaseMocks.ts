@@ -21,7 +21,7 @@ export const createMockRealtimeChannel = (): Partial<RealtimeChannel> => {
     presenceState: vi.fn(),
     socket: null as unknown as RealtimeClient,
     bindings: {},
-    state: 'SUBSCRIBED' as REALTIME_SUBSCRIBE_STATES,
+    state: REALTIME_SUBSCRIBE_STATES.SUBSCRIBED,
     joinedOnce: false,
     rejoinTimer: null,
     rejoinAttempts: 0,

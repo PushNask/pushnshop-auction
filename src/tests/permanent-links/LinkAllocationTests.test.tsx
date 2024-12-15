@@ -20,7 +20,8 @@ describe('Link Allocation System', () => {
       error: null
     };
 
-    mockSupabase.from().single.mockResolvedValueOnce(mockResponse);
+    const postgrestMock = mockSupabase.from();
+    postgrestMock.single.mockResolvedValueOnce(mockResponse);
     
     const result = await PermanentLinkManager.assignLink(productId);
     expect(result).toBe('p1');
