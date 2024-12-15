@@ -1,79 +1,85 @@
-import { useState, useEffect } from 'react';
-import { Alert, AlertDescription } from '@/components/ui/alert';
-import { Loader2, AlertCircle } from 'lucide-react';
+import { createContext, useContext, useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
-import { mapDbProductToProduct } from '@/utils/product';
 import type { Product } from '@/types/product';
 
-interface ProductProviderProps {
-  children: (data: { products: Product[] }) => React.ReactNode;
+interface ProductContextType {
+  product: Product | null;
+  loading: boolean;
+  error: Error | null;
+  refreshProduct: () => Promise<void>;
 }
 
-export const ProductProvider = ({ children }: ProductProviderProps) => {
-  const [products, setProducts] = useState<Product[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+const ProductContext = createContext<ProductContextType>({
+  product: null,
+  loading: false,
+  error: null,
+  refreshProduct: async () => {},
+});
+
+export const useProduct = () => useContext(ProductContext);
+
+interface ProductProviderProps {
+  productId: string;
+  children: React.ReactNode;
+}
+
+export const ProductProvider = ({ productId, children }: ProductProviderProps) => {
+  const [product, setProduct] = useState<Product | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<Error | null>(null);
+
+  const fetchProduct = async () => {
+    try {
+      setLoading(true);
+      const { data, error: fetchError } = await supabase
+        .from('products')
+        .select(`
+          *,
+          seller:users!products_seller_id_fkey (
+            whatsapp_number
+          ),
+          images:product_images (
+            id,
+            url,
+            alt,
+            order_number
+          )
+        `)
+        .eq('id', productId)
+        .single();
+
+      if (fetchError) throw fetchError;
+
+      if (data) {
+        setProduct({
+          ...data,
+          images: data.images || [],
+          sellerWhatsApp: data.seller?.whatsapp_number
+        });
+      }
+    } catch (err) {
+      setError(err instanceof Error ? err : new Error('Failed to fetch product'));
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
-    const fetchProducts = async () => {
-      try {
-        const { data: productsData, error: productsError } = await supabase
-          .from('products')
-          .select(`
-            *,
-            product_images (
-              id,
-              url,
-              alt,
-              order_number
-            ),
-            users!products_seller_id_fkey (
-              whatsapp_number
-            )
-          `)
-          .order('created_at', { ascending: false });
+    fetchProduct();
+  }, [productId]);
 
-        if (productsError) throw productsError;
-
-        const mappedProducts = productsData.map(productData => {
-          const mappedProduct = mapDbProductToProduct(productData);
-          mappedProduct.images = (productData.product_images || []).map(img => ({
-            id: img.id,
-            url: img.url,
-            alt: img.alt || '',
-            order_number: img.order_number
-          }));
-          mappedProduct.sellerWhatsApp = productData.users?.whatsapp_number || '';
-          return mappedProduct;
-        });
-
-        setProducts(mappedProducts);
-      } catch (err) {
-        setError(err instanceof Error ? err.message : 'An error occurred');
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    fetchProducts();
-  }, []);
-
-  if (isLoading) {
-    return (
-      <div className="flex justify-center items-center min-h-screen">
-        <Loader2 className="w-8 h-8 animate-spin" />
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <Alert variant="destructive">
-        <AlertCircle className="h-4 w-4" />
-        <AlertDescription>{error}</AlertDescription>
-      </Alert>
-    );
-  }
-
-  return <>{children({ products })}</>;
+  return (
+    <ProductContext.Provider
+      value={{
+        product,
+        loading,
+        error,
+        refreshProduct: fetchProduct,
+      }}
+    >
+      {children}
+    </ProductContext.Provider>
+  );
 };
+
+export default ProductProvider;

@@ -1,86 +1,91 @@
+import { useCallback } from 'react';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { ImagePlus, Trash2 } from 'lucide-react';
+import { Trash2 } from 'lucide-react';
 import type { ProductImage } from '@/types/product';
 
 interface ImageUploadSectionProps {
   images: ProductImage[];
   onImagesChange: (images: ProductImage[]) => void;
-  error?: string;
+  maxImages?: number;
 }
 
 export const ImageUploadSection = ({
   images,
   onImagesChange,
-  error
+  maxImages = 7
 }: ImageUploadSectionProps) => {
-  const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const files = Array.from(event.target.files || []);
-    const newImages: ProductImage[] = files.map((file, index) => ({
-      id: Math.random().toString(36).substring(7),
-      url: URL.createObjectURL(file),
-      alt: file.name || 'Product image',
-      order_number: images.length + index,
-      isNew: true,
-      file,
-      preview: URL.createObjectURL(file)
-    }));
+  const handleFileChange = useCallback(
+    (event: React.ChangeEvent<HTMLInputElement>) => {
+      const files = Array.from(event.target.files || []);
+      if (files.length + images.length > maxImages) {
+        alert(`You can only upload up to ${maxImages} images`);
+        return;
+      }
 
-    onImagesChange([...images, ...newImages]);
-  };
+      const newImages: ProductImage[] = files.map((file, index) => ({
+        id: `temp-${Date.now()}-${index}`,
+        url: URL.createObjectURL(file),
+        alt: file.name,
+        order_number: images.length + index,
+        file,
+        isNew: true,
+        preview: URL.createObjectURL(file)
+      }));
 
-  const handleRemove = (imageId: string) => {
-    const newImages = images
-      .filter(img => img.id !== imageId)
-      .map((img, index) => ({ ...img, order_number: index }));
-    onImagesChange(newImages);
+      onImagesChange([...images, ...newImages]);
+    },
+    [images, maxImages, onImagesChange]
+  );
+
+  const handleRemoveImage = (index: number) => {
+    const newImages = images.filter((_, i) => i !== index);
+    onImagesChange(newImages.map((img, i) => ({ ...img, order_number: i })));
   };
 
   return (
-    <div className="space-y-4">
-      <Label>Product Images ({images.length}/7)</Label>
-      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
-        {images.map((image) => (
-          <div key={image.id} className="relative aspect-square">
-            <img
-              src={image.preview || image.url}
-              alt={image.alt}
-              className="w-full h-full object-cover rounded-lg"
-            />
-            <Button
-              type="button"
-              variant="destructive"
-              size="icon"
-              className="absolute top-2 right-2"
-              onClick={() => handleRemove(image.id)}
-            >
-              <Trash2 className="h-4 w-4" />
-            </Button>
-          </div>
-        ))}
-        
-        {images.length < 7 && (
-          <div className="aspect-square border-2 border-dashed rounded-lg flex items-center justify-center">
-            <Label
-              htmlFor="image-upload"
-              className="cursor-pointer flex flex-col items-center p-4"
-            >
-              <ImagePlus className="h-8 w-8 mb-2" />
-              <span className="text-sm text-center">Add Image</span>
-              <Input
-                id="image-upload"
-                type="file"
-                accept="image/jpeg,image/png,image/webp"
-                className="hidden"
-                onChange={handleImageUpload}
-                multiple
+    <Card>
+      <CardHeader>
+        <CardTitle>Product Images</CardTitle>
+      </CardHeader>
+      <CardContent>
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+          {images.map((image, index) => (
+            <div key={image.id} className="relative aspect-square group">
+              <img
+                src={image.preview || image.url}
+                alt={image.alt}
+                className="w-full h-full object-cover rounded-lg"
               />
-            </Label>
-          </div>
-        )}
-      </div>
-      {error && <p className="text-sm text-red-500 mt-1">{error}</p>}
-    </div>
+              <Button
+                variant="destructive"
+                size="icon"
+                className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity"
+                onClick={() => handleRemoveImage(index)}
+              >
+                <Trash2 className="h-4 w-4" />
+              </Button>
+            </div>
+          ))}
+          {images.length < maxImages && (
+            <label className="border-2 border-dashed border-gray-300 rounded-lg aspect-square flex items-center justify-center cursor-pointer hover:border-primary transition-colors">
+              <input
+                type="file"
+                accept="image/*"
+                multiple
+                className="hidden"
+                onChange={handleFileChange}
+              />
+              <span className="text-sm text-gray-500">Add Image</span>
+            </label>
+          )}
+        </div>
+        <p className="text-sm text-gray-500 mt-2">
+          Upload up to {maxImages} images. First image will be the cover.
+        </p>
+      </CardContent>
+    </Card>
   );
 };
+
+export default ImageUploadSection;
