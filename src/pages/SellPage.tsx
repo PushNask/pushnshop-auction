@@ -6,7 +6,7 @@ import { useToast } from "@/hooks/use-toast";
 import type { FormData } from "@/types/product-form";
 
 interface SubmitResponse {
-  data: null;
+  data: any | null;
   error: { message: string } | null;
 }
 
