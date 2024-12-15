@@ -24,8 +24,17 @@ export async function middleware(req: NextRequest) {
     return NextResponse.redirect(redirectUrl);
   }
 
-  if (path.startsWith('/admin') && session?.user.user_metadata.role !== 'admin') {
-    return NextResponse.redirect(new URL('/', req.url));
+  // Enhanced admin route protection
+  if (path.startsWith('/admin')) {
+    const { data: userData, error } = await supabase
+      .from('users')
+      .select('role')
+      .eq('id', session?.user?.id)
+      .single();
+
+    if (error || userData?.role !== 'admin') {
+      return NextResponse.redirect(new URL('/', req.url));
+    }
   }
 
   return res;
