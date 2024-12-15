@@ -1,7 +1,7 @@
 import React from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Sheet, SheetTrigger, SheetContent } from '@/components/ui/sheet';
+import { Sheet, SheetTrigger, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sheet';
 import { SlidersHorizontal } from 'lucide-react';
 import { FilterContent } from './FilterContent';
 import { useProductSearch } from '@/hooks/useProductSearch';
@@ -20,7 +20,7 @@ export const SearchAndFilter: React.FC<SearchAndFilterProps> = ({ filters, onFil
   };
 
   return (
-    <div className="flex gap-4 items-center">
+    <div className="flex gap-4 items-center mb-6">
       <div className="flex-1">
         <Input
           type="search"
@@ -32,12 +32,14 @@ export const SearchAndFilter: React.FC<SearchAndFilterProps> = ({ filters, onFil
       </div>
       <Sheet>
         <SheetTrigger asChild>
-          <Button variant="outline" disabled={isLoading}>
-            <SlidersHorizontal className="h-4 w-4 mr-2" />
-            Filters
+          <Button variant="outline" size="icon" disabled={isLoading}>
+            <SlidersHorizontal className="h-4 w-4" />
           </Button>
         </SheetTrigger>
         <SheetContent>
+          <SheetHeader>
+            <SheetTitle>Filters</SheetTitle>
+          </SheetHeader>
           <FilterContent filters={filters} onFiltersChange={onFiltersChange} />
         </SheetContent>
       </Sheet>
