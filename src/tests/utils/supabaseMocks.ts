@@ -6,14 +6,13 @@ import {
   REALTIME_SUBSCRIBE_STATES,
   RealtimePresenceState
 } from '@supabase/supabase-js';
-import { PostgrestQueryBuilder } from '@supabase/postgrest-js';
 import type { Database } from '@/integrations/supabase/types';
 
 // Create a properly typed mock RealtimeChannel
 export const createMockRealtimeChannel = (): Partial<RealtimeChannel> => {
   return {
     subscribe: vi.fn().mockImplementation((callback) => {
-      if (callback) callback(REALTIME_SUBSCRIBE_STATES.SUBSCRIBED);
+      if (callback) callback('SUBSCRIBED');
       return Promise.resolve({
         unsubscribe: vi.fn(),
       } as unknown as RealtimeChannel);
@@ -29,7 +28,7 @@ export const createMockRealtimeChannel = (): Partial<RealtimeChannel> => {
     presenceState: vi.fn().mockReturnValue({} as RealtimePresenceState),
     socket: null as unknown as RealtimeClient,
     bindings: {},
-    state: REALTIME_SUBSCRIBE_STATES.SUBSCRIBED,
+    state: 'SUBSCRIBED' as const,
     joinedOnce: false,
     rejoinTimer: null,
     rejoinAttempts: 0,
@@ -46,7 +45,7 @@ export const createMockRealtimeChannel = (): Partial<RealtimeChannel> => {
     config: {
       broadcast: { self: true },
       presence: { key: '' }
-    } as unknown as RealtimeChannelOptions
+    } as RealtimeChannelOptions
   };
 };
 
