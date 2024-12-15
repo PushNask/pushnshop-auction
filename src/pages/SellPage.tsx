@@ -17,7 +17,9 @@ const SellPage = () => {
   useEffect(() => {
     const checkAuth = async () => {
       try {
-        const { data: { session } } = await supabase.auth.getSession();
+        const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+        
+        if (sessionError) throw sessionError;
         
         if (!session) {
           toast({
@@ -29,13 +31,13 @@ const SellPage = () => {
           return;
         }
 
-        const { data: userData, error } = await supabase
+        const { data: userData, error: userError } = await supabase
           .from('users')
           .select('role')
           .eq('id', session.user.id)
           .single();
 
-        if (error || !userData || (userData.role !== 'seller' && userData.role !== 'admin')) {
+        if (userError || !userData || (userData.role !== 'seller' && userData.role !== 'admin')) {
           toast({
             variant: "destructive",
             title: "Access Denied",
@@ -60,10 +62,12 @@ const SellPage = () => {
 
   const handleSubmit = async (formData: FormData): Promise<SubmitResponse> => {
     try {
-      const { data: { user } } = await supabase.auth.getUser();
+      const { data: { user }, error: userError } = await supabase.auth.getUser();
+      
+      if (userError) throw userError;
       if (!user) throw new Error('Not authenticated');
 
-      const { error } = await supabase
+      const { error: insertError } = await supabase
         .from('products')
         .insert({
           title: formData.title,
@@ -75,9 +79,7 @@ const SellPage = () => {
           status: 'draft'
         });
 
-      if (error) {
-        throw new Error(error.message);
-      }
+      if (insertError) throw insertError;
 
       toast({ 
         title: "Success",
