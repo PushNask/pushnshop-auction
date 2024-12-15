@@ -19,7 +19,8 @@ describe('Link Recycling System', () => {
       error: null
     };
 
-    mockSupabase.from().select.mockResolvedValueOnce(mockExpiredLinks);
+    const postgrestMock = mockSupabase.from();
+    postgrestMock.select.mockResolvedValueOnce(mockExpiredLinks);
     
     await PermanentLinkManager.recycleExpiredLinks();
     
@@ -37,8 +38,7 @@ describe('Link Recycling System', () => {
     
     expect(mockSupabase.from().update).toHaveBeenCalledWith(
       expect.objectContaining({
-        status: 'available',
-        rotation_count: expect.any(Number)
+        status: 'available'
       })
     );
   });

@@ -34,7 +34,7 @@ describe('Link Allocation System', () => {
     const postgrestMock = mockSupabase.from();
     
     // First query returns no available links
-    postgrestMock.maybeSingle.mockRejectedValueOnce(new Error('No links available'));
+    postgrestMock.maybeSingle.mockResolvedValueOnce({ data: null, error: null });
     
     // Second query returns oldest active link
     const mockOldestLink = {
