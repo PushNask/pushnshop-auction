@@ -2,89 +2,76 @@ import { RealtimeChannel, RealtimePresence } from '@supabase/supabase-js';
 
 export const createSupabaseMock = () => ({
   from: () => ({
-    select: jest.fn().mockReturnThis(),
-    insert: jest.fn().mockReturnThis(),
-    update: jest.fn().mockReturnThis(),
-    delete: jest.fn().mockReturnThis(),
-    eq: jest.fn().mockReturnThis(),
-    single: jest.fn().mockReturnThis(),
-    maybeSingle: jest.fn().mockReturnThis()
+    select: vi.fn().mockReturnThis(),
+    insert: vi.fn().mockReturnThis(),
+    update: vi.fn().mockReturnThis(),
+    delete: vi.fn().mockReturnThis(),
+    eq: vi.fn().mockReturnThis(),
+    single: vi.fn().mockReturnThis(),
+    maybeSingle: vi.fn().mockReturnThis()
   }),
   auth: {
-    getSession: jest.fn().mockResolvedValue({ data: { session: null }, error: null }),
-    signInWithPassword: jest.fn(),
-    signUp: jest.fn(),
-    signOut: jest.fn(),
+    getSession: vi.fn().mockResolvedValue({ data: { session: null }, error: null }),
+    signInWithPassword: vi.fn(),
+    signUp: vi.fn(),
+    signOut: vi.fn(),
   },
-  channel: (name: string): RealtimeChannel => {
+  channel: (name: string) => {
     const mockPresence = {
       state: {},
       channel: {} as RealtimeChannel,
       pendingDiffs: [],
       joinRef: '',
       caller: {
-        onJoin: jest.fn(),
-        onLeave: jest.fn(),
-        onSync: jest.fn()
+        onJoin: vi.fn(),
+        onLeave: vi.fn(),
+        onSync: vi.fn()
       }
     } as RealtimePresence;
 
-    return {
-      on: jest.fn().mockReturnThis(),
-      subscribe: jest.fn().mockReturnThis(),
-      unsubscribe: jest.fn(),
-      send: jest.fn(),
-      track: jest.fn(),
-      untrack: jest.fn(),
-      join: jest.fn(),
-      leave: jest.fn(),
-      push: jest.fn(),
-      log: jest.fn(),
-      presence: mockPresence
-    } as RealtimeChannel;
+    const channelMock = {
+      on: vi.fn().mockReturnThis(),
+      subscribe: vi.fn().mockReturnThis(),
+      unsubscribe: vi.fn(),
+      send: vi.fn(),
+      track: vi.fn(),
+      untrack: vi.fn(),
+      push: vi.fn(),
+      log: vi.fn(),
+      presence: mockPresence,
+      // Add required RealtimeChannel properties
+      topic: name,
+      params: {},
+      socket: {},
+      bindings: {},
+      state: 'SUBSCRIBED',
+      joinQueue: [],
+      timeout: 10000,
+      rejoinTimer: { timer: null, callback: () => {} },
+      stateChangeRefs: [],
+      join: vi.fn(),
+      leave: vi.fn(),
+      _rejoin: vi.fn(),
+      trigger: vi.fn()
+    };
+
+    return channelMock as unknown as RealtimeChannel;
   },
   rpc: (
     fn: string,
     params?: Record<string, unknown>
   ) => ({
-    select: jest.fn().mockReturnThis(),
-    execute: jest.fn().mockResolvedValue({ data: null, error: null }),
+    select: vi.fn().mockReturnThis(),
+    execute: vi.fn().mockResolvedValue({ data: null, error: null }),
   }),
   storage: {
     from: (bucket: string) => ({
-      upload: jest.fn(),
-      download: jest.fn(),
-      remove: jest.fn(),
-      list: jest.fn(),
+      upload: vi.fn(),
+      download: vi.fn(),
+      remove: vi.fn(),
+      list: vi.fn(),
     }),
   },
 });
 
-export const createMockRealtimeChannel = (): Partial<RealtimeChannel> => {
-  const mockPresence = {
-    state: {},
-    channel: {} as RealtimeChannel,
-    pendingDiffs: [],
-    joinRef: '',
-    caller: {
-      onJoin: jest.fn(),
-      onLeave: jest.fn(),
-      onSync: jest.fn()
-    }
-  } as RealtimePresence;
-
-  return {
-    on: jest.fn().mockReturnThis(),
-    subscribe: jest.fn().mockReturnThis(),
-    unsubscribe: jest.fn(),
-    send: jest.fn(),
-    track: jest.fn(),
-    untrack: jest.fn(),
-    leave: jest.fn(),
-    push: jest.fn(),
-    log: jest.fn(),
-    presence: mockPresence
-  };
-};
-
-export const mockChannel = createMockRealtimeChannel();
+export const mockChannel = createSupabaseMock().channel('test-channel');
