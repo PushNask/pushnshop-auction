@@ -15,7 +15,6 @@ const AdminDashboard = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
 
-  // Check authentication and admin status
   useEffect(() => {
     const checkAuth = async () => {
       try {
@@ -33,7 +32,6 @@ const AdminDashboard = () => {
           return;
         }
 
-        // Check if user is admin
         const { data: userData, error: userError } = await supabase
           .from('users')
           .select('role')
