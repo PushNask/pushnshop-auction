@@ -3,18 +3,18 @@ import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { ProductGallery } from './ProductGallery';
-import type { Product, Currency } from '@/types/product';
+import type { Product } from '@/types/product';
 
 const DEFAULT_PRODUCT: Partial<Product> = {
   id: '1',
-  permanentLinkId: '1',
   title: 'Sample Product',
   description: 'Sample product description',
   price: 99.99,
-  currency: 'XAF' as Currency,
+  currency: 'XAF',
   images: [],
   status: 'active',
-  viewCount: 0
+  viewCount: 0,
+  quantity: 1
 };
 
 interface ProductCardProps {

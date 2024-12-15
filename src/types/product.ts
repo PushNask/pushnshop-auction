@@ -11,6 +11,8 @@ export interface ProductImage {
   url: string;
   alt: string;
   order_number: number;
+  product_id?: string;
+  created_at?: string;
   file?: File;
   isNew?: boolean;
   preview?: string;
@@ -27,8 +29,11 @@ export interface Product {
   viewCount: number;
   quantity: number;
   sellerWhatsApp?: string;
+  sellerId?: string;
+  permanentLinkId?: string;
   createdAt?: string;
   expiresAt?: string;
+  paymentStatus?: string;
 }
 
 export interface ProductGalleryProps {
@@ -37,4 +42,30 @@ export interface ProductGalleryProps {
   onClose: () => void;
   currentIndex: number;
   onIndexChange: (index: number) => void;
+}
+
+export interface DbProduct {
+  id: string;
+  seller_id: string;
+  title: string;
+  description: string;
+  price: number;
+  currency: Currency;
+  quantity: number;
+  status: string;
+  payment_status?: string;
+  created_at: string;
+  updated_at: string;
+  end_time?: string;
+  product_images: {
+    id: string;
+    url: string;
+    alt: string | null;
+    order_number: number;
+    product_id: string;
+    created_at: string;
+  }[];
+  seller?: {
+    whatsapp_number: string | null;
+  };
 }
