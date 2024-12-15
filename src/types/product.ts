@@ -26,5 +26,5 @@ export interface Product {
   createdAt: string;
   expiresAt?: string;
   viewCount: number;
-  permanentLinkId?: number;
+  permanentLinkId?: string;
 }

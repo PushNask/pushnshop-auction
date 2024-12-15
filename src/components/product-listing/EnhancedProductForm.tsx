@@ -15,20 +15,30 @@ import { BasicInfoSection } from './BasicInfoSection';
 import { PriceSection } from './PriceSection';
 import { CategorySection } from './CategorySection';
 import { DurationSection } from './DurationSection';
-import type { ProductImage, FormData, Duration } from '@/types/product';
+import type { ProductImage, Duration } from '@/types/product';
+
+interface FormState {
+  title: string;
+  description: string;
+  price: string;
+  currency: 'XAF' | 'USD';
+  quantity: string;
+  duration: Duration;
+  images: ProductImage[];
+}
 
 export const EnhancedProductForm = () => {
   const { toast } = useToast();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState('');
   const [images, setImages] = useState<ProductImage[]>([]);
-  const [formData, setFormData] = useState<FormData>({
+  const [formData, setFormData] = useState<FormState>({
     title: '',
     description: '',
     price: '',
     currency: 'XAF',
     quantity: '1',
-    duration: '24' as Duration,
+    duration: '24',
     images: []
   });
 
@@ -125,7 +135,7 @@ export const EnhancedProductForm = () => {
                 }))}
                 onCurrencyChange={(value) => setFormData(prev => ({
                   ...prev,
-                  currency: value
+                  currency: value as 'XAF' | 'USD'
                 }))}
               />
 

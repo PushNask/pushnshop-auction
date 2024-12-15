@@ -2,7 +2,7 @@ import { useAuthCheck } from "@/hooks/useAuthCheck";
 import { Navigate } from "react-router-dom";
 import { StatsOverview } from "./dashboard/StatsOverview";
 import { PaymentVerification } from "./dashboard/PaymentVerification";
-import { SystemMonitoring } from "./monitoring/SystemMonitoring";
+import SystemMonitoring from "./monitoring/SystemMonitoring";
 import { UserManagement } from "./users/UserManagement";
 import { PendingListings } from "./listings/PendingListings";
 import AnalyticsDashboard from "@/components/analytics/AnalyticsDashboard";
