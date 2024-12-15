@@ -1,20 +1,7 @@
 import { vi } from 'vitest';
-import type { RealtimeChannel, RealtimeChannelOptions } from '@supabase/supabase-js';
+import type { RealtimeChannel, RealtimeClient, RealtimeChannelOptions } from '@supabase/supabase-js';
 import type { PostgrestQueryBuilder } from '@supabase/postgrest-js';
 import type { Database } from '@/integrations/supabase/types';
-
-// Create a complete mock implementation of PostgrestQueryBuilder
-export const createPostgrestMock = () => ({
-  select: vi.fn().mockReturnThis(),
-  insert: vi.fn().mockReturnThis(),
-  update: vi.fn().mockReturnThis(),
-  delete: vi.fn().mockReturnThis(),
-  upsert: vi.fn().mockReturnThis(),
-  eq: vi.fn().mockReturnThis(),
-  single: vi.fn().mockReturnThis(),
-  url: '',
-  headers: {},
-});
 
 // Create a properly typed mock RealtimeChannel
 export const createMockRealtimeChannel = (): RealtimeChannel => {
@@ -38,9 +25,9 @@ export const createMockRealtimeChannel = (): RealtimeChannel => {
       connect: vi.fn(),
       disconnect: vi.fn(),
       isConnected: vi.fn(),
-    },
+    } as unknown as RealtimeClient,
     bindings: {},
-    state: 'joined',
+    state: 'joined' as const,
     presenceState: vi.fn(),
     joinedOnce: false,
     rejoinTimer: null,
@@ -64,6 +51,19 @@ export const createMockRealtimeChannel = (): RealtimeChannel => {
 };
 
 export const mockChannel = createMockRealtimeChannel();
+
+// Create a properly typed mock PostgrestQueryBuilder
+export const createPostgrestMock = () => ({
+  select: vi.fn().mockReturnThis(),
+  insert: vi.fn().mockReturnThis(),
+  update: vi.fn().mockReturnThis(),
+  delete: vi.fn().mockReturnThis(),
+  upsert: vi.fn().mockReturnThis(),
+  eq: vi.fn().mockReturnThis(),
+  single: vi.fn().mockReturnThis(),
+  url: '',
+  headers: {},
+}) as unknown as PostgrestQueryBuilder<Database['public']>;
 
 // Create a complete Supabase mock
 export const createSupabaseMock = () => ({
