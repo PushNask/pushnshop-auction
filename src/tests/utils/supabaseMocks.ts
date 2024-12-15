@@ -1,5 +1,5 @@
 import { vi } from 'vitest';
-import type { RealtimeChannel, RealtimeClient, RealtimeChannelOptions } from '@supabase/supabase-js';
+import { RealtimeChannel, RealtimeClient, RealtimeChannelOptions, REALTIME_SUBSCRIBE_STATES, REALTIME_PRESENCE_LISTEN_EVENTS } from '@supabase/supabase-js';
 import type { PostgrestQueryBuilder } from '@supabase/postgrest-js';
 import type { Database } from '@/integrations/supabase/types';
 
@@ -7,10 +7,10 @@ import type { Database } from '@/integrations/supabase/types';
 export const createMockRealtimeChannel = (): RealtimeChannel => {
   const channel: RealtimeChannel = {
     topic: 'realtime:test',
-    subscribe: (callback?: (status: 'SUBSCRIBED' | 'CLOSED' | 'TIMED_OUT' | 'CHANNEL_ERROR', err?: Error) => void) => {
-      if (callback) callback('SUBSCRIBED');
+    subscribe: vi.fn((callback?: (status: REALTIME_SUBSCRIBE_STATES, err?: Error) => void) => {
+      if (callback) callback(REALTIME_SUBSCRIBE_STATES.SUBSCRIBED);
       return channel;
-    },
+    }),
     unsubscribe: vi.fn(),
     on: vi.fn().mockReturnThis(),
     send: vi.fn(),
@@ -20,17 +20,52 @@ export const createMockRealtimeChannel = (): RealtimeChannel => {
     on_presence: vi.fn(),
     on_postgres_changes: vi.fn(),
     socket: {
-      accessToken: async () => 'mock-token',
+      accessToken: null,
+      accessTokenValue: null,
+      apiKey: 'test-api-key',
       channels: [],
       connect: vi.fn(),
       disconnect: vi.fn(),
       isConnected: vi.fn(),
+      endPoint: 'ws://localhost:54321',
+      httpEndpoint: 'http://localhost:54321',
+      maxReconnectAttempts: 5,
+      minReconnectDelay: 1000,
+      maxReconnectDelay: 5000,
+      reconnectAfterMs: vi.fn(),
+      reconnectTimer: null,
+      ref: 0,
+      timeout: 10000,
+      transport: WebSocket,
+      heartbeatIntervalMs: 30000,
+      heartbeatTimer: null,
+      pendingHeartbeatRef: null,
+      params: {},
+      endPointURL: vi.fn(),
+      connectionState: vi.fn(),
+      push: vi.fn(),
+      makeRef: vi.fn(),
+      leaveOpenTopic: vi.fn(),
+      subscribe: vi.fn(),
+      unsubscribe: vi.fn(),
+      log: vi.fn(),
+      hasLogger: vi.fn(),
+      onOpen: vi.fn(),
+      onClose: vi.fn(),
+      onError: vi.fn(),
+      onMessage: vi.fn(),
+      triggerChanError: vi.fn(),
+      connectionStateRecovery: null,
+      encode: vi.fn(),
+      decode: vi.fn(),
+      binaryEncode: vi.fn(),
+      binaryDecode: vi.fn(),
     } as unknown as RealtimeClient,
     bindings: {},
-    state: 'joined' as const,
+    state: REALTIME_SUBSCRIBE_STATES.SUBSCRIBED,
     presenceState: vi.fn(),
     joinedOnce: false,
-    rejoinTimer: null,
+    rejoinTimer: 0,
     rejoinAttempts: 0,
     timeout: vi.fn(),
     push: vi.fn(),
@@ -63,7 +98,7 @@ export const createPostgrestMock = () => ({
   single: vi.fn().mockReturnThis(),
   url: '',
   headers: {},
-}) as unknown as PostgrestQueryBuilder<Database['public']>;
+}) as unknown as PostgrestQueryBuilder<Database['public'], 'public', any>;
 
 // Create a complete Supabase mock
 export const createSupabaseMock = () => ({

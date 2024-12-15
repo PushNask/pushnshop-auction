@@ -2,6 +2,7 @@ import { render, screen, waitFor } from '@testing-library/react';
 import { vi, describe, test, expect, beforeEach } from 'vitest';
 import { LiveProduct } from '@/components/product/LiveProduct';
 import { mockChannel, createSupabaseMock } from '../utils/supabaseMocks';
+import { REALTIME_SUBSCRIBE_STATES } from '@supabase/supabase-js';
 
 vi.mock('@/integrations/supabase/client', () => ({
   supabase: createSupabaseMock()
@@ -23,10 +24,10 @@ describe('Realtime Features', () => {
   test('handles connection recovery', async () => {
     render(<LiveProduct productId="1" />);
     
-    const subscribeCallback = mockChannel.subscribe.mock.calls[0][0];
+    const subscribeCallback = vi.mocked(mockChannel.subscribe).mock.calls[0][0];
     if (subscribeCallback) {
-      subscribeCallback('CLOSED', new Error('Connection lost'));
-      subscribeCallback('SUBSCRIBED');
+      subscribeCallback(REALTIME_SUBSCRIBE_STATES.CLOSED, new Error('Connection lost'));
+      subscribeCallback(REALTIME_SUBSCRIBE_STATES.SUBSCRIBED);
     }
     
     await waitFor(() => {
@@ -42,7 +43,7 @@ describe('Realtime Features', () => {
       old: { price: 100 }
     };
 
-    const onCallback = mockChannel.on.mock.calls[0][2];
+    const onCallback = vi.mocked(mockChannel.on).mock.calls[0][2];
     if (onCallback) onCallback(mockPayload);
     
     await waitFor(() => {
