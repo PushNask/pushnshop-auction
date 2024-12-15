@@ -1,6 +1,7 @@
 import { createContext, useContext, useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
-import type { Product } from '@/types/product';
+import type { Product, DbProduct } from '@/types/product';
+import { mapDbProductToProduct } from '@/utils/product';
 
 interface ProductContextType {
   product: Product | null;
@@ -38,11 +39,13 @@ export const ProductProvider = ({ productId, children }: ProductProviderProps) =
           seller:users!products_seller_id_fkey (
             whatsapp_number
           ),
-          images:product_images (
+          product_images (
             id,
             url,
             alt,
-            order_number
+            order_number,
+            product_id,
+            created_at
           )
         `)
         .eq('id', productId)
@@ -51,11 +54,8 @@ export const ProductProvider = ({ productId, children }: ProductProviderProps) =
       if (fetchError) throw fetchError;
 
       if (data) {
-        setProduct({
-          ...data,
-          images: data.images || [],
-          sellerWhatsApp: data.seller?.whatsapp_number
-        });
+        const mappedProduct = mapDbProductToProduct(data as DbProduct);
+        setProduct(mappedProduct);
       }
     } catch (err) {
       setError(err instanceof Error ? err : new Error('Failed to fetch product'));

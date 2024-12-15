@@ -9,8 +9,7 @@ export const DEFAULT_PRODUCT: Product = {
   images: [],
   status: 'draft',
   quantity: 1,
-  viewCount: 0,
-  permanentLinkId: ''
+  viewCount: 0
 };
 
 export const validateProduct = (product: Partial<Product>): string[] => {
@@ -61,7 +60,7 @@ export const mapDbProductToProduct = (dbProduct: DbProduct): Product => {
     })),
     viewCount: 0,
     sellerId: dbProduct.seller_id,
-    sellerWhatsApp: dbProduct.seller?.whatsapp_number || '',
+    sellerWhatsApp: dbProduct.users?.whatsapp_number || '',
     createdAt: dbProduct.created_at,
     expiresAt: dbProduct.end_time,
     paymentStatus: dbProduct.payment_status

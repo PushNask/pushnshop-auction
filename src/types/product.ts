@@ -36,14 +36,6 @@ export interface Product {
   paymentStatus?: string;
 }
 
-export interface ProductGalleryProps {
-  images: ProductImage[];
-  isOpen: boolean;
-  onClose: () => void;
-  currentIndex: number;
-  onIndexChange: (index: number) => void;
-}
-
 export interface DbProduct {
   id: string;
   seller_id: string;
@@ -65,7 +57,7 @@ export interface DbProduct {
     product_id: string;
     created_at: string;
   }[];
-  seller?: {
+  users?: {
     whatsapp_number: string | null;
   };
 }
