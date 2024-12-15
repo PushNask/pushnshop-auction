@@ -13,15 +13,18 @@ describe('Role Based Access', () => {
     },
   });
 
-  it('allows admin access to dashboard', () => {
-    render(
+  const renderWithProviders = (component: React.ReactNode) => {
+    return render(
       <BrowserRouter>
         <QueryClientProvider client={queryClient}>
-          <AdminDashboard />
+          {component}
         </QueryClientProvider>
       </BrowserRouter>
     );
+  };
 
-    expect(screen.getByText('Admin Dashboard')).toBeInTheDocument();
+  it('allows admin access to dashboard', () => {
+    renderWithProviders(<AdminDashboard />);
+    expect(screen.getByText(/Admin Dashboard/i)).toBeInTheDocument();
   });
 });
