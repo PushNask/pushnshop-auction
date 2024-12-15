@@ -13,11 +13,12 @@ interface SearchAndFilterProps {
 }
 
 export const SearchAndFilter: React.FC<SearchAndFilterProps> = ({ filters, onFiltersChange }) => {
-  const { isLoading, handleSearch } = useProductSearch();
+  const { isLoading, handleSearch, searchTerm } = useProductSearch();
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    handleSearch(e.target.value);
-    onFiltersChange({ ...filters, search: e.target.value });
+    const value = e.target.value;
+    handleSearch(value);
+    onFiltersChange({ ...filters, search: value });
   };
 
   return (
