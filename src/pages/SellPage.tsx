@@ -67,6 +67,16 @@ const SellPage = () => {
       if (userError) throw userError;
       if (!user) throw new Error('Not authenticated');
 
+      // Update user's WhatsApp number if provided
+      if (formData.whatsappNumber) {
+        const { error: updateError } = await supabase
+          .from('users')
+          .update({ whatsapp_number: formData.whatsappNumber })
+          .eq('id', user.id);
+
+        if (updateError) throw updateError;
+      }
+
       const { error: insertError } = await supabase
         .from('products')
         .insert({
@@ -76,7 +86,8 @@ const SellPage = () => {
           currency: formData.currency,
           quantity: parseInt(formData.quantity),
           seller_id: user.id,
-          status: 'draft'
+          status: 'draft',
+          promotion_range: formData.promotionRange
         });
 
       if (insertError) throw insertError;

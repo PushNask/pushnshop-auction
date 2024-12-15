@@ -16,6 +16,8 @@ export interface FormData {
   currency: Currency;
   quantity: string;
   duration: string;
+  whatsappNumber: string;
+  promotionRange: 'local' | 'regional' | 'national' | 'international';
   images: ProductImage[];
 }
 

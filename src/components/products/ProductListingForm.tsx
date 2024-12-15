@@ -5,6 +5,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Loader2 } from 'lucide-react';
+import { useToast } from '@/hooks/use-toast';
 import type { FormData, ApiResponse } from '@/types/product-form';
 import { ImageUploadSection } from '../product-listing/ImageUploadSection';
 
@@ -17,6 +18,9 @@ export const ProductListingForm = ({
   onSubmit,
   initialData = {}
 }: ProductListingFormProps) => {
+  const { toast } = useToast();
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const [formData, setFormData] = useState<FormData>({
     title: '',
     description: '',
@@ -24,12 +28,17 @@ export const ProductListingForm = ({
     currency: 'XAF',
     quantity: '1',
     duration: '24',
+    whatsappNumber: '',
+    promotionRange: 'local', // new field
     images: [],
     ...initialData
   });
 
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const validateWhatsappNumber = (number: string) => {
+    // Basic WhatsApp number validation
+    const whatsappRegex = /^\+?[1-9]\d{1,14}$/;
+    return whatsappRegex.test(number);
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -37,12 +46,51 @@ export const ProductListingForm = ({
     setError(null);
 
     try {
+      if (!formData.title.trim()) {
+        throw new Error('Title is required');
+      }
+      if (!formData.description.trim()) {
+        throw new Error('Description is required');
+      }
+      if (!formData.whatsappNumber) {
+        throw new Error('WhatsApp number is required');
+      }
+      if (!validateWhatsappNumber(formData.whatsappNumber)) {
+        throw new Error('Please enter a valid WhatsApp number');
+      }
+      if (formData.images.length === 0) {
+        throw new Error('At least one image is required');
+      }
+
       const response = await onSubmit(formData);
       if (response.error) {
         throw new Error(response.error.message);
       }
+
+      toast({
+        title: "Success",
+        description: "Product created successfully",
+      });
+
+      // Reset form
+      setFormData({
+        title: '',
+        description: '',
+        price: '',
+        currency: 'XAF',
+        quantity: '1',
+        duration: '24',
+        whatsappNumber: '',
+        promotionRange: 'local',
+        images: []
+      });
     } catch (err) {
       setError(err instanceof Error ? err.message : 'An error occurred');
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: err instanceof Error ? err.message : 'An error occurred',
+      });
     } finally {
       setLoading(false);
     }
@@ -87,6 +135,28 @@ export const ProductListingForm = ({
             </SelectContent>
           </Select>
         </div>
+
+        <Input
+          placeholder="WhatsApp Number (e.g., +237xxxxxxxxx)"
+          value={formData.whatsappNumber}
+          onChange={(e) => setFormData({ ...formData, whatsappNumber: e.target.value })}
+          required
+        />
+
+        <Select
+          value={formData.promotionRange}
+          onValueChange={(value) => setFormData({ ...formData, promotionRange: value })}
+        >
+          <SelectTrigger>
+            <SelectValue placeholder="Promotion Range" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="local">Local (City)</SelectItem>
+            <SelectItem value="regional">Regional</SelectItem>
+            <SelectItem value="national">National</SelectItem>
+            <SelectItem value="international">International</SelectItem>
+          </SelectContent>
+        </Select>
 
         <ImageUploadSection
           images={formData.images}
