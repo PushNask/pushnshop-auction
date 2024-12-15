@@ -1,10 +1,48 @@
+import { useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { ProductListingForm } from "@/components/products/ProductListingForm";
 import { supabase } from "@/integrations/supabase/client";
-import { useToast } from "@/components/ui/use-toast";
+import { useToast } from "@/hooks/use-toast";
 import type { FormData } from "@/types/product-form";
 
 const SellPage = () => {
   const { toast } = useToast();
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    const checkAuth = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      
+      if (!session) {
+        toast({
+          variant: "destructive",
+          title: "Authentication Required",
+          description: "Please log in to create a listing",
+        });
+        navigate('/auth');
+        return;
+      }
+
+      // Check if user is a seller or admin
+      const { data: userData, error } = await supabase
+        .from('users')
+        .select('role')
+        .eq('id', session.user.id)
+        .single();
+
+      if (error || !userData || (userData.role !== 'seller' && userData.role !== 'admin')) {
+        toast({
+          variant: "destructive",
+          title: "Access Denied",
+          description: "Only sellers can create listings",
+        });
+        navigate('/');
+        return;
+      }
+    };
+
+    checkAuth();
+  }, [navigate, toast]);
 
   const handleSubmit = async (formData: FormData): Promise<{ data: any; error: { message: string } | null }> => {
     try {
@@ -27,7 +65,11 @@ const SellPage = () => {
         throw new Error(error.message);
       }
 
-      toast({ title: "Product listed successfully!" });
+      toast({ 
+        title: "Success",
+        description: "Product listed successfully!" 
+      });
+      
       return { data: null, error: null };
     } catch (error) {
       return { 
