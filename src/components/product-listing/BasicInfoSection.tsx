@@ -1,16 +1,21 @@
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import type { PromotionRange } from '@/types/product-form';
 
 interface BasicInfoSectionProps {
   title: string;
   description: string;
   quantity: string;
+  whatsappNumber: string;
+  promotionRange: PromotionRange;
   onChange: (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => void;
   errors: {
     title?: string;
     description?: string;
     quantity?: string;
+    whatsappNumber?: string;
   };
 }
 
@@ -18,6 +23,8 @@ export const BasicInfoSection = ({
   title,
   description,
   quantity,
+  whatsappNumber,
+  promotionRange,
   onChange,
   errors
 }: BasicInfoSectionProps) => {
@@ -55,6 +62,22 @@ export const BasicInfoSection = ({
       </div>
 
       <div>
+        <Label htmlFor="whatsappNumber">WhatsApp Number</Label>
+        <Input
+          id="whatsappNumber"
+          name="whatsappNumber"
+          type="tel"
+          value={whatsappNumber}
+          onChange={onChange}
+          placeholder="+237xxxxxxxxx"
+          className={errors.whatsappNumber ? 'border-red-500' : ''}
+        />
+        {errors.whatsappNumber && (
+          <span className="text-sm text-red-500">{errors.whatsappNumber}</span>
+        )}
+      </div>
+
+      <div>
         <Label htmlFor="quantity">Quantity Available</Label>
         <Input
           id="quantity"
@@ -69,6 +92,28 @@ export const BasicInfoSection = ({
         {errors.quantity && (
           <span className="text-sm text-red-500">{errors.quantity}</span>
         )}
+      </div>
+
+      <div>
+        <Label htmlFor="promotionRange">Promotion Range</Label>
+        <Select
+          value={promotionRange}
+          onValueChange={(value: PromotionRange) => 
+            onChange({
+              target: { name: 'promotionRange', value }
+            } as React.ChangeEvent<HTMLInputElement>)
+          }
+        >
+          <SelectTrigger>
+            <SelectValue placeholder="Select promotion range" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="local">Local (City)</SelectItem>
+            <SelectItem value="regional">Regional</SelectItem>
+            <SelectItem value="national">National</SelectItem>
+            <SelectItem value="international">International</SelectItem>
+          </SelectContent>
+        </Select>
       </div>
     </div>
   );

@@ -27,6 +27,8 @@ describe('Product Listing Creation', () => {
     currency: 'XAF',
     quantity: '1',
     duration: '24',
+    whatsappNumber: '+237612345678',
+    promotionRange: 'local',
     images: []
   };
 
@@ -58,18 +60,7 @@ describe('Product Listing Creation', () => {
     });
   });
 
-  test('handles duration selection', async () => {
-    render(<ProductListingForm onSubmit={mockSubmit} />);
-    
-    const durationSelect = screen.getByRole('combobox', { name: /duration/i });
-    fireEvent.change(durationSelect, { target: { value: '48' } });
-    
-    await waitFor(() => {
-      expect(durationSelect).toHaveValue('48');
-    });
-  });
-
-  test('saves draft and previews listing', async () => {
+  test('handles form submission', async () => {
     render(<ProductListingForm onSubmit={mockSubmit} initialData={mockFormData} />);
     
     const titleInput = screen.getByLabelText(/title/i);

@@ -7,7 +7,6 @@ import { useToast } from '@/hooks/use-toast';
 import { ImageUploadSection } from './product-listing/ImageUploadSection';
 import { BasicInfoSection } from './product-listing/BasicInfoSection';
 import { PriceSection } from './product-listing/PriceSection';
-import { CategorySection } from './product-listing/CategorySection';
 import { DurationSection } from './product-listing/DurationSection';
 import type { ProductImage, FormData } from '@/types/product-form';
 import type { Duration } from '@/types/product';
@@ -35,6 +34,8 @@ export const ProductListingForm = ({
     currency: 'XAF',
     quantity: '1',
     duration: '24',
+    whatsappNumber: '',
+    promotionRange: 'local',
     images: [],
     ...initialData
   });
@@ -50,6 +51,9 @@ export const ProductListingForm = ({
       }
       if (!formData.description.trim()) {
         throw new Error('Description is required');
+      }
+      if (!formData.whatsappNumber.trim()) {
+        throw new Error('WhatsApp number is required');
       }
       if (images.length === 0) {
         throw new Error('At least one image is required');
@@ -72,7 +76,9 @@ export const ProductListingForm = ({
         price: '',
         currency: 'XAF',
         quantity: '1',
-        duration: '24' as '24' | '48' | '72' | '96' | '120',
+        duration: '24',
+        whatsappNumber: '',
+        promotionRange: 'local',
         images: []
       });
       setImages([]);
@@ -114,6 +120,8 @@ export const ProductListingForm = ({
               title={formData.title}
               description={formData.description}
               quantity={formData.quantity}
+              whatsappNumber={formData.whatsappNumber}
+              promotionRange={formData.promotionRange}
               onChange={(e) => {
                 const { name, value } = e.target;
                 setFormData(prev => ({

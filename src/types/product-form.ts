@@ -9,6 +9,8 @@ export interface ProductImage {
   preview?: string;
 }
 
+export type PromotionRange = 'local' | 'regional' | 'national' | 'international';
+
 export interface FormData {
   title: string;
   description: string;
@@ -17,7 +19,7 @@ export interface FormData {
   quantity: string;
   duration: string;
   whatsappNumber: string;
-  promotionRange: 'local' | 'regional' | 'national' | 'international';
+  promotionRange: PromotionRange;
   images: ProductImage[];
 }
 
