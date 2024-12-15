@@ -3,7 +3,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Loader2 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { mapDbProductToProduct } from '@/utils/product';
-import type { Product } from '@/types/product';
+import type { Product, DbProduct } from '@/types/product';
 
 interface LiveProductProps {
   productId: string;
@@ -23,7 +23,9 @@ export const LiveProduct = ({ productId }: LiveProductProps) => {
             id,
             url,
             alt,
-            order_number
+            order_number,
+            product_id,
+            created_at
           ),
           users!products_seller_id_fkey (
             whatsapp_number
@@ -35,7 +37,7 @@ export const LiveProduct = ({ productId }: LiveProductProps) => {
       if (productError) throw productError;
       
       if (productData) {
-        const mappedProduct = mapDbProductToProduct(productData);
+        const mappedProduct = mapDbProductToProduct(productData as DbProduct);
         setProduct(mappedProduct);
       }
       
@@ -64,7 +66,9 @@ export const LiveProduct = ({ productId }: LiveProductProps) => {
                   id,
                   url,
                   alt,
-                  order_number
+                  order_number,
+                  product_id,
+                  created_at
                 ),
                 users!products_seller_id_fkey (
                   whatsapp_number
@@ -74,7 +78,7 @@ export const LiveProduct = ({ productId }: LiveProductProps) => {
               .single();
 
             if (productData) {
-              const mappedProduct = mapDbProductToProduct(productData);
+              const mappedProduct = mapDbProductToProduct(productData as DbProduct);
               setProduct(mappedProduct);
             }
           }
