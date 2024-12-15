@@ -1,5 +1,5 @@
-import { useAuthCheck } from "@/hooks/useAuthCheck";
-import { Navigate } from "react-router-dom";
+import { useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { StatsOverview } from "./dashboard/StatsOverview";
 import { PaymentVerification } from "./dashboard/PaymentVerification";
 import SystemMonitoring from "./monitoring/SystemMonitoring";
@@ -11,12 +11,73 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import type { AdminDashboardMetrics } from "@/types/admin-dashboard";
 import { useToast } from "@/hooks/use-toast";
+import { Loader2 } from "lucide-react";
 
 const AdminDashboard = () => {
-  const { isAuthorized, isChecking } = useAuthCheck();
+  const navigate = useNavigate();
   const { toast } = useToast();
 
-  const { data: metrics, isLoading } = useQuery({
+  // Check authentication and admin status
+  useEffect(() => {
+    const checkAuth = async () => {
+      try {
+        const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+        
+        if (sessionError) throw sessionError;
+        
+        if (!session) {
+          toast({
+            title: "Authentication required",
+            description: "Please log in to access the admin dashboard",
+            variant: "destructive"
+          });
+          navigate('/auth');
+          return;
+        }
+
+        // Check if user is admin
+        const { data: userData, error: userError } = await supabase
+          .from('users')
+          .select('role')
+          .eq('id', session.user.id)
+          .single();
+
+        if (userError) throw userError;
+
+        if (userData?.role !== 'admin') {
+          toast({
+            title: "Access denied",
+            description: "You don't have permission to access the admin dashboard",
+            variant: "destructive"
+          });
+          navigate('/');
+        }
+      } catch (error: any) {
+        console.error('Auth check failed:', error);
+        toast({
+          title: "Error",
+          description: error.message || "Failed to verify authentication",
+          variant: "destructive"
+        });
+        navigate('/auth');
+      }
+    };
+
+    checkAuth();
+
+    // Set up auth state change listener
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
+      if (event === 'SIGNED_OUT' || !session) {
+        navigate('/auth');
+      }
+    });
+
+    return () => {
+      subscription.unsubscribe();
+    };
+  }, [navigate, toast]);
+
+  const { data: metrics, isLoading, error } = useQuery({
     queryKey: ["admin-metrics"],
     queryFn: async () => {
       try {
@@ -38,15 +99,28 @@ const AdminDashboard = () => {
         console.error("Error fetching admin metrics:", error);
         throw error;
       }
-    }
+    },
+    retry: 1,
+    refetchOnWindowFocus: false
   });
 
-  if (isChecking) {
-    return <div>Checking authorization...</div>;
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <Loader2 className="w-8 h-8 animate-spin" />
+      </div>
+    );
   }
 
-  if (!isAuthorized) {
-    return <Navigate to="/auth" replace />;
+  if (error) {
+    return (
+      <div className="container mx-auto p-6">
+        <div className="bg-destructive/15 text-destructive p-4 rounded-lg">
+          <h2 className="font-semibold">Error loading dashboard</h2>
+          <p className="text-sm">{(error as Error).message}</p>
+        </div>
+      </div>
+    );
   }
 
   return (
