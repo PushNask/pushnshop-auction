@@ -2,14 +2,14 @@ import { vi } from 'vitest';
 import type { RealtimeChannel, RealtimePresence, RealtimeChannelOptions } from '@supabase/supabase-js';
 
 // Define channel states since they're not exported from supabase-js
-const CHANNEL_STATES = {
-  CLOSED: 'CLOSED',
-  INITIALIZED: 'INITIALIZED',
-  JOINED: 'JOINED',
-  JOINING: 'JOINING',
-  LEAVING: 'LEAVING',
-  ERRORED: 'ERRORED'
-} as const;
+enum CHANNEL_STATES {
+  closed = 'CLOSED',
+  initialized = 'INITIALIZED',
+  joined = 'JOINED',
+  joining = 'JOINING',
+  leaving = 'LEAVING',
+  errored = 'ERRORED'
+}
 
 export const createSupabaseMock = () => ({
   from: () => ({
@@ -53,7 +53,7 @@ export const createSupabaseMock = () => ({
       params: {},
       socket: {} as any,
       bindings: {},
-      state: CHANNEL_STATES.CLOSED,
+      state: CHANNEL_STATES.closed,
       joinQueue: [],
       timeout: 10000,
       rejoinTimer: {
@@ -68,11 +68,12 @@ export const createSupabaseMock = () => ({
       trigger: vi.fn()
     };
 
-    // Add the config property separately to match RealtimeChannelOptions
-    (channelMock as any).config = {
+    // Add the config property to match RealtimeChannelOptions
+    const config: RealtimeChannelOptions = {
       broadcast: { ack: true, self: false },
       presence: { key: '' }
     };
+    (channelMock as any).config = config;
 
     return channelMock as RealtimeChannel;
   },
