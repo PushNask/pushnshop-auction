@@ -1,5 +1,11 @@
 import { vi } from 'vitest';
-import { RealtimeChannel, RealtimeChannelOptions, RealtimeClient, REALTIME_SUBSCRIBE_STATES } from '@supabase/supabase-js';
+import { 
+  RealtimeChannel, 
+  RealtimeChannelOptions, 
+  RealtimeClient, 
+  REALTIME_SUBSCRIBE_STATES,
+  CHANNEL_STATES
+} from '@supabase/supabase-js';
 import { PostgrestQueryBuilder } from '@supabase/postgrest-js';
 import type { Database } from '@/integrations/supabase/types';
 
@@ -23,7 +29,7 @@ export const createMockRealtimeChannel = (): Partial<RealtimeChannel> => {
     presenceState: vi.fn(),
     socket: null as unknown as RealtimeClient,
     bindings: {},
-    state: REALTIME_SUBSCRIBE_STATES.SUBSCRIBED,
+    state: CHANNEL_STATES.SUBSCRIBED,
     joinedOnce: false,
     rejoinTimer: null,
     rejoinAttempts: 0,
@@ -38,13 +44,10 @@ export const createMockRealtimeChannel = (): Partial<RealtimeChannel> => {
     stopHeartbeat: vi.fn(),
     params: {},
     config: {
-      broadcast: { ack: true, self: false },
-      presence: { key: '' },
-      config: {
-        broadcast: { ack: true, self: false },
-        presence: { key: '' }
+      presence: {
+        key: ''
       }
-    } satisfies RealtimeChannelOptions
+    } as RealtimeChannelOptions
   };
 };
 
