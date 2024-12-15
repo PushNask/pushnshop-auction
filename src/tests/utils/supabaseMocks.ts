@@ -3,12 +3,12 @@ import type { RealtimeChannel, RealtimePresence, RealtimeChannelOptions } from '
 
 // Define channel states since they're not exported from supabase-js
 enum CHANNEL_STATES {
-  closed = 'CLOSED',
-  initialized = 'INITIALIZED',
-  joined = 'JOINED',
-  joining = 'JOINING',
-  leaving = 'LEAVING',
-  errored = 'ERRORED'
+  CLOSED = 'CLOSED',
+  INITIALIZED = 'INITIALIZED',
+  JOINED = 'JOINED',
+  JOINING = 'JOINING',
+  LEAVING = 'LEAVING',
+  ERRORED = 'ERRORED'
 }
 
 export const createSupabaseMock = () => ({
@@ -40,7 +40,7 @@ export const createSupabaseMock = () => ({
       channel: {} as RealtimeChannel
     };
 
-    const channelMock: Partial<RealtimeChannel> = {
+    const channelMock = {
       on: vi.fn().mockReturnThis(),
       subscribe: vi.fn().mockReturnThis(),
       unsubscribe: vi.fn(),
@@ -53,7 +53,7 @@ export const createSupabaseMock = () => ({
       params: {},
       socket: {} as any,
       bindings: {},
-      state: CHANNEL_STATES.closed,
+      state: CHANNEL_STATES.CLOSED as string,
       joinQueue: [],
       timeout: 10000,
       rejoinTimer: {
@@ -65,17 +65,17 @@ export const createSupabaseMock = () => ({
         scheduleTimeout: vi.fn()
       },
       stateChangeRefs: [],
-      trigger: vi.fn()
-    };
+      trigger: vi.fn(),
+      config: {
+        config: {
+          presence: {
+            key: '',
+          },
+        },
+      } as RealtimeChannelOptions,
+    } as unknown as RealtimeChannel;
 
-    // Add the config property to match RealtimeChannelOptions
-    const config: RealtimeChannelOptions = {
-      broadcast: { ack: true, self: false },
-      presence: { key: '' }
-    };
-    (channelMock as any).config = config;
-
-    return channelMock as RealtimeChannel;
+    return channelMock;
   },
   rpc: (
     fn: string,
