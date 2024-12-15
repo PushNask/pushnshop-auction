@@ -9,25 +9,31 @@ const AnalyticsDashboard = () => {
     return <div>Error loading analytics: {error.message}</div>;
   }
 
+  if (isLoading || !metrics) {
+    return <LoadingOverlay loading={isLoading} />;
+  }
+
   return (
-    <LoadingOverlay loading={isLoading}>
-      <div className="space-y-6">
-        <Card>
-          <h2 className="text-lg font-semibold">Analytics Overview</h2>
+    <div className="space-y-6">
+      <Card>
+        <h2 className="text-lg font-semibold p-4">Analytics Overview</h2>
+        <div className="p-4">
           <p>Total Views: {metrics.views}</p>
           <p>Total Clicks: {metrics.clicks}</p>
           <p>Total Conversions: {metrics.conversions}</p>
           <p>Total Revenue: {metrics.revenue}</p>
-        </Card>
-        <Card>
-          <h2 className="text-lg font-semibold">Trends</h2>
-          <p>Views Trend: {metrics.trends.viewsTrend}</p>
-          <p>Clicks Trend: {metrics.trends.clicksTrend}</p>
-          <p>Conversion Trend: {metrics.trends.conversionTrend}</p>
-          <p>Revenue Trend: {metrics.trends.revenueTrend}</p>
-        </Card>
-      </div>
-    </LoadingOverlay>
+        </div>
+      </Card>
+      <Card>
+        <h2 className="text-lg font-semibold p-4">Trends</h2>
+        <div className="p-4">
+          <p>Views Trend: {metrics.trends.viewsTrend}%</p>
+          <p>Clicks Trend: {metrics.trends.clicksTrend}%</p>
+          <p>Conversion Trend: {metrics.trends.conversionTrend}%</p>
+          <p>Revenue Trend: {metrics.trends.revenueTrend}%</p>
+        </div>
+      </Card>
+    </div>
   );
 };
 

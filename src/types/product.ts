@@ -1,4 +1,6 @@
-export type Duration = '24h' | '48h' | '72h' | '96h' | '120h';
+export type Currency = 'XAF' | 'USD';
+
+export type ListingStatus = 'draft' | 'pending_payment' | 'pending_approval' | 'active' | 'expired' | 'rejected';
 
 export interface ProductImage {
   id: string;
@@ -9,3 +11,21 @@ export interface ProductImage {
   isNew?: boolean;
   preview?: string;
 }
+
+export interface Product {
+  id: string;
+  title: string;
+  description: string;
+  price: number;
+  currency: Currency;
+  quantity: number;
+  images: ProductImage[];
+  status: ListingStatus;
+  sellerId: string;
+  sellerWhatsApp?: string;
+  createdAt: string;
+  expiresAt?: string;
+  viewCount: number;
+}
+
+export type Duration = '24h' | '48h' | '72h' | '96h' | '120h';

@@ -37,16 +37,36 @@ const transformAnalyticsData = (data: any[]): AnalyticsMetrics => {
   const conversions = data.reduce((sum, item) => sum + (item.conversions || 0), 0);
   const revenue = data.reduce((sum, item) => sum + (item.revenue || 0), 0);
 
+  const previousPeriodData = data.slice(0, Math.floor(data.length / 2));
+  const currentPeriodData = data.slice(Math.floor(data.length / 2));
+
+  const calculateTrend = (current: number, previous: number) => {
+    if (previous === 0) return 0;
+    return ((current - previous) / previous) * 100;
+  };
+
   return {
     views,
     clicks,
     conversions,
     revenue,
     trends: {
-      viewsTrend: 0,
-      clicksTrend: 0,
-      conversionTrend: 0,
-      revenueTrend: 0
+      viewsTrend: calculateTrend(
+        currentPeriodData.reduce((sum, item) => sum + (item.views || 0), 0),
+        previousPeriodData.reduce((sum, item) => sum + (item.views || 0), 0)
+      ),
+      clicksTrend: calculateTrend(
+        currentPeriodData.reduce((sum, item) => sum + (item.clicks || 0), 0),
+        previousPeriodData.reduce((sum, item) => sum + (item.clicks || 0), 0)
+      ),
+      conversionTrend: calculateTrend(
+        currentPeriodData.reduce((sum, item) => sum + (item.conversions || 0), 0),
+        previousPeriodData.reduce((sum, item) => sum + (item.conversions || 0), 0)
+      ),
+      revenueTrend: calculateTrend(
+        currentPeriodData.reduce((sum, item) => sum + (item.revenue || 0), 0),
+        previousPeriodData.reduce((sum, item) => sum + (item.revenue || 0), 0)
+      )
     },
     data: data.map(item => ({
       date: new Date(item.created_at).toISOString().split('T')[0],

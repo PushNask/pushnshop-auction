@@ -21,7 +21,7 @@ const AdminDashboard = () => {
         time_range: "7d"
       });
       if (error) throw error;
-      return data as unknown as AdminDashboardMetrics;
+      return data as AdminDashboardMetrics;
     }
   });
 
