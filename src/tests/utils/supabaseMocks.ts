@@ -1,5 +1,5 @@
 import { vi } from 'vitest';
-import type { RealtimeChannel, RealtimePresence } from '@supabase/supabase-js';
+import type { RealtimeChannel, RealtimePresence, RealtimeChannelOptions } from '@supabase/supabase-js';
 
 enum CHANNEL_STATES {
   CLOSED = 'CLOSED',
@@ -44,6 +44,13 @@ export const createSupabaseMock = () => ({
       channel: {} as RealtimeChannel
     };
 
+    const mockParams: RealtimeChannelOptions = {
+      config: {
+        broadcast: { ack: false, self: false },
+        presence: { key: '' }
+      }
+    };
+
     return {
       on: vi.fn().mockReturnThis(),
       subscribe: vi.fn().mockReturnThis(),
@@ -54,7 +61,7 @@ export const createSupabaseMock = () => ({
       log: vi.fn(),
       presence: mockPresence,
       topic: name,
-      params: {},
+      params: mockParams,
       socket: {} as WebSocket,
       bindings: {},
       state: CHANNEL_STATES.CLOSED,
@@ -72,7 +79,6 @@ export const createSupabaseMock = () => ({
       },
       stateChangeRefs: [],
       emit: vi.fn(),
-      // Add missing required properties
       subTopic: '',
       private: false,
       presenceState: () => ({}),
