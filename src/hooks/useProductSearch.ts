@@ -1,7 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import type { Product, DbProduct } from "@/types/product";
-import type { Filters } from "@/types/filters";
 import { mapDbProductToProduct } from "@/utils/product";
 import { useState, useCallback } from "react";
 
@@ -50,6 +49,7 @@ export const useProductSearch = () => {
   return {
     ...query,
     handleSearch,
-    searchTerm
+    searchTerm,
+    isLoading: query.isLoading
   };
 };
