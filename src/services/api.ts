@@ -1,5 +1,5 @@
 import { supabase } from "@/integrations/supabase/client";
-import { Product, ListingStatus } from "@/types/product";
+import type { Product, DbProduct } from "@/types/product";
 import { Filters } from "@/types/filters";
 import { mapDbProductToProduct } from "@/utils/product";
 
@@ -12,7 +12,9 @@ export const fetchProducts = async (filters: Filters): Promise<Product[]> => {
         id,
         url,
         alt,
-        order_number
+        order_number,
+        product_id,
+        created_at
       ),
       users!products_seller_id_fkey (
         whatsapp_number
@@ -40,5 +42,5 @@ export const fetchProducts = async (filters: Filters): Promise<Product[]> => {
     throw error;
   }
 
-  return (data || []).map(mapDbProductToProduct);
+  return (data || []).map((item: DbProduct) => mapDbProductToProduct(item));
 };
