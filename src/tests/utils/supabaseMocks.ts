@@ -1,12 +1,15 @@
 import { vi } from 'vitest';
-import type { RealtimeChannel, RealtimeClient } from '@supabase/supabase-js';
+import { RealtimeChannel, RealtimeClient, REALTIME_SUBSCRIBE_STATES, CHANNEL_STATES } from '@supabase/supabase-js';
 import type { PostgrestQueryBuilder } from '@supabase/postgrest-js';
 import type { Database } from '@/integrations/supabase/types';
 
 // Create a properly typed mock RealtimeChannel
 export const createMockRealtimeChannel = (): Partial<RealtimeChannel> => {
-  const channel: Partial<RealtimeChannel> = {
-    subscribe: vi.fn(() => Promise.resolve('SUBSCRIBED')),
+  return {
+    subscribe: vi.fn().mockImplementation((callback) => {
+      if (callback) callback('SUBSCRIBED' as REALTIME_SUBSCRIBE_STATES);
+      return Promise.resolve({} as RealtimeChannel);
+    }),
     unsubscribe: vi.fn(),
     on: vi.fn().mockReturnThis(),
     send: vi.fn(),
@@ -18,7 +21,7 @@ export const createMockRealtimeChannel = (): Partial<RealtimeChannel> => {
     presenceState: vi.fn(),
     socket: null as unknown as RealtimeClient,
     bindings: {},
-    state: 'SUBSCRIBED',
+    state: 'SUBSCRIBED' as CHANNEL_STATES,
     joinedOnce: false,
     rejoinTimer: null,
     rejoinAttempts: 0,
@@ -37,8 +40,6 @@ export const createMockRealtimeChannel = (): Partial<RealtimeChannel> => {
       presence: { key: '' }
     }
   };
-  
-  return channel;
 };
 
 export const mockChannel = createMockRealtimeChannel();
@@ -58,7 +59,8 @@ export const createPostgrestMock = () => {
       count: null,
       status: 200,
       statusText: 'OK'
-    }))
+    })),
+    mockResolvedValueOnce: vi.fn()
   };
   return mock as unknown as PostgrestQueryBuilder<Database['public'], any, any>;
 };

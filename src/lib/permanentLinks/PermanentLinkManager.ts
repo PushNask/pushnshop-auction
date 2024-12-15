@@ -160,4 +160,45 @@ export class PermanentLinkManager {
 
     return listing;
   }
+
+  static async getNextAvailableLink() {
+    const { data: link, error } = await supabase
+      .from('permanent_links')
+      .select('*')
+      .eq('status', 'available')
+      .order('performance_score', { ascending: false })
+      .limit(1)
+      .single();
+
+    if (error) throw error;
+    return link;
+  }
+
+  static async recycleExpiredLinks() {
+    const { error } = await supabase
+      .from('permanent_links')
+      .update({
+        status: 'available',
+        current_listing_id: null,
+        last_assigned_at: null
+      })
+      .eq('status', 'active')
+      .lt('last_assigned_at', new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString());
+
+    if (error) throw error;
+  }
+
+  static async recycleLink(linkId: number) {
+    const { error } = await supabase
+      .from('permanent_links')
+      .update({
+        status: 'available',
+        current_listing_id: null,
+        last_assigned_at: null,
+        rotation_count: supabase.raw('rotation_count + 1')
+      })
+      .eq('id', linkId);
+
+    if (error) throw error;
+  }
 }

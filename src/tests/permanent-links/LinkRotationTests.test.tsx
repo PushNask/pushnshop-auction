@@ -15,17 +15,18 @@ describe('Link Rotation System', () => {
     const mockSupabase = createSupabaseMock();
     
     const mockLinks = {
-      data: [
-        { id: 1, url_key: 'p1', performance_score: 0.8 },
-        { id: 2, url_key: 'p2', performance_score: 0.5 }
-      ],
+      data: { 
+        id: 1, 
+        url_key: 'p1', 
+        performance_score: 0.8 
+      },
       error: null
     };
 
-    mockSupabase.from().select.mockResolvedValueOnce(mockLinks);
+    mockSupabase.from().single.mockResolvedValueOnce(mockLinks);
     
     const result = await PermanentLinkManager.getNextAvailableLink();
-    expect(result.url_key).toBe('p1');
+    expect(result).toEqual(mockLinks.data);
   });
 
   test('handles expired listings correctly', async () => {
