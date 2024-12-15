@@ -68,7 +68,8 @@ export const createSupabaseMock = () => ({
         presence: {
           key: ''
         }
-      }
+      },
+      emit: vi.fn()
     } as unknown as RealtimeChannel;
   },
   rpc: vi.fn(() => ({

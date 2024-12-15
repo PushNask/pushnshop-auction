@@ -14,6 +14,16 @@ describe('Search and Discovery System', () => {
     vi.clearAllMocks();
   });
 
+  const defaultFilters = {
+    search: '',
+    minPrice: undefined,
+    maxPrice: undefined,
+    inStock: false,
+    endingSoon: false,
+    categories: [],
+    location: ''
+  };
+
   describe('Search Functionality', () => {
     test('performs basic search', async () => {
       mockSupabase.from().select.mockResolvedValueOnce({
@@ -21,7 +31,12 @@ describe('Search and Discovery System', () => {
         error: null
       });
 
-      render(<SearchAndFilter />);
+      render(
+        <SearchAndFilter 
+          filters={defaultFilters}
+          onFiltersChange={() => {}}
+        />
+      );
 
       const searchInput = screen.getByRole('searchbox');
       fireEvent.change(searchInput, { target: { value: 'test' } });
@@ -33,7 +48,12 @@ describe('Search and Discovery System', () => {
     });
 
     test('applies filters correctly', async () => {
-      render(<SearchAndFilter />);
+      render(
+        <SearchAndFilter 
+          filters={defaultFilters}
+          onFiltersChange={() => {}}
+        />
+      );
 
       const priceFilter = screen.getByLabelText(/price range/i);
       fireEvent.change(priceFilter, { target: { value: [0, 1000] } });
@@ -51,7 +71,12 @@ describe('Search and Discovery System', () => {
         error: null
       });
 
-      render(<SearchAndFilter />);
+      render(
+        <SearchAndFilter 
+          filters={defaultFilters}
+          onFiltersChange={() => {}}
+        />
+      );
 
       const nextButton = screen.getByRole('button', { name: /next/i });
       fireEvent.click(nextButton);
