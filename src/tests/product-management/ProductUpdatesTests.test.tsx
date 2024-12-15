@@ -1,8 +1,7 @@
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { vi, describe, test, expect, beforeEach } from 'vitest';
-import { ProductManagement } from '@/components/product-management/ProductManagement';
+import { ProductManagementSystem } from '@/components/product-management/ProductManagementSystem';
 import { supabase } from '@/integrations/supabase/client';
-import type { ManagedProduct } from '@/types/product-management';
 
 vi.mock('@/integrations/supabase/client', () => ({
   supabase: {
@@ -16,62 +15,46 @@ vi.mock('@/integrations/supabase/client', () => ({
           title: 'Test Product',
           price: 100,
           status: 'active',
-          quantity: 1,
-          currency: 'XAF'
+          quantity: 1
         },
         error: null
-      }),
+      })
     })),
     channel: vi.fn(() => ({
       on: vi.fn().mockReturnThis(),
-      subscribe: vi.fn(),
-    })),
-  },
+      subscribe: vi.fn()
+    }))
+  }
 }));
 
 describe('Product Updates', () => {
-  const mockProduct: ManagedProduct = {
-    id: '1',
-    title: 'Test Product',
-    price: 100,
-    currency: 'XAF',
-    status: 'active',
-    quantity: 1,
-    views: 0,
-    whatsappClicks: 0
-  };
-
   beforeEach(() => {
     vi.clearAllMocks();
   });
 
   test('handles real-time updates', async () => {
-    render(<ProductManagement />);
+    render(<ProductManagementSystem />);
     
     await waitFor(() => {
       expect(supabase.channel).toHaveBeenCalled();
     });
   });
 
-  test('updates product status', async () => {
-    render(<ProductManagement />);
+  test('updates inventory quantity', async () => {
+    render(<ProductManagementSystem />);
     
-    const statusButton = await screen.findByRole('button', { name: /deactivate/i });
-    fireEvent.click(statusButton);
+    const quantityInput = await screen.findByRole('spinbutton', { name: /quantity/i });
+    fireEvent.change(quantityInput, { target: { value: '5' } });
     
     await waitFor(() => {
-      expect(supabase.from).toHaveBeenCalledWith('products');
+      expect(quantityInput).toHaveValue(5);
+      expect(supabase.from().update).toHaveBeenCalled();
     });
   });
 
   test('handles batch updates', async () => {
-    const mockProducts = [mockProduct];
-    render(<ProductManagement />);
+    render(<ProductManagementSystem />);
     
-    await waitFor(() => {
-      expect(screen.getByText('My Products')).toBeInTheDocument();
-    });
-
     const checkboxes = await screen.findAllByRole('checkbox');
     checkboxes.forEach(checkbox => fireEvent.click(checkbox));
     
@@ -79,18 +62,31 @@ describe('Product Updates', () => {
     fireEvent.click(batchActionButton);
     
     await waitFor(() => {
-      expect(supabase.from).toHaveBeenCalledWith('products');
+      expect(supabase.from().update).toHaveBeenCalled();
     });
   });
 
-  test('updates inventory quantity', async () => {
-    render(<ProductManagement />);
+  test('updates product status', async () => {
+    render(<ProductManagementSystem />);
     
-    const quantityInput = await screen.findByRole('spinbutton', { name: /quantity/i });
-    fireEvent.change(quantityInput, { target: { value: '5' } });
+    const statusButton = await screen.findByRole('button', { name: /status/i });
+    fireEvent.click(statusButton);
     
     await waitFor(() => {
-      expect(quantityInput).toHaveValue(5);
+      expect(supabase.from().update).toHaveBeenCalled();
+    });
+  });
+
+  test('handles image gallery updates', async () => {
+    render(<ProductManagementSystem />);
+    
+    const file = new File(['test'], 'test.jpg', { type: 'image/jpeg' });
+    const input = screen.getByLabelText(/add image/i);
+    
+    fireEvent.change(input, { target: { files: [file] } });
+    
+    await waitFor(() => {
+      expect(supabase.storage.from).toHaveBeenCalled();
     });
   });
 });
