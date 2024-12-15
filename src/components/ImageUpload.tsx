@@ -1,27 +1,17 @@
 import { useState } from 'react';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { ImagePlus, Trash2, AlertCircle } from 'lucide-react';
+import { AlertCircle } from 'lucide-react';
 import type { ProductImage } from '@/types/product';
 import { IMAGE_CONFIG } from '@/config/constants';
+import { ImagePreview } from './image-upload/ImagePreview';
+import { UploadButton } from './image-upload/UploadButton';
+import { validateImage } from './image-upload/ImageValidator';
 
 interface ImageUploadProps {
   images?: ProductImage[];
   onChange: (images: ProductImage[]) => void;
   error?: string;
 }
-
-const validateImage = (file: File): string | null => {
-  if (!IMAGE_CONFIG.ACCEPTED_TYPES.includes(file.type as "image/jpeg" | "image/png" | "image/webp")) {
-    return 'Invalid file type. Please upload JPEG, PNG, or WebP images.';
-  }
-  if (file.size > IMAGE_CONFIG.MAX_SIZE) {
-    return 'File too large. Maximum size is 2MB.';
-  }
-  return null;
-};
 
 const ImageUpload = ({ images = [], onChange, error }: ImageUploadProps) => {
   const [dragActive, setDragActive] = useState(false);
@@ -78,10 +68,6 @@ const ImageUpload = ({ images = [], onChange, error }: ImageUploadProps) => {
     onChange(newImages);
   };
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    handleFiles(e.target.files);
-  };
-
   return (
     <div className="space-y-4">
       <div
@@ -94,46 +80,18 @@ const ImageUpload = ({ images = [], onChange, error }: ImageUploadProps) => {
       >
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
           {Array.isArray(images) && images.map((image) => (
-            <div key={image.id} className="relative aspect-square">
-              <img
-                src={image.preview || image.url}
-                alt={image.alt}
-                className="w-full h-full object-cover rounded-lg"
-              />
-              <Button
-                type="button"
-                variant="destructive"
-                size="icon"
-                className="absolute top-2 right-2"
-                onClick={() => handleRemove(image.id)}
-              >
-                <Trash2 className="h-4 w-4" />
-              </Button>
-            </div>
+            <ImagePreview
+              key={image.id}
+              image={image}
+              onRemove={handleRemove}
+            />
           ))}
 
           {(!images || images.length < IMAGE_CONFIG.MAX_IMAGES) && (
-            <div className="aspect-square border-2 border-dashed rounded-lg flex items-center justify-center">
-              <Label
-                htmlFor="image-upload"
-                className="cursor-pointer flex flex-col items-center p-4"
-              >
-                <ImagePlus className="h-8 w-8 mb-2" />
-                <span className="text-sm text-center">
-                  Drop images here or click to upload
-                  <br />
-                  ({images?.length || 0}/{IMAGE_CONFIG.MAX_IMAGES})
-                </span>
-                <Input
-                  id="image-upload"
-                  type="file"
-                  accept={IMAGE_CONFIG.ACCEPTED_TYPES.join(',')}
-                  className="hidden"
-                  onChange={handleInputChange}
-                  multiple
-                />
-              </Label>
-            </div>
+            <UploadButton
+              currentCount={images?.length || 0}
+              onFileSelect={(e) => handleFiles(e.target.files)}
+            />
           )}
         </div>
       </div>
