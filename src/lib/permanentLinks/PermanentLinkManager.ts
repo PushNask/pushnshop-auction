@@ -194,11 +194,13 @@ export class PermanentLinkManager {
       .update({
         status: 'available',
         current_listing_id: null,
-        last_assigned_at: null,
-        rotation_count: supabase.rpc('increment_rotation_count', { link_id: linkId })
+        last_assigned_at: null
       })
       .eq('id', linkId);
 
     if (error) throw error;
+
+    // Call the RPC function to increment rotation count
+    await supabase.rpc('increment_rotation_count', { link_id: linkId });
   }
 }

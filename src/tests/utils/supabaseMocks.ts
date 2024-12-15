@@ -21,7 +21,7 @@ export const createMockRealtimeChannel = (): Partial<RealtimeChannel> => {
     presenceState: vi.fn(),
     socket: null as unknown as RealtimeClient,
     bindings: {},
-    state: 'SUBSCRIBED',
+    state: 'SUBSCRIBED' as REALTIME_SUBSCRIBE_STATES,
     joinedOnce: false,
     rejoinTimer: null,
     rejoinAttempts: 0,
@@ -69,7 +69,12 @@ export const createPostgrestMock = () => {
 export const createSupabaseMock = () => ({
   from: vi.fn(() => createPostgrestMock()),
   channel: vi.fn(() => mockChannel),
-  rpc: vi.fn().mockReturnThis(),
+  rpc: vi.fn().mockImplementation((func: string, params?: any) => {
+    if (func === 'increment_rotation_count') {
+      return Promise.resolve({ data: null, error: null });
+    }
+    return Promise.resolve({ data: null, error: null });
+  }),
   storage: {
     from: vi.fn().mockReturnThis(),
     upload: vi.fn().mockResolvedValue({ data: { path: 'test.jpg' }, error: null })
