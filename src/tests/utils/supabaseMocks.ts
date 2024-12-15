@@ -1,6 +1,6 @@
 import { vi } from 'vitest';
 import { RealtimeChannel, RealtimeClient, RealtimeChannelOptions, REALTIME_SUBSCRIBE_STATES } from '@supabase/supabase-js';
-import type { PostgrestQueryBuilder } from '@supabase/postgrest-js';
+import type { PostgrestQueryBuilder, PostgrestSingleResponse } from '@supabase/postgrest-js';
 import type { Database } from '@/integrations/supabase/types';
 
 // Create a properly typed mock RealtimeChannel
@@ -65,7 +65,7 @@ export const createMockRealtimeChannel = (): RealtimeChannel => {
     state: REALTIME_SUBSCRIBE_STATES.SUBSCRIBED,
     presenceState: vi.fn(),
     joinedOnce: false,
-    rejoinTimer: null as unknown as number,
+    rejoinTimer: null,
     rejoinAttempts: 0,
     timeout: vi.fn(),
     push: vi.fn(),
@@ -79,8 +79,9 @@ export const createMockRealtimeChannel = (): RealtimeChannel => {
     params: {},
     config: {
       broadcast: { ack: true, self: false },
-      presence: { key: '' }
-    } as RealtimeChannelOptions
+      presence: { key: '' },
+      config: {}
+    } as unknown as RealtimeChannelOptions
   };
   return channel;
 };
@@ -88,18 +89,21 @@ export const createMockRealtimeChannel = (): RealtimeChannel => {
 export const mockChannel = createMockRealtimeChannel();
 
 // Create a properly typed mock PostgrestQueryBuilder
-export const createPostgrestMock = () => ({
-  select: vi.fn().mockReturnThis(),
-  insert: vi.fn().mockReturnThis(),
-  update: vi.fn().mockReturnThis(),
-  delete: vi.fn().mockReturnThis(),
-  upsert: vi.fn().mockReturnThis(),
-  eq: vi.fn().mockReturnThis(),
-  single: vi.fn().mockReturnThis(),
-  maybeSingle: vi.fn().mockReturnThis(),
-  url: '',
-  headers: {},
-}) as unknown as PostgrestQueryBuilder<Database['public'], any, any>;
+export const createPostgrestMock = () => {
+  const mock = {
+    select: vi.fn().mockReturnThis(),
+    insert: vi.fn().mockReturnThis(),
+    update: vi.fn().mockReturnThis(),
+    delete: vi.fn().mockReturnThis(),
+    upsert: vi.fn().mockReturnThis(),
+    eq: vi.fn().mockReturnThis(),
+    single: vi.fn().mockReturnThis(),
+    maybeSingle: vi.fn().mockReturnThis(),
+    url: '',
+    headers: {},
+  };
+  return mock as unknown as PostgrestQueryBuilder<Database['public'], any, any>;
+};
 
 // Create a complete Supabase mock
 export const createSupabaseMock = () => ({
