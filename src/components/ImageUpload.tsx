@@ -44,7 +44,7 @@ const ImageUpload = ({ images = [], onChange, error }: ImageUploadProps) => {
           id: Math.random().toString(36).substring(7),
           url: URL.createObjectURL(file),
           alt: file.name || 'Product image',
-          order: images.length + acc.length,
+          order_number: images.length + acc.length,
           isNew: true,
           file
         });
@@ -73,7 +73,7 @@ const ImageUpload = ({ images = [], onChange, error }: ImageUploadProps) => {
 
   const handleRemove = (imageId: string) => {
     const newImages = images.filter(img => img.id !== imageId)
-      .map((img, index) => ({ ...img, order: index }));
+      .map((img, index) => ({ ...img, order_number: index }));
     onChange(newImages);
   };
 

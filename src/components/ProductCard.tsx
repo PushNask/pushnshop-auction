@@ -20,7 +20,7 @@ const DEFAULT_PRODUCT: Product = {
       id: '1',
       url: '/api/placeholder/400/400',
       alt: 'Sample product image',
-      order: 1
+      order_number: 1
     }
   ],
   status: 'active',

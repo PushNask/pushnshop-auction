@@ -1,32 +1,24 @@
-import type { Product, Currency } from '@/types/product';
-import type { Database } from '@/integrations/supabase/types';
+import type { Product } from '@/types/product';
 
-type DbProduct = Database['public']['Tables']['products']['Row'];
-
-export const mapDbProductToProduct = (dbProduct: DbProduct): Product => {
+export const mapDbProductToProduct = (dbProduct: any): Product => {
   return {
     id: dbProduct.id,
     title: dbProduct.title,
     description: dbProduct.description,
     price: Number(dbProduct.price),
-    currency: dbProduct.currency || 'XAF',
+    currency: dbProduct.currency,
     quantity: dbProduct.quantity,
-    images: [], // Will be populated separately
-    status: dbProduct.status as any || 'draft',
+    images: dbProduct.product_images?.map((img: any) => ({
+      id: img.id,
+      url: img.url,
+      alt: img.alt || '',
+      order_number: img.order_number
+    })) || [],
+    status: dbProduct.status,
     sellerId: dbProduct.seller_id,
-    sellerWhatsApp: '', // Will be populated from user data
-    createdAt: dbProduct.created_at || new Date().toISOString(),
-    expiresAt: dbProduct.end_time || new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(),
-    viewCount: 0 // Will be populated from analytics
+    sellerWhatsApp: dbProduct.seller_whatsapp,
+    createdAt: dbProduct.created_at,
+    expiresAt: dbProduct.end_time,
+    viewCount: 0
   };
-};
-
-export const formatCurrency = (amount: number, currency: Currency): string => {
-  if (currency === 'XAF') {
-    return `${amount.toLocaleString()} XAF`;
-  }
-  return new Intl.NumberFormat('en-US', {
-    style: 'currency',
-    currency: currency
-  }).format(amount);
 };

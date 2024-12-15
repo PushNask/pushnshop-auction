@@ -4,7 +4,7 @@ export interface ProductImage {
   id: string;
   url: string;
   alt: string;
-  order: number;
+  order_number: number;
   file?: File;
   preview?: string;
 }

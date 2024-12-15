@@ -58,7 +58,7 @@ export function SimilarProducts({ currentProduct, limit = 4 }: SimilarProductsPr
             id: img.id,
             url: img.url,
             alt: img.alt || '',
-            order: img.order_number
+            order_number: img.order_number
           })),
           status: product.status as Product['status'],
           sellerId: product.seller_id,
