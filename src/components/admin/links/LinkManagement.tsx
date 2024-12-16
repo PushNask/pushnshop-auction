@@ -11,8 +11,7 @@ import { Database } from "@/integrations/supabase/types";
 type PermanentLinkRow = Database['public']['Tables']['permanent_links']['Row'];
 type ListingRow = Database['public']['Tables']['listings']['Row'];
 
-interface ListingWithProduct {
-  id: string;
+interface ListingWithProduct extends Omit<ListingRow, 'product_id'> {
   product: {
     title: string;
     seller: {
