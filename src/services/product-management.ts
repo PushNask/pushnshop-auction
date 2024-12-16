@@ -51,13 +51,15 @@ export const fetchUserProducts = async (userId: string): Promise<ManagedProduct[
 
   if (error) throw error;
 
-  // Ensure data is properly typed before mapping
-  const products = (data || []) as unknown as DbProductResponse[];
+  // Type assertion after validating data structure
+  const products = (data || []).map((item): DbProductResponse => ({
+    ...item,
+    analytics: Array.isArray(item.analytics) ? item.analytics : [],
+    listings: Array.isArray(item.listings) ? item.listings : []
+  }));
 
   return products.map(product => {
-    const analytics = Array.isArray(product.analytics) && product.analytics.length > 0
-      ? product.analytics[0]
-      : { views: 0, whatsapp_clicks: 0 };
+    const analytics = product.analytics[0] || { views: 0, whatsapp_clicks: 0 };
     
     return {
       id: product.id,
@@ -67,7 +69,7 @@ export const fetchUserProducts = async (userId: string): Promise<ManagedProduct[
       quantity: product.quantity,
       status: product.status === 'active' ? 'active' : 
              product.status === 'pending' ? 'pending' : 'expired',
-      expiresAt: product.listings?.[0]?.end_time || null,
+      expiresAt: product.listings[0]?.end_time || null,
       views: analytics.views || 0,
       whatsappClicks: analytics.whatsapp_clicks || 0
     };
