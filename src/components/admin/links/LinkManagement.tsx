@@ -16,7 +16,7 @@ interface PermanentLink {
   rotation_count: number;
   performance_score: number;
   last_assigned_at: string | null;
-  listings?: {
+  listings: {
     id: string;
     product: {
       title: string;
