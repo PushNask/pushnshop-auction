@@ -47,11 +47,8 @@ export default defineConfig(({ mode }: ConfigEnv): UserConfig => ({
   build: {
     outDir: 'dist',
     sourcemap: true,
-    // Ensure clean builds
     emptyOutDir: true,
-    // Improve caching
     manifest: true,
-    // Optimize chunks
     rollupOptions: {
       output: {
         manualChunks: {
@@ -81,12 +78,10 @@ export default defineConfig(({ mode }: ConfigEnv): UserConfig => ({
         },
       },
     },
-    // Add build time environment validation
     assetsInlineLimit: 4096,
   },
-  // Add environment variable validation
   define: {
-    __VITE_SUPABASE_URL__: JSON.stringify(process.env.VITE_SUPABASE_URL),
-    __VITE_SUPABASE_ANON_KEY__: JSON.stringify(process.env.VITE_SUPABASE_ANON_KEY),
+    __VITE_SUPABASE_URL__: JSON.stringify(process.env.VITE_SUPABASE_URL || ''),
+    __VITE_SUPABASE_ANON_KEY__: JSON.stringify(process.env.VITE_SUPABASE_ANON_KEY || '')
   }
 }));
