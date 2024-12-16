@@ -7,9 +7,11 @@ import { PendingListings } from "../listings/PendingListings";
 import { LinkManagement } from "../links/LinkManagement";
 import { AdminAuthCheck } from "./AdminAuthCheck";
 import { AdminMetricsProvider, useAdminMetrics } from "./AdminMetricsProvider";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { AlertCircle } from "lucide-react";
 
 const DashboardContent = () => {
-  const { metrics, isLoading } = useAdminMetrics();
+  const { metrics, isLoading, error } = useAdminMetrics();
 
   if (isLoading) {
     return (
@@ -19,12 +21,23 @@ const DashboardContent = () => {
     );
   }
 
+  if (error) {
+    return (
+      <Alert variant="destructive" className="m-4">
+        <AlertCircle className="h-4 w-4" />
+        <AlertDescription>
+          Failed to load dashboard metrics: {error.message}
+        </AlertDescription>
+      </Alert>
+    );
+  }
+
   return (
     <div className="container mx-auto p-6 space-y-6">
       <h1 className="text-2xl font-bold">Admin Dashboard</h1>
       
       <Tabs defaultValue="overview" className="space-y-6">
-        <TabsList>
+        <TabsList className="grid w-full grid-cols-2 lg:grid-cols-5 gap-4">
           <TabsTrigger value="overview">Overview</TabsTrigger>
           <TabsTrigger value="listings">Listings</TabsTrigger>
           <TabsTrigger value="links">Links</TabsTrigger>
