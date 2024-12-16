@@ -6,32 +6,28 @@ import { Badge } from "@/components/ui/badge";
 import { LoadingSpinner } from "@/components/loading/LoadingSpinner";
 import { useToast } from "@/hooks/use-toast";
 import { RefreshCw, Link as LinkIcon } from "lucide-react";
+import { Database } from "@/integrations/supabase/types";
 
-interface PermanentLink {
-  id: number;
-  url_key: string;
-  url_path: string;
-  status: 'active' | 'available';
-  current_listing_id: string | null;
-  rotation_count: number;
-  performance_score: number;
-  last_assigned_at: string | null;
-  created_at: string;
-  listings: {
-    id: string;
-    product: {
-      title: string;
-      seller: {
-        full_name: string;
-      };
+type PermanentLinkRow = Database['public']['Tables']['permanent_links']['Row'];
+
+interface ListingWithProduct {
+  id: string;
+  product: {
+    title: string;
+    seller: {
+      full_name: string;
     };
-  }[] | null;
+  };
+}
+
+interface PermanentLink extends PermanentLinkRow {
+  listings: ListingWithProduct[] | null;
 }
 
 export function LinkManagement() {
   const { toast } = useToast();
 
-  const { data: links, isLoading, refetch } = useQuery<PermanentLink[]>({
+  const { data: links, isLoading, refetch } = useQuery({
     queryKey: ['permanent-links'],
     queryFn: async () => {
       const { data, error } = await supabase
@@ -51,7 +47,7 @@ export function LinkManagement() {
         .order('id', { ascending: true });
 
       if (error) throw error;
-      return data;
+      return data as PermanentLink[];
     }
   });
 
@@ -117,7 +113,7 @@ export function LinkManagement() {
                   </div>
                   <div>
                     <p className="text-muted-foreground">Performance Score</p>
-                    <p className="font-medium">{link.performance_score.toFixed(2)}</p>
+                    <p className="font-medium">{link.performance_score?.toFixed(2) || '0.00'}</p>
                   </div>
                 </div>
                 {link.listings?.[0] && (
