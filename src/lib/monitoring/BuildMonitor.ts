@@ -14,6 +14,7 @@ export class BuildMonitor {
   };
 
   private constructor() {
+    // Only set up error handlers in browser environment
     if (typeof window !== 'undefined') {
       this.setupErrorHandlers();
     }
@@ -32,8 +33,8 @@ export class BuildMonitor {
         const errorEvent = event as ErrorEvent;
         this.logBuildError({
           type: 'runtime',
-          message: errorEvent.error.message,
-          stack: errorEvent.error.stack,
+          message: errorEvent.error?.message || 'Unknown error',
+          stack: errorEvent.error?.stack,
           timestamp: new Date().toISOString()
         });
       });
@@ -42,8 +43,8 @@ export class BuildMonitor {
         const promiseEvent = event as PromiseRejectionEvent;
         this.logBuildError({
           type: 'promise',
-          message: promiseEvent.reason.message,
-          stack: promiseEvent.reason.stack,
+          message: promiseEvent.reason?.message || 'Unhandled Promise rejection',
+          stack: promiseEvent.reason?.stack,
           timestamp: new Date().toISOString()
         });
       });
@@ -98,7 +99,6 @@ export class BuildMonitor {
   private generateSuggestions(): string[] {
     const suggestions: string[] = [];
     
-    // Analyze errors and provide relevant suggestions
     this.errors.forEach(error => {
       if (error.message.includes('TypeScript')) {
         suggestions.push('Check for type mismatches in your components');
