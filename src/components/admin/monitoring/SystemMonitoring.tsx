@@ -12,7 +12,7 @@ export const SystemMonitoring = () => {
       if (error) throw error;
 
       // Validate and transform the data to match SystemMetrics type
-      if (!data || typeof data !== 'object') {
+      if (!data || typeof data !== 'object' || Array.isArray(data)) {
         throw new Error('Invalid metrics data received');
       }
 

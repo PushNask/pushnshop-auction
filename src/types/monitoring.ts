@@ -16,3 +16,16 @@ export interface Alert {
   acknowledged: boolean;
   created_at: string;
 }
+
+export interface PerformanceMetric {
+  created_at: string;
+  response_time: number;
+  error_rate: number;
+  active_users: number;
+}
+
+export interface Metrics {
+  system: SystemMetrics;
+  alerts: Alert[];
+  performance: PerformanceMetric[];
+}
