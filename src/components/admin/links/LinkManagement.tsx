@@ -71,7 +71,7 @@ export function LinkManagement() {
 
           return {
             ...link,
-            current_listing: listing
+            current_listing: listing as ListingWithProduct
           };
         })
       );
