@@ -11,6 +11,11 @@ interface ProductAnalytics {
   listing_id?: string;
 }
 
+interface DbListingResponse {
+  status: 'draft' | 'pending_payment' | 'pending_approval' | 'active' | 'expired' | 'rejected';
+  end_time: string | null;
+}
+
 interface DbProductResponse {
   id: string;
   title: string;
@@ -18,11 +23,11 @@ interface DbProductResponse {
   currency: Currency;
   quantity: number;
   status: string;
-  listings: Array<{
-    status: string;
-    end_time: string | null;
-  }>;
-  analytics: ProductAnalytics[];
+  listings: DbListingResponse[];
+  analytics: {
+    views: number;
+    whatsapp_clicks: number;
+  }[];
 }
 
 export const fetchUserProducts = async (userId: string): Promise<ManagedProduct[]> => {
@@ -49,14 +54,17 @@ export const fetchUserProducts = async (userId: string): Promise<ManagedProduct[
 
   if (error) throw error;
 
-  return (data as DbProductResponse[]).map(product => {
+  // Type assertion after validating the shape of the data
+  const products = (data || []) as unknown as DbProductResponse[];
+
+  return products.map(product => {
     const analytics = product.analytics?.[0] || { views: 0, whatsapp_clicks: 0 };
     
     return {
       id: product.id,
       title: product.title,
       price: product.price,
-      currency: product.currency as Currency,
+      currency: product.currency,
       quantity: product.quantity,
       status: product.status === 'active' ? 'active' : 
              product.status === 'pending' ? 'pending' : 'expired',
