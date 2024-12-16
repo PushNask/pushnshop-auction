@@ -30,48 +30,54 @@ export function LinkManagement() {
   const { data: links, isLoading, refetch } = useQuery<PermanentLink[]>({
     queryKey: ['permanent-links'],
     queryFn: async () => {
-      // First get all permanent links
-      const { data: permanentLinks, error: linksError } = await supabase
-        .from('permanent_links')
-        .select('*')
-        .order('id', { ascending: true });
+      try {
+        // First get all permanent links
+        const { data: permanentLinks, error: linksError } = await supabase
+          .from('permanent_links')
+          .select('*')
+          .order('id', { ascending: true });
 
-      if (linksError) throw linksError;
+        if (linksError) throw linksError;
+        if (!permanentLinks) return [];
 
-      // Then for each link with a current_listing_id, fetch the listing details
-      const linksWithListings = await Promise.all(
-        (permanentLinks || []).map(async (link) => {
-          if (!link.current_listing_id) {
-            return { ...link, current_listing: null };
-          }
+        // Then for each link with a current_listing_id, fetch the listing details
+        const linksWithListings = await Promise.all(
+          permanentLinks.map(async (link) => {
+            if (!link.current_listing_id) {
+              return { ...link, current_listing: null };
+            }
 
-          const { data: listing, error: listingError } = await supabase
-            .from('listings')
-            .select(`
-              id,
-              product:products (
-                title,
-                seller:users (
-                  full_name
+            const { data: listing, error: listingError } = await supabase
+              .from('listings')
+              .select(`
+                id,
+                product:products (
+                  title,
+                  seller:users (
+                    full_name
+                  )
                 )
-              )
-            `)
-            .eq('id', link.current_listing_id)
-            .single();
+              `)
+              .eq('id', link.current_listing_id)
+              .single();
 
-          if (listingError) {
-            console.error('Error fetching listing:', listingError);
-            return { ...link, current_listing: null };
-          }
+            if (listingError) {
+              console.error('Error fetching listing:', listingError);
+              return { ...link, current_listing: null };
+            }
 
-          return {
-            ...link,
-            current_listing: listing
-          };
-        })
-      );
+            return {
+              ...link,
+              current_listing: listing
+            };
+          })
+        );
 
-      return linksWithListings;
+        return linksWithListings;
+      } catch (error) {
+        console.error('Error in permanent links query:', error);
+        throw error;
+      }
     }
   });
 
