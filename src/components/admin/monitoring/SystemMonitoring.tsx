@@ -1,13 +1,20 @@
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Card } from "@/components/ui/card";
-import { Loader2 } from "lucide-react";
+import { Loader2, AlertCircle } from "lucide-react";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 import type { SystemMetrics } from "@/types/monitoring";
 
 export const SystemMonitoring = () => {
   const { data: metrics, isLoading, error } = useQuery({
     queryKey: ["system-metrics"],
     queryFn: async () => {
+      // First check connection
+      const isConnected = await supabase.from('system_settings').select('site_name').limit(1);
+      if (isConnected.error) {
+        throw new Error('Failed to connect to Supabase');
+      }
+
       const { data, error } = await supabase.rpc("get_system_metrics");
       if (error) throw error;
 
@@ -27,31 +34,39 @@ export const SystemMonitoring = () => {
 
       return metricsData;
     },
-    refetchInterval: 30000 // Refetch every 30 seconds
+    refetchInterval: 30000, // Refetch every 30 seconds
+    retry: 2
   });
 
   if (isLoading) {
     return (
       <div className="flex items-center justify-center p-8">
-        <Loader2 className="w-8 h-8 animate-spin" />
+        <Loader2 className="w-8 h-8 animate-spin text-primary" />
       </div>
     );
   }
 
   if (error) {
     return (
-      <div className="text-red-500 p-4">
-        Error loading system metrics: {error instanceof Error ? error.message : 'Unknown error'}
-      </div>
+      <Alert variant="destructive" className="m-4">
+        <AlertCircle className="h-4 w-4" />
+        <AlertDescription>
+          {error instanceof Error ? error.message : 'Failed to load system metrics'}
+        </AlertDescription>
+      </Alert>
     );
   }
 
   if (!metrics) {
-    return <div className="p-4">No metrics available</div>;
+    return (
+      <Alert className="m-4">
+        <AlertDescription>No metrics available</AlertDescription>
+      </Alert>
+    );
   }
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 p-4">
       <Card className="p-4">
         <h3 className="font-semibold mb-2">Memory Usage</h3>
         <p className="text-2xl">{metrics.memory.toFixed(2)}%</p>
