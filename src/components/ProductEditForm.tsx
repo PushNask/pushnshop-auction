@@ -1,148 +1,13 @@
-import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Card } from '@/components/ui/card';
-import { useToast } from '@/hooks/use-toast';
-import { supabase } from '@/integrations/supabase/client';
-import { uploadProductImage } from '@/lib/storage';
-import type { Product, ProductImage, Currency } from '@/types/product';
-
-interface ProductEditFormProps {
-  initialProduct?: Partial<Product>;
-  onSave?: (product: Product) => void;
-}
+import type { ProductEditFormProps } from './product-edit/types';
+import { useProductForm } from './product-edit/useProductForm';
 
 export const ProductEditForm = ({ initialProduct, onSave }: ProductEditFormProps) => {
-  const { toast } = useToast();
-  const [product, setProduct] = useState<Partial<Product>>({
-    images: [],
-    currency: 'XAF',
-    status: 'pending',
-    ...initialProduct
-  });
-
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    const { name, value } = e.target;
-    setProduct(prev => ({ ...prev, [name]: value }));
-  };
-
-  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const files = Array.from(e.target.files || []);
-    const newImages: ProductImage[] = files.map((file, index) => ({
-      id: `temp-${Date.now()}-${index}`,
-      url: URL.createObjectURL(file),
-      alt: file.name,
-      order_number: (product.images?.length || 0) + index + 1,
-      file
-    }));
-
-    setProduct(prev => ({
-      ...prev,
-      images: [...(prev.images || []), ...newImages]
-    }));
-  };
-
-  const handleCurrencyChange = (currency: Currency) => {
-    setProduct(prev => ({ ...prev, currency }));
-  };
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    
-    try {
-      // Upload images first
-      const uploadPromises = product.images
-        ?.filter(img => img.file)
-        .map(img => uploadProductImage(img.file as File));
-      
-      const uploadedUrls = await Promise.all(uploadPromises || []);
-      
-      // Update product with new image URLs and ensure status is 'pending'
-      const updatedImages = product.images?.map((img, index) => ({
-        ...img,
-        url: img.file ? uploadedUrls[index] : img.url
-      }));
-
-      const finalProduct = {
-        ...product,
-        status: 'pending',
-        images: updatedImages
-      } as Product;
-
-      // Get the current user's ID
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) throw new Error('User not authenticated');
-
-      // Insert the product with seller_id and pending status
-      const { data, error } = await supabase
-        .from('products')
-        .insert({
-          title: finalProduct.title,
-          description: finalProduct.description,
-          price: finalProduct.price,
-          currency: finalProduct.currency,
-          quantity: finalProduct.quantity,
-          seller_id: user.id,
-          status: 'pending',
-          promotion_range: finalProduct.promotionRange || 'local'
-        })
-        .select()
-        .single();
-
-      if (error) throw error;
-
-      // Insert product images
-      if (updatedImages && updatedImages.length > 0) {
-        const { error: imageError } = await supabase
-          .from('product_images')
-          .insert(
-            updatedImages.map((img, index) => ({
-              product_id: data.id,
-              url: img.url,
-              alt: img.alt || finalProduct.title,
-              order_number: index + 1
-            }))
-          );
-
-        if (imageError) throw imageError;
-      }
-
-      // Create notification for admin
-      await supabase
-        .from('notifications')
-        .insert({
-          type: 'product_pending',
-          title: 'New Product Pending Review',
-          message: `New product "${finalProduct.title}" requires approval`,
-          user_id: user.id
-        });
-
-      // Convert database response to Product type
-      const productResponse: Product = {
-        ...data,
-        images: updatedImages || [],
-        viewCount: 0,
-        sellerWhatsApp: user.user_metadata?.whatsapp_number || '',
-        sellerId: user.id
-      };
-
-      onSave?.(productResponse);
-      
-      toast({
-        title: "Success",
-        description: "Product submitted for approval",
-      });
-    } catch (error) {
-      console.error('Error saving product:', error);
-      toast({
-        variant: "destructive",
-        title: "Error",
-        description: "Failed to save product",
-      });
-    }
-  };
+  const { product, handleInputChange, handleImageChange, handleSubmit } = useProductForm(initialProduct, onSave);
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
@@ -187,7 +52,7 @@ export const ProductEditForm = ({ initialProduct, onSave }: ProductEditFormProps
             <select
               id="currency"
               value={product.currency}
-              onChange={(e) => handleCurrencyChange(e.target.value as Currency)}
+              onChange={(e) => handleInputChange(e as any)}
               className="w-full p-2 border rounded"
             >
               <option value="XAF">XAF</option>
@@ -202,7 +67,17 @@ export const ProductEditForm = ({ initialProduct, onSave }: ProductEditFormProps
               type="file"
               accept="image/*"
               multiple
-              onChange={handleImageChange}
+              onChange={(e) => {
+                const files = Array.from(e.target.files || []);
+                const newImages = files.map((file, index) => ({
+                  id: `temp-${Date.now()}-${index}`,
+                  url: URL.createObjectURL(file),
+                  alt: file.name,
+                  order_number: (product.images?.length || 0) + index + 1,
+                  file
+                }));
+                handleImageChange([...(product.images || []), ...newImages]);
+              }}
               className="mt-1"
             />
             {product.images && product.images.length > 0 && (
