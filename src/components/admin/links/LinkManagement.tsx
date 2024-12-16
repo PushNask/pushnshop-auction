@@ -24,7 +24,7 @@ interface PermanentLink {
         full_name: string;
       };
     };
-  }>;
+  }> | null;
 }
 
 export function LinkManagement() {
@@ -37,11 +37,11 @@ export function LinkManagement() {
         .from('permanent_links')
         .select(`
           *,
-          listings(
+          listings!permanent_links_current_listing_id_fkey (
             id,
-            product:products(
+            product:products (
               title,
-              seller:users(
+              seller:users (
                 full_name
               )
             )
