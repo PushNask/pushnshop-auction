@@ -1,6 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import type { SystemMetrics } from "@/lib/monitoring/types";
+import type { SystemMetrics } from "@/types/analytics";
 import { Card } from "@/components/ui/card";
 
 const SystemMonitoring = () => {

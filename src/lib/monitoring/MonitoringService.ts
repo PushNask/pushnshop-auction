@@ -1,5 +1,5 @@
 import { supabase } from '@/integrations/supabase/client';
-import type { SystemMetrics, AlertConfig, Alert } from './types';
+import type { SystemMetrics, AlertConfig, Alert } from '@/types/analytics';
 
 export class MonitoringService {
   private static alertConfigs: AlertConfig[] = [
@@ -35,6 +35,22 @@ export class MonitoringService {
     } catch (error) {
       console.error('Failed to collect metrics:', error);
       throw error;
+    }
+  }
+
+  static async logError(error: Error, context?: Record<string, any>) {
+    try {
+      const { error: dbError } = await supabase
+        .from('error_logs')
+        .insert([{
+          error_message: error.message,
+          stack_trace: error.stack,
+          metadata: context
+        }]);
+
+      if (dbError) throw dbError;
+    } catch (err) {
+      console.error('Failed to log error:', err);
     }
   }
 
