@@ -5,7 +5,6 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import AdminDashboard from '@/components/admin/dashboard/AdminDashboard';
 import { supabase } from '@/integrations/supabase/client';
 
-// Mock Supabase client
 vi.mock('@/integrations/supabase/client', () => ({
   supabase: {
     auth: {
@@ -46,7 +45,6 @@ describe('Admin Role-Based Access Tests', () => {
   };
 
   it('should allow admin access to dashboard', async () => {
-    // Mock admin session
     vi.mocked(supabase.auth.getSession).mockResolvedValueOnce({
       data: {
         session: {
@@ -54,11 +52,14 @@ describe('Admin Role-Based Access Tests', () => {
         }
       },
       error: null
-    } as any);
+    });
 
-    vi.mocked(supabase.from().single).mockResolvedValueOnce({
+    vi.mocked(supabase.from().select().single).mockResolvedValueOnce({
       data: { role: 'admin' },
-      error: null
+      error: null,
+      count: null,
+      status: 200,
+      statusText: 'OK'
     });
 
     renderWithProviders(<AdminDashboard />);
@@ -69,7 +70,6 @@ describe('Admin Role-Based Access Tests', () => {
   });
 
   it('should redirect non-admin users', async () => {
-    // Mock non-admin session
     vi.mocked(supabase.auth.getSession).mockResolvedValueOnce({
       data: {
         session: {
@@ -77,11 +77,14 @@ describe('Admin Role-Based Access Tests', () => {
         }
       },
       error: null
-    } as any);
+    });
 
-    vi.mocked(supabase.from().single).mockResolvedValueOnce({
+    vi.mocked(supabase.from().select().single).mockResolvedValueOnce({
       data: { role: 'buyer' },
-      error: null
+      error: null,
+      count: null,
+      status: 200,
+      statusText: 'OK'
     });
 
     const { container } = renderWithProviders(<AdminDashboard />);
