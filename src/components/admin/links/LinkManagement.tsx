@@ -9,19 +9,21 @@ import { RefreshCw, Link as LinkIcon } from "lucide-react";
 import { Database } from "@/integrations/supabase/types";
 
 type PermanentLinkRow = Database['public']['Tables']['permanent_links']['Row'];
+type ListingRow = Database['public']['Tables']['listings']['Row'];
 
 interface ListingWithProduct {
   id: string;
   product: {
     title: string;
     seller: {
-      full_name: string;
-    };
-  };
+      full_name: string | null;
+    } | null;
+  } | null;
 }
 
 interface PermanentLink extends Omit<PermanentLinkRow, 'current_listing_id'> {
-  current_listing?: ListingWithProduct | null;
+  current_listing_id: string | null;
+  current_listing: ListingWithProduct | null;
 }
 
 export function LinkManagement() {
@@ -30,54 +32,51 @@ export function LinkManagement() {
   const { data: links, isLoading, refetch } = useQuery<PermanentLink[]>({
     queryKey: ['permanent-links'],
     queryFn: async () => {
-      try {
-        // First get all permanent links
-        const { data: permanentLinks, error: linksError } = await supabase
-          .from('permanent_links')
-          .select('*')
-          .order('id', { ascending: true });
+      const { data: permanentLinks, error: linksError } = await supabase
+        .from('permanent_links')
+        .select('*')
+        .order('id', { ascending: true });
 
-        if (linksError) throw linksError;
-        if (!permanentLinks) return [];
-
-        // Then for each link with a current_listing_id, fetch the listing details
-        const linksWithListings = await Promise.all(
-          permanentLinks.map(async (link) => {
-            if (!link.current_listing_id) {
-              return { ...link, current_listing: null };
-            }
-
-            const { data: listing, error: listingError } = await supabase
-              .from('listings')
-              .select(`
-                id,
-                product:products (
-                  title,
-                  seller:users (
-                    full_name
-                  )
-                )
-              `)
-              .eq('id', link.current_listing_id)
-              .single();
-
-            if (listingError) {
-              console.error('Error fetching listing:', listingError);
-              return { ...link, current_listing: null };
-            }
-
-            return {
-              ...link,
-              current_listing: listing
-            };
-          })
-        );
-
-        return linksWithListings;
-      } catch (error) {
-        console.error('Error in permanent links query:', error);
-        throw error;
+      if (linksError) {
+        console.error('Error fetching permanent links:', linksError);
+        throw linksError;
       }
+
+      if (!permanentLinks) return [];
+
+      const linksWithListings = await Promise.all(
+        permanentLinks.map(async (link) => {
+          if (!link.current_listing_id) {
+            return { ...link, current_listing: null };
+          }
+
+          const { data: listing, error: listingError } = await supabase
+            .from('listings')
+            .select(`
+              id,
+              product:products (
+                title,
+                seller:users (
+                  full_name
+                )
+              )
+            `)
+            .eq('id', link.current_listing_id)
+            .single();
+
+          if (listingError) {
+            console.error('Error fetching listing:', listingError);
+            return { ...link, current_listing: null };
+          }
+
+          return {
+            ...link,
+            current_listing: listing
+          };
+        })
+      );
+
+      return linksWithListings;
     }
   });
 
@@ -97,6 +96,7 @@ export function LinkManagement() {
         title: "Success",
         description: "Link recycled successfully"
       });
+      
       refetch();
     } catch (error) {
       console.error('Error recycling link:', error);
