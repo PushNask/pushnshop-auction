@@ -5,6 +5,24 @@ import type { Currency } from '@/types/product';
 interface ProductAnalytics {
   views: number;
   whatsapp_clicks: number;
+  created_at?: string;
+  updated_at?: string;
+  id?: string;
+  listing_id?: string;
+}
+
+interface DbProductResponse {
+  id: string;
+  title: string;
+  price: number;
+  currency: Currency;
+  quantity: number;
+  status: string;
+  listings: Array<{
+    status: string;
+    end_time: string | null;
+  }>;
+  analytics: ProductAnalytics[];
 }
 
 export const fetchUserProducts = async (userId: string): Promise<ManagedProduct[]> => {
@@ -31,8 +49,8 @@ export const fetchUserProducts = async (userId: string): Promise<ManagedProduct[
 
   if (error) throw error;
 
-  return data.map(product => {
-    const analytics = product.analytics?.[0] as ProductAnalytics | undefined;
+  return (data as DbProductResponse[]).map(product => {
+    const analytics = product.analytics?.[0] || { views: 0, whatsapp_clicks: 0 };
     
     return {
       id: product.id,
@@ -43,8 +61,8 @@ export const fetchUserProducts = async (userId: string): Promise<ManagedProduct[
       status: product.status === 'active' ? 'active' : 
              product.status === 'pending' ? 'pending' : 'expired',
       expiresAt: product.listings?.[0]?.end_time || null,
-      views: analytics?.views || 0,
-      whatsappClicks: analytics?.whatsapp_clicks || 0
+      views: analytics.views || 0,
+      whatsappClicks: analytics.whatsapp_clicks || 0
     };
   });
 };
