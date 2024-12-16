@@ -5,11 +5,6 @@ import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import type { FormData } from "@/types/product-form";
 
-interface SubmitResponse {
-  data: any | null;
-  error: { message: string } | null;
-}
-
 const SellPage = () => {
   const { toast } = useToast();
   const navigate = useNavigate();
@@ -60,7 +55,7 @@ const SellPage = () => {
     checkAuth();
   }, [navigate, toast]);
 
-  const handleSubmit = async (formData: FormData): Promise<SubmitResponse> => {
+  const handleSubmit = async (formData: FormData) => {
     try {
       const { data: { user }, error: userError } = await supabase.auth.getUser();
       
@@ -108,9 +103,16 @@ const SellPage = () => {
   };
 
   return (
-    <div className="container mx-auto p-6">
-      <h1 className="text-2xl font-bold mb-6">List Your Product</h1>
-      <ProductListingForm onSubmit={handleSubmit} />
+    <div className="min-h-screen bg-gray-50 py-8 px-4 sm:px-6 lg:px-8">
+      <div className="max-w-2xl mx-auto">
+        <div className="text-center mb-8">
+          <h1 className="text-3xl font-bold text-gray-900">List Your Product</h1>
+          <p className="mt-2 text-sm text-gray-600">
+            Fill in the details below to create your listing
+          </p>
+        </div>
+        <ProductListingForm onSubmit={handleSubmit} />
+      </div>
     </div>
   );
 };
