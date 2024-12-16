@@ -6,13 +6,18 @@ export const useMetrics = () => {
   return useQuery({
     queryKey: ["metrics"],
     queryFn: async (): Promise<Metrics> => {
-      const { data: systemMetricsData } = await supabase.rpc("get_system_metrics");
-      const { data: alertsData } = await supabase.from("system_alerts").select("*");
-      const { data: performanceData } = await supabase
+      const { data: systemMetricsData, error: systemError } = await supabase.rpc("get_system_metrics");
+      if (systemError) throw systemError;
+
+      const { data: alertsData, error: alertsError } = await supabase.from("system_alerts").select("*");
+      if (alertsError) throw alertsError;
+
+      const { data: performanceData, error: perfError } = await supabase
         .from("system_metrics")
         .select("*")
         .order("created_at", { ascending: false })
         .limit(60);
+      if (perfError) throw perfError;
 
       // Validate and transform system metrics
       if (!systemMetricsData || typeof systemMetricsData !== 'object' || Array.isArray(systemMetricsData)) {
@@ -30,9 +35,13 @@ export const useMetrics = () => {
 
       // Transform alerts data to match Alert type
       const alerts: Alert[] = (alertsData || []).map(alert => ({
-        ...alert,
+        id: alert.id,
         metric: alert.metric as keyof SystemMetrics,
-        severity: alert.severity as Alert['severity']
+        value: Number(alert.value),
+        threshold: Number(alert.threshold),
+        severity: alert.severity as Alert['severity'],
+        acknowledged: Boolean(alert.acknowledged),
+        created_at: alert.created_at
       }));
 
       // Transform performance data
