@@ -27,7 +27,6 @@ export const supabase = createClient<Database>(
     db: {
       schema: 'public'
     },
-    // Add proper error handling and retries
     realtime: {
       params: {
         eventsPerSecond: 10
@@ -46,9 +45,3 @@ supabase.auth.onAuthStateChange((event, session) => {
     console.log('Token refreshed');
   }
 });
-
-// Add global error handler for failed requests
-supabase.handleFailedRequest = (error: Error) => {
-  console.error('Supabase request failed:', error);
-  // You can add additional error handling here
-};

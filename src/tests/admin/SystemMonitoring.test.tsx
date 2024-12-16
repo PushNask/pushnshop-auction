@@ -2,36 +2,12 @@ import { render, screen, waitFor } from '@testing-library/react';
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { SystemMonitoring } from '@/components/admin/monitoring/SystemMonitoring';
 import { supabase } from '@/integrations/supabase/client';
+import type { PostgrestResponse, PostgrestSingleResponse } from '@supabase/supabase-js';
 
 // Mock Supabase client
 vi.mock('@/integrations/supabase/client', () => ({
   supabase: {
-    rpc: vi.fn(() => ({
-      select: vi.fn(() => ({
-        single: vi.fn(() => ({
-          data: {
-            cpu: 45.5,
-            memory: 60.2,
-            disk: 75.0,
-            response_time: 250,
-            error_rate: 0.5,
-            active_users: 100
-          },
-          error: null
-        }))
-      }))
-    }))
-  }
-}));
-
-describe('System Monitoring Tests', () => {
-  beforeEach(() => {
-    vi.clearAllMocks();
-  });
-
-  it('displays system metrics correctly', async () => {
-    // Mock successful response
-    const mockRpcResponse = {
+    rpc: vi.fn().mockReturnValue({
       select: vi.fn().mockReturnValue({
         single: vi.fn().mockResolvedValue({
           data: {
@@ -43,10 +19,38 @@ describe('System Monitoring Tests', () => {
             active_users: 100
           },
           error: null
-        })
+        } as PostgrestSingleResponse<any>)
       })
+    })
+  }
+}));
+
+describe('System Monitoring Tests', () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
+  it('displays system metrics correctly', async () => {
+    const mockResponse: PostgrestSingleResponse<any> = {
+      data: {
+        cpu: 45.5,
+        memory: 60.2,
+        disk: 75.0,
+        response_time: 250,
+        error_rate: 0.5,
+        active_users: 100
+      },
+      error: null,
+      count: null,
+      status: 200,
+      statusText: 'OK'
     };
-    vi.mocked(supabase.rpc).mockReturnValue(mockRpcResponse as any);
+
+    vi.mocked(supabase.rpc).mockReturnValue({
+      select: vi.fn().mockReturnValue({
+        single: vi.fn().mockResolvedValue(mockResponse)
+      })
+    } as any);
 
     render(<SystemMonitoring />);
 
@@ -58,12 +62,12 @@ describe('System Monitoring Tests', () => {
   });
 
   it('handles loading state', () => {
-    // Mock pending response
     const mockPendingResponse = {
       select: vi.fn().mockReturnValue({
         single: vi.fn().mockReturnValue(new Promise(() => {}))
       })
     };
+
     vi.mocked(supabase.rpc).mockReturnValue(mockPendingResponse as any);
 
     render(<SystemMonitoring />);
@@ -71,12 +75,12 @@ describe('System Monitoring Tests', () => {
   });
 
   it('handles error state', async () => {
-    // Mock error response
     const mockErrorResponse = {
       select: vi.fn().mockReturnValue({
         single: vi.fn().mockRejectedValue(new Error('Failed to fetch metrics'))
       })
     };
+
     vi.mocked(supabase.rpc).mockReturnValue(mockErrorResponse as any);
 
     render(<SystemMonitoring />);
