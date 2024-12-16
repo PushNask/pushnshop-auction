@@ -10,14 +10,16 @@ import { Database } from "@/integrations/supabase/types";
 
 type PermanentLinkRow = Database['public']['Tables']['permanent_links']['Row'];
 type ListingRow = Database['public']['Tables']['listings']['Row'];
+type ProductRow = Database['public']['Tables']['products']['Row'];
+
+interface ListingProduct extends Omit<ProductRow, 'seller_id'> {
+  seller: {
+    full_name: string | null;
+  } | null;
+}
 
 interface ListingWithProduct extends Omit<ListingRow, 'product_id'> {
-  product: {
-    title: string;
-    seller: {
-      full_name: string | null;
-    } | null;
-  } | null;
+  product: ListingProduct | null;
 }
 
 interface PermanentLink extends Omit<PermanentLinkRow, 'current_listing_id'> {
@@ -53,8 +55,21 @@ export function LinkManagement() {
             .from('listings')
             .select(`
               id,
+              status,
+              duration_hours,
+              price_paid,
+              start_time,
+              end_time,
+              created_at,
+              updated_at,
               product:products (
+                id,
                 title,
+                description,
+                price,
+                currency,
+                quantity,
+                status,
                 seller:users (
                   full_name
                 )
