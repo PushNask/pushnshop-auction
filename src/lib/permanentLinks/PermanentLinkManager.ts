@@ -3,11 +3,21 @@ import { LinkManagementService } from './LinkManagementService';
 import { ProductLinkResolver } from './ProductLinkResolver';
 
 export class PermanentLinkManager {
-  static initialize = LinkManagementService.initialize;
+  private static linkManagementService = LinkManagementService.getInstance();
+
+  static async initialize(): Promise<void> {
+    await this.linkManagementService.initialize();
+  }
+
   static assignLink = LinkAssignmentManager.assignLink;
-  static releaseLink = LinkManagementService.releaseLink;
   static getProductByLink = ProductLinkResolver.getProductByLink;
   static getNextAvailableLink = ProductLinkResolver.getNextAvailableLink;
-  static recycleExpiredLinks = LinkManagementService.recycleExpiredLinks;
-  static recycleLink = LinkManagementService.recycleLink;
+
+  static async assignLinkToListing(linkId: number, listingId: string): Promise<boolean> {
+    return await this.linkManagementService.assignLinkToListing(linkId, listingId);
+  }
+
+  static async getAvailableLink() {
+    return await this.linkManagementService.getAvailableLink();
+  }
 }

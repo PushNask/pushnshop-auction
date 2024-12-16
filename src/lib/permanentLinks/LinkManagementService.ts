@@ -1,17 +1,17 @@
 import { supabase } from '@/integrations/supabase/client';
 import type { PermanentLink } from '@/types/permanent-links';
 
-export class PermanentLinkManager {
-  private static instance: PermanentLinkManager;
+export class LinkManagementService {
+  private static instance: LinkManagementService;
   private initialized: boolean = false;
 
   private constructor() {}
 
-  public static getInstance(): PermanentLinkManager {
-    if (!PermanentLinkManager.instance) {
-      PermanentLinkManager.instance = new PermanentLinkManager();
+  public static getInstance(): LinkManagementService {
+    if (!LinkManagementService.instance) {
+      LinkManagementService.instance = new LinkManagementService();
     }
-    return PermanentLinkManager.instance;
+    return LinkManagementService.instance;
   }
 
   public async initialize(): Promise<void> {
@@ -22,7 +22,7 @@ export class PermanentLinkManager {
     try {
       await this.checkExistingLinks();
       this.initialized = true;
-      console.log('PermanentLinkManager initialized successfully');
+      console.log('LinkManagementService initialized successfully');
     } catch (error) {
       console.error('Error initializing permanent links:', error);
       throw error;
@@ -39,17 +39,16 @@ export class PermanentLinkManager {
       throw new Error(`Failed to check existing links: ${error.message}`);
     }
 
-    // If no links exist, create the initial set
     if (!existingLinks || existingLinks.length === 0) {
       await this.createInitialLinks();
     }
   }
 
   private async createInitialLinks(): Promise<void> {
-    const linksToCreate: Partial<PermanentLink>[] = Array.from({ length: 120 }, (_, i) => ({
+    const linksToCreate = Array.from({ length: 120 }, (_, i) => ({
       url_path: `p${i + 1}`,
       url_key: `p${i + 1}`,
-      status: 'available',
+      status: 'available' as const,
       rotation_count: 0,
       performance_score: 0
     }));
@@ -85,7 +84,7 @@ export class PermanentLinkManager {
       .from('permanent_links')
       .update({
         current_listing_id: listingId,
-        status: 'assigned',
+        status: 'active',
         last_assigned_at: new Date().toISOString()
       })
       .eq('id', linkId);
