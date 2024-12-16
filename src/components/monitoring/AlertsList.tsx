@@ -1,24 +1,36 @@
-import { Alert } from '@/lib/monitoring/types';
-import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
-import { ScrollArea } from '@/components/ui/scroll-area';
+import { Alert } from "@/lib/monitoring/types";
 
 interface AlertsListProps {
   alerts: Alert[];
 }
 
-export function AlertsList({ alerts }: AlertsListProps) {
+export const AlertsList = ({ alerts }: AlertsListProps) => {
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle>System Alerts</CardTitle>
-      </CardHeader>
-      <CardContent>
-        <ScrollArea className="h-[300px]">
-          <div className="space-y-2">
-            {alerts.map((alert, index) => (
-              <div
-                key={index}
-                className={`p-4 rounded-lg ${
+    <div className="space-y-4">
+      <h2 className="text-xl font-semibold">System Alerts</h2>
+      <div className="space-y-2">
+        {alerts.map((alert, index) => (
+          <div
+            key={index}
+            className={`p-4 rounded-lg border ${
+              alert.severity === 'high'
+                ? 'bg-red-50 border-red-200'
+                : alert.severity === 'medium'
+                ? 'bg-yellow-50 border-yellow-200'
+                : 'bg-blue-50 border-blue-200'
+            }`}
+          >
+            <div className="flex justify-between items-start">
+              <div>
+                <h3 className="font-medium">
+                  {alert.metric.replace(/_/g, ' ').toUpperCase()}
+                </h3>
+                <p className="text-sm">
+                  Current value: {alert.value} (Threshold: {alert.threshold})
+                </p>
+              </div>
+              <span
+                className={`px-2 py-1 text-xs rounded ${
                   alert.severity === 'high'
                     ? 'bg-red-100 text-red-800'
                     : alert.severity === 'medium'
@@ -26,17 +38,18 @@ export function AlertsList({ alerts }: AlertsListProps) {
                     : 'bg-blue-100 text-blue-800'
                 }`}
               >
-                <p className="font-medium">
-                  {alert.metric}: {alert.value.toFixed(2)} (Threshold: {alert.threshold})
-                </p>
-                <p className="text-sm">
-                  {alert.timestamp.toLocaleString()}
-                </p>
-              </div>
-            ))}
+                {alert.severity.toUpperCase()}
+              </span>
+            </div>
+            <p className="text-sm text-gray-500 mt-1">
+              {alert.timestamp.toLocaleString()}
+            </p>
           </div>
-        </ScrollArea>
-      </CardContent>
-    </Card>
+        ))}
+        {alerts.length === 0 && (
+          <p className="text-gray-500">No active alerts</p>
+        )}
+      </div>
+    </div>
   );
-}
+};
