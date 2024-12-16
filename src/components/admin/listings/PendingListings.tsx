@@ -1,6 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { LoadingSpinner } from "@/components/loading/LoadingSpinner";
@@ -132,27 +132,24 @@ export function PendingListings() {
         <div className="grid gap-4">
           {pendingListings.map((product) => (
             <Card key={product.id}>
-              <CardHeader>
+              <CardContent className="p-4">
                 <div className="flex justify-between items-start">
                   <div>
-                    <CardTitle>{product.title}</CardTitle>
-                    <p className="text-sm text-muted-foreground mt-1">
+                    <h3 className="font-semibold">{product.title}</h3>
+                    <p className="text-sm text-muted-foreground">
                       by {product.users?.full_name || 'Unknown Seller'}
                     </p>
+                    <div className="mt-2">
+                      <Badge variant="secondary">
+                        {product.currency} {product.price.toLocaleString()}
+                      </Badge>
+                    </div>
+                    {product.users?.whatsapp_number && (
+                      <p className="text-sm text-muted-foreground mt-2">
+                        WhatsApp: {product.users.whatsapp_number}
+                      </p>
+                    )}
                   </div>
-                  <Badge variant="secondary">
-                    {product.currency} {product.price.toLocaleString()}
-                  </Badge>
-                </div>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-4">
-                  <p className="text-sm">{product.description}</p>
-                  {product.users?.whatsapp_number && (
-                    <p className="text-sm text-muted-foreground">
-                      WhatsApp: {product.users.whatsapp_number}
-                    </p>
-                  )}
                   <div className="flex gap-2">
                     <Button
                       onClick={() => handleApprove(product.id)}

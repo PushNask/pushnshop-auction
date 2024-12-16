@@ -38,7 +38,7 @@ const DashboardContent = () => {
     <div className="container mx-auto p-4 md:p-6 space-y-6">
       <h1 className="text-2xl font-bold tracking-tight">Admin Dashboard</h1>
       
-      <Tabs defaultValue="overview" className="space-y-6">
+      <Tabs defaultValue="listings" className="space-y-6">
         <TabsList className="grid w-full grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-2">
           <TabsTrigger value="overview" className="w-full">Overview</TabsTrigger>
           <TabsTrigger value="listings" className="w-full">Listings</TabsTrigger>
