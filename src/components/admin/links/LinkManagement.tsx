@@ -21,7 +21,7 @@ interface ListingWithProduct {
 }
 
 interface PermanentLink extends PermanentLinkRow {
-  listings: ListingWithProduct[] | null;
+  current_listing?: ListingWithProduct;
 }
 
 export function LinkManagement() {
@@ -30,24 +30,48 @@ export function LinkManagement() {
   const { data: links, isLoading, refetch } = useQuery({
     queryKey: ['permanent-links'],
     queryFn: async () => {
-      const { data, error } = await supabase
+      // First get all permanent links
+      const { data: permanentLinks, error: linksError } = await supabase
         .from('permanent_links')
-        .select(`
-          *,
-          listings:listings!permanent_links_current_listing_id_fkey (
-            id,
-            product:products (
-              title,
-              seller:users (
-                full_name
-              )
-            )
-          )
-        `)
+        .select('*')
         .order('id', { ascending: true });
 
-      if (error) throw error;
-      return data as PermanentLink[];
+      if (linksError) throw linksError;
+
+      // Then for each link with a current_listing_id, fetch the listing details
+      const linksWithListings = await Promise.all(
+        permanentLinks.map(async (link) => {
+          if (!link.current_listing_id) {
+            return { ...link, current_listing: undefined };
+          }
+
+          const { data: listing, error: listingError } = await supabase
+            .from('listings')
+            .select(`
+              id,
+              product:products (
+                title,
+                seller:users (
+                  full_name
+                )
+              )
+            `)
+            .eq('id', link.current_listing_id)
+            .single();
+
+          if (listingError) {
+            console.error('Error fetching listing:', listingError);
+            return { ...link, current_listing: undefined };
+          }
+
+          return {
+            ...link,
+            current_listing: listing
+          };
+        })
+      );
+
+      return linksWithListings as PermanentLink[];
     }
   });
 
@@ -116,14 +140,14 @@ export function LinkManagement() {
                     <p className="font-medium">{link.performance_score?.toFixed(2) || '0.00'}</p>
                   </div>
                 </div>
-                {link.listings?.[0] && (
+                {link.current_listing && (
                   <div className="pt-2 border-t">
                     <p className="text-sm text-muted-foreground">Current Product</p>
                     <p className="font-medium">
-                      {link.listings[0].product?.title || 'Unknown Product'}
+                      {link.current_listing.product?.title || 'Unknown Product'}
                     </p>
                     <p className="text-sm text-muted-foreground">
-                      by {link.listings[0].product?.seller?.full_name || 'Unknown Seller'}
+                      by {link.current_listing.product?.seller?.full_name || 'Unknown Seller'}
                     </p>
                   </div>
                 )}
