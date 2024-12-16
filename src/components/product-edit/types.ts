@@ -1,4 +1,4 @@
-import type { Product, ProductImage, Currency } from '@/types/product';
+import type { Product, ProductImage } from '@/types/product';
 
 export interface ProductEditFormProps {
   initialProduct?: Partial<Product>;
@@ -7,6 +7,6 @@ export interface ProductEditFormProps {
 
 export interface FormState extends Partial<Product> {
   images: ProductImage[];
-  currency: Currency;
+  currency: 'XAF' | 'USD';
   status: 'pending' | 'active' | 'draft' | 'expired';
 }

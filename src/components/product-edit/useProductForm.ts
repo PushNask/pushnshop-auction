@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { uploadProductImage } from '@/lib/storage';
-import type { Product, ProductImage } from '@/types/product';
+import type { Product, ProductImage, ProductStatus } from '@/types/product';
 import type { FormState } from './types';
 
 export const useProductForm = (
@@ -57,7 +57,7 @@ export const useProductForm = (
           currency: product.currency,
           quantity: product.quantity,
           seller_id: user.id,
-          status: 'pending',
+          status: 'pending' as ProductStatus,
           promotion_range: product.promotionRange || 'local'
         })
         .select()

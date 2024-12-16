@@ -51,8 +51,9 @@ export const ProductEditForm = ({ initialProduct, onSave }: ProductEditFormProps
             <Label htmlFor="currency">Currency</Label>
             <select
               id="currency"
+              name="currency"
               value={product.currency}
-              onChange={(e) => handleInputChange(e as any)}
+              onChange={handleInputChange}
               className="w-full p-2 border rounded"
             >
               <option value="XAF">XAF</option>
