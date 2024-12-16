@@ -1,78 +1,111 @@
 import { supabase } from '@/integrations/supabase/client';
-import { BaseLinkManager } from './BaseLinkManager';
+import type { PermanentLink } from '@/types/permanent-links';
 
-export class LinkManagementService extends BaseLinkManager {
-  static async initialize() {
+export class PermanentLinkManager {
+  private static instance: PermanentLinkManager;
+  private initialized: boolean = false;
+
+  private constructor() {}
+
+  public static getInstance(): PermanentLinkManager {
+    if (!PermanentLinkManager.instance) {
+      PermanentLinkManager.instance = new PermanentLinkManager();
+    }
+    return PermanentLinkManager.instance;
+  }
+
+  public async initialize(): Promise<void> {
+    if (this.initialized) {
+      return;
+    }
+
     try {
-      const { data: { session } } = await supabase.auth.getSession();
-      
-      if (!session) {
-        console.warn('User not authenticated, skipping permanent links initialization');
-        return;
-      }
-
-      const existingLinks = await this.checkExistingLinks();
-    
-      if (!existingLinks || existingLinks.length === 0) {
-        await this.createInitialLinks();
-      }
+      await this.checkExistingLinks();
+      this.initialized = true;
+      console.log('PermanentLinkManager initialized successfully');
     } catch (error) {
       console.error('Error initializing permanent links:', error);
+      throw error;
     }
   }
 
-  static async releaseLink(productId: string) {
-    try {
-      const { error } = await supabase
-        .from('permanent_links')
-        .update({
-          current_listing_id: null,
-          status: 'available'
-        })
-        .eq('current_listing_id', productId);
+  private async checkExistingLinks(): Promise<void> {
+    const { data: existingLinks, error } = await supabase
+      .from('permanent_links')
+      .select('*')
+      .order('id', { ascending: true });
 
-      if (error) {
-        console.error('Error releasing link:', error);
-      }
-    } catch (error) {
-      console.error('Error in releaseLink:', error);
+    if (error) {
+      throw new Error(`Failed to check existing links: ${error.message}`);
+    }
+
+    // If no links exist, create the initial set
+    if (!existingLinks || existingLinks.length === 0) {
+      await this.createInitialLinks();
     }
   }
 
-  static async recycleExpiredLinks() {
-    try {
-      const { error } = await supabase
-        .from('permanent_links')
-        .update({
-          status: 'available',
-          current_listing_id: null,
-          last_assigned_at: null
-        })
-        .eq('status', 'active')
-        .lt('last_assigned_at', new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString());
+  private async createInitialLinks(): Promise<void> {
+    const linksToCreate: Partial<PermanentLink>[] = Array.from({ length: 120 }, (_, i) => ({
+      url_path: `p${i + 1}`,
+      url_key: `p${i + 1}`,
+      status: 'available',
+      rotation_count: 0,
+      performance_score: 0
+    }));
 
-      if (error) throw error;
-    } catch (error) {
-      console.error('Error recycling expired links:', error);
+    const { error } = await supabase
+      .from('permanent_links')
+      .insert(linksToCreate);
+
+    if (error) {
+      throw new Error(`Failed to create initial links: ${error.message}`);
     }
   }
 
-  static async recycleLink(linkId: number) {
-    try {
-      const { error } = await supabase
-        .from('permanent_links')
-        .update({
-          status: 'available',
-          current_listing_id: null,
-          last_assigned_at: null
-        })
-        .eq('id', linkId);
+  public async getAvailableLink(): Promise<PermanentLink | null> {
+    const { data: link, error } = await supabase
+      .from('permanent_links')
+      .select('*')
+      .eq('status', 'available')
+      .order('rotation_count', { ascending: true })
+      .limit(1)
+      .single();
 
-      if (error) throw error;
+    if (error) {
+      console.error('Error getting available link:', error);
+      return null;
+    }
 
-      await supabase.rpc('increment_rotation_count', { link_id: linkId });
-    } catch (error) {
-      console.error('Error recycling link:', error);
+    return link;
+  }
+
+  public async assignLinkToListing(linkId: number, listingId: string): Promise<boolean> {
+    const { error } = await supabase
+      .from('permanent_links')
+      .update({
+        current_listing_id: listingId,
+        status: 'assigned',
+        last_assigned_at: new Date().toISOString()
+      })
+      .eq('id', linkId);
+
+    if (error) {
+      console.error('Error assigning link to listing:', error);
+      return false;
+    }
+
+    await this.incrementRotationCount(linkId);
+    return true;
+  }
+
+  private async incrementRotationCount(linkId: number): Promise<void> {
+    const { error } = await supabase.rpc('increment_rotation_count', {
+      link_id: linkId
+    });
+
+    if (error) {
+      console.error('Error incrementing rotation count:', error);
     }
   }
 }
