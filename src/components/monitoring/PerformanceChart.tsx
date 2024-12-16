@@ -1,46 +1,37 @@
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
-import type { PerformanceMetric } from '@/types/monitoring';
+import type { PerformanceMetric } from "@/types/monitoring";
 
 interface PerformanceChartProps {
   data: PerformanceMetric[];
+  dataKey: keyof PerformanceMetric;
+  stroke: string;
+  title: string;
 }
 
-export const PerformanceChart = ({ data }: PerformanceChartProps) => {
+export const PerformanceChart = ({ data, dataKey, stroke, title }: PerformanceChartProps) => {
   return (
-    <ResponsiveContainer width="100%" height={300}>
-      <LineChart data={data}>
-        <CartesianGrid strokeDasharray="3 3" />
-        <XAxis 
-          dataKey="created_at" 
-          tickFormatter={(value) => new Date(value).toLocaleTimeString()}
-        />
-        <YAxis yAxisId="left" />
-        <YAxis yAxisId="right" orientation="right" />
-        <Tooltip 
-          labelFormatter={(value) => new Date(value).toLocaleString()}
-        />
-        <Line
-          yAxisId="left"
-          type="monotone"
-          dataKey="response_time"
-          stroke="#0077B6"
-          name="Response Time (ms)"
-        />
-        <Line
-          yAxisId="right"
-          type="monotone"
-          dataKey="error_rate"
-          stroke="#EF4444"
-          name="Error Rate (%)"
-        />
-        <Line
-          yAxisId="left"
-          type="monotone"
-          dataKey="active_users"
-          stroke="#10B981"
-          name="Active Users"
-        />
-      </LineChart>
-    </ResponsiveContainer>
+    <div className="h-[300px] w-full">
+      <h3 className="text-lg font-semibold mb-4">{title}</h3>
+      <ResponsiveContainer width="100%" height="100%">
+        <LineChart data={data} margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
+          <CartesianGrid strokeDasharray="3 3" />
+          <XAxis 
+            dataKey="created_at" 
+            tickFormatter={(value) => new Date(value).toLocaleTimeString()}
+          />
+          <YAxis />
+          <Tooltip 
+            labelFormatter={(value) => new Date(value).toLocaleString()}
+          />
+          <Line 
+            type="monotone" 
+            dataKey={dataKey} 
+            stroke={stroke} 
+            strokeWidth={2}
+            dot={false}
+          />
+        </LineChart>
+      </ResponsiveContainer>
+    </div>
   );
 };
