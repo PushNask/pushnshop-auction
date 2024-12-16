@@ -1,6 +1,6 @@
 import { supabase } from '@/integrations/supabase/client';
 import type { ManagedProduct } from '@/types/product-management';
-import type { Currency, ListingStatus } from '@/types/product';
+import type { Currency } from '@/types/product';
 
 interface ProductAnalytics {
   views: number;
@@ -30,17 +30,31 @@ export const fetchUserProducts = async (userId: string): Promise<ManagedProduct[
 
   if (error) throw error;
 
-  return data.map(product => ({
-    id: product.id,
-    title: product.title,
-    price: product.price,
-    currency: product.currency as Currency,
-    quantity: product.quantity,
-    status: (product.listings?.[0]?.status || 'pending') as ListingStatus,
-    expiresAt: product.listings?.[0]?.end_time || null,
-    views: (product.analytics?.[0] as ProductAnalytics)?.views || 0,
-    whatsappClicks: (product.analytics?.[0] as ProductAnalytics)?.whatsapp_clicks || 0
-  }));
+  return data.map(product => {
+    const analytics = product.analytics?.[0];
+    let views = 0;
+    let whatsappClicks = 0;
+
+    if (analytics && typeof analytics === 'object') {
+      views = (analytics as ProductAnalytics).views || 0;
+      whatsappClicks = (analytics as ProductAnalytics).whatsapp_clicks || 0;
+    }
+
+    const listingStatus = product.listings?.[0]?.status || 'pending';
+    const mappedStatus = listingStatus === 'draft' ? 'pending' : listingStatus as ManagedProduct['status'];
+
+    return {
+      id: product.id,
+      title: product.title,
+      price: product.price,
+      currency: product.currency as Currency,
+      quantity: product.quantity,
+      status: mappedStatus,
+      expiresAt: product.listings?.[0]?.end_time || null,
+      views,
+      whatsappClicks
+    };
+  });
 };
 
 export const updateProductQuantity = async (productId: string, quantity: number): Promise<void> => {
