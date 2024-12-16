@@ -16,7 +16,8 @@ interface PermanentLink {
   rotation_count: number;
   performance_score: number;
   last_assigned_at: string | null;
-  listings: Array<{
+  created_at: string;
+  listings: {
     id: string;
     product: {
       title: string;
@@ -24,20 +25,20 @@ interface PermanentLink {
         full_name: string;
       };
     };
-  }> | null;
+  }[] | null;
 }
 
 export function LinkManagement() {
   const { toast } = useToast();
 
-  const { data: links, isLoading, refetch } = useQuery({
+  const { data: links, isLoading, refetch } = useQuery<PermanentLink[]>({
     queryKey: ['permanent-links'],
     queryFn: async () => {
       const { data, error } = await supabase
         .from('permanent_links')
         .select(`
           *,
-          listings!permanent_links_current_listing_id_fkey (
+          listings:listings!permanent_links_current_listing_id_fkey (
             id,
             product:products (
               title,
@@ -50,7 +51,7 @@ export function LinkManagement() {
         .order('id', { ascending: true });
 
       if (error) throw error;
-      return data as PermanentLink[];
+      return data;
     }
   });
 
