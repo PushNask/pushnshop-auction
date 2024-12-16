@@ -19,7 +19,7 @@ export const ProductEditForm = ({ initialProduct, onSave }: ProductEditFormProps
   const [product, setProduct] = useState<Partial<Product>>({
     images: [],
     currency: 'XAF',
-    status: 'pending', // Set initial status to pending
+    status: 'pending',
     ...initialProduct
   });
 
@@ -67,7 +67,7 @@ export const ProductEditForm = ({ initialProduct, onSave }: ProductEditFormProps
 
       const finalProduct = {
         ...product,
-        status: 'pending', // Ensure status is set to pending
+        status: 'pending',
         images: updatedImages
       } as Product;
 
@@ -119,7 +119,16 @@ export const ProductEditForm = ({ initialProduct, onSave }: ProductEditFormProps
           user_id: user.id
         });
 
-      onSave?.(data as Product);
+      // Convert database response to Product type
+      const productResponse: Product = {
+        ...data,
+        images: updatedImages || [],
+        viewCount: 0,
+        sellerWhatsApp: user.user_metadata?.whatsapp_number || '',
+        sellerId: user.id
+      };
+
+      onSave?.(productResponse);
       
       toast({
         title: "Success",
