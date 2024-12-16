@@ -352,6 +352,7 @@ export type Database = {
           id: string
           payment_status: string | null
           price: number
+          promotion_range: string | null
           quantity: number
           searchable: unknown | null
           seller_id: string
@@ -367,6 +368,7 @@ export type Database = {
           id?: string
           payment_status?: string | null
           price: number
+          promotion_range?: string | null
           quantity: number
           searchable?: unknown | null
           seller_id: string
@@ -382,6 +384,7 @@ export type Database = {
           id?: string
           payment_status?: string | null
           price?: number
+          promotion_range?: string | null
           quantity?: number
           searchable?: unknown | null
           seller_id?: string

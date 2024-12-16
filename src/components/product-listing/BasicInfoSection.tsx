@@ -39,6 +39,7 @@ export const BasicInfoSection = ({
           onChange={onChange}
           placeholder="Product title"
           className={errors.title ? 'border-red-500' : ''}
+          maxLength={80}
         />
         {errors.title && (
           <span className="text-sm text-red-500">{errors.title}</span>
@@ -55,6 +56,7 @@ export const BasicInfoSection = ({
           placeholder="Product description"
           className={errors.description ? 'border-red-500' : ''}
           rows={4}
+          maxLength={2000}
         />
         {errors.description && (
           <span className="text-sm text-red-500">{errors.description}</span>

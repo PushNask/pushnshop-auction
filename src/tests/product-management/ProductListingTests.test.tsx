@@ -20,17 +20,6 @@ vi.mock('@/integrations/supabase/client', () => ({
 
 describe('Product Listing Creation', () => {
   const mockSubmit = vi.fn();
-  const mockFormData: FormData = {
-    title: 'Test Product',
-    description: 'Test Description',
-    price: '100',
-    currency: 'XAF',
-    quantity: '1',
-    duration: '24',
-    whatsappNumber: '+237612345678',
-    promotionRange: 'local',
-    images: []
-  };
 
   beforeEach(() => {
     vi.clearAllMocks();
@@ -61,7 +50,19 @@ describe('Product Listing Creation', () => {
   });
 
   test('handles form submission', async () => {
-    render(<ProductListingForm onSubmit={mockSubmit} initialData={mockFormData} />);
+    const mockFormData: FormData = {
+      title: 'Test Product',
+      description: 'Test Description',
+      price: '100',
+      currency: 'XAF',
+      quantity: '1',
+      duration: '24',
+      whatsappNumber: '+237612345678',
+      promotionRange: 'local',
+      images: []
+    };
+
+    render(<ProductListingForm onSubmit={mockSubmit} />);
     
     const titleInput = screen.getByLabelText(/title/i);
     const priceInput = screen.getByLabelText(/price/i);

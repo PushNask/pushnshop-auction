@@ -13,9 +13,8 @@ import { useToast } from '@/hooks/use-toast';
 import { ImageUploadSection } from './ImageUploadSection';
 import { BasicInfoSection } from './BasicInfoSection';
 import { PriceSection } from './PriceSection';
-import { CategorySection } from './CategorySection';
 import { DurationSection } from './DurationSection';
-import type { ProductImage, Duration } from '@/types/product';
+import type { ProductImage, Duration, PromotionRange } from '@/types/product';
 
 interface FormState {
   title: string;
@@ -24,6 +23,8 @@ interface FormState {
   currency: 'XAF' | 'USD';
   quantity: string;
   duration: Duration;
+  whatsappNumber: string;
+  promotionRange: PromotionRange;
   images: ProductImage[];
 }
 
@@ -39,6 +40,8 @@ export const EnhancedProductForm = () => {
     currency: 'XAF',
     quantity: '1',
     duration: '24',
+    whatsappNumber: '',
+    promotionRange: 'local',
     images: []
   });
 
@@ -115,6 +118,8 @@ export const EnhancedProductForm = () => {
               title={formData.title}
               description={formData.description}
               quantity={formData.quantity}
+              whatsappNumber={formData.whatsappNumber}
+              promotionRange={formData.promotionRange}
               onChange={(e) => {
                 const { name, value } = e.target;
                 setFormData(prev => ({
