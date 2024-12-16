@@ -1,47 +1,45 @@
 import { logger } from './logger';
 import type { BuildError, BuildMetrics, BuildConfig } from './types';
 
-// Import required DOM types
-type WindowWithEvents = {
-  addEventListener: (
+// Define DOM types for browser environment
+interface CustomWindow {
+  addEventListener(
     type: string,
-    listener: (event: Event) => void,
-    options?: boolean | AddEventListenerOptions
-  ) => void;
-};
+    listener: (event: any) => void,
+    options?: { capture?: boolean; once?: boolean; passive?: boolean }
+  ): void;
+}
 
-declare const window: WindowWithEvents | undefined;
+declare const window: CustomWindow | undefined;
 
 export class BuildMonitor {
   private static instance: BuildMonitor;
-  private errors: BuildError[] = [];
+  private config: BuildConfig;
   private metrics: BuildMetrics = {
-    startTime: 0,
+    startTime: Date.now(),
     endTime: 0,
     duration: 0,
-    success: false,
+    success: true,
     errorCount: 0,
     warningCount: 0
   };
 
-  private constructor() {
-    // Only set up error handlers in browser environment
-    if (typeof window !== 'undefined') {
-      this.setupErrorHandlers();
-    }
+  private constructor(config: BuildConfig) {
+    this.config = config;
+    this.setupErrorHandlers();
   }
 
-  static getInstance(): BuildMonitor {
+  public static getInstance(config: BuildConfig): BuildMonitor {
     if (!BuildMonitor.instance) {
-      BuildMonitor.instance = new BuildMonitor();
+      BuildMonitor.instance = new BuildMonitor(config);
     }
     return BuildMonitor.instance;
   }
 
   private setupErrorHandlers() {
     if (typeof window !== 'undefined') {
-      window.addEventListener('error', (event: Event) => {
-        const errorEvent = event as unknown as { 
+      window.addEventListener('error', (event: any) => {
+        const errorEvent = event as { 
           error?: { message: string; stack?: string } 
         };
         
@@ -53,8 +51,8 @@ export class BuildMonitor {
         });
       });
 
-      window.addEventListener('unhandledrejection', (event: Event) => {
-        const promiseEvent = event as unknown as { 
+      window.addEventListener('unhandledrejection', (event: any) => {
+        const promiseEvent = event as { 
           reason?: { message: string; stack?: string } 
         };
         
@@ -68,79 +66,23 @@ export class BuildMonitor {
     }
   }
 
-  startBuild() {
-    this.metrics.startTime = performance.now();
+  private logBuildError(error: BuildError) {
+    this.metrics.errorCount++;
     this.metrics.success = false;
-    this.errors = [];
-    logger.info('Build started');
-  }
-
-  endBuild(success: boolean) {
-    this.metrics.endTime = performance.now();
-    this.metrics.duration = this.metrics.endTime - this.metrics.startTime;
-    this.metrics.success = success;
     
-    logger.info('Build completed', {
-      success,
-      duration: this.metrics.duration,
-      errors: this.errors.length
-    });
-
-    if (this.errors.length > 0) {
-      this.generateErrorReport();
+    if (this.config.errorReporting) {
+      logger.error('Build Error:', {
+        type: error.type,
+        message: error.message,
+        stack: error.stack,
+        timestamp: error.timestamp
+      });
     }
   }
 
-  logBuildError(error: BuildError) {
-    this.errors.push(error);
-    this.metrics.errorCount++;
-    
-    logger.error('Build error:', {
-      error,
-      buildMetrics: this.metrics
-    });
-  }
-
-  private generateErrorReport() {
-    const report = {
-      timestamp: new Date().toISOString(),
-      metrics: this.metrics,
-      errors: this.errors,
-      suggestions: this.generateSuggestions()
-    };
-
-    logger.info('Build error report generated', report);
-    return report;
-  }
-
-  private generateSuggestions(): string[] {
-    const suggestions: string[] = [];
-    
-    this.errors.forEach(error => {
-      if (error.message.includes('TypeScript')) {
-        suggestions.push('Check for type mismatches in your components');
-      }
-      if (error.message.includes('import')) {
-        suggestions.push('Verify all import paths are correct');
-      }
-      if (error.message.includes('undefined')) {
-        suggestions.push('Check for undefined variables or properties');
-      }
-    });
-
-    return [...new Set(suggestions)]; // Remove duplicates
-  }
-
-  getMetrics(): BuildMetrics {
-    return { ...this.metrics };
-  }
-
-  getErrors(): BuildError[] {
-    return [...this.errors];
-  }
-
-  clearErrors() {
-    this.errors = [];
-    this.metrics.errorCount = 0;
+  public getMetrics(): BuildMetrics {
+    this.metrics.endTime = Date.now();
+    this.metrics.duration = this.metrics.endTime - this.metrics.startTime;
+    return this.metrics;
   }
 }
