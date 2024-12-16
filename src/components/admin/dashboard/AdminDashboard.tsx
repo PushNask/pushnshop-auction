@@ -4,6 +4,7 @@ import { StatsOverview } from "./StatsOverview";
 import { PaymentVerification } from "./PaymentVerification";
 import { UserManagement } from "../users/UserManagement";
 import { PendingListings } from "../listings/PendingListings";
+import { LinkManagement } from "../links/LinkManagement";
 import { AdminAuthCheck } from "./AdminAuthCheck";
 import { AdminMetricsProvider, useAdminMetrics } from "./AdminMetricsProvider";
 
@@ -26,6 +27,7 @@ const DashboardContent = () => {
         <TabsList>
           <TabsTrigger value="overview">Overview</TabsTrigger>
           <TabsTrigger value="listings">Listings</TabsTrigger>
+          <TabsTrigger value="links">Links</TabsTrigger>
           <TabsTrigger value="payments">Payments</TabsTrigger>
           <TabsTrigger value="users">Users</TabsTrigger>
         </TabsList>
@@ -36,6 +38,10 @@ const DashboardContent = () => {
 
         <TabsContent value="listings">
           <PendingListings />
+        </TabsContent>
+
+        <TabsContent value="links">
+          <LinkManagement />
         </TabsContent>
 
         <TabsContent value="payments">
