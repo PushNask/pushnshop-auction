@@ -19,6 +19,7 @@ export const ProductEditForm = ({ initialProduct, onSave }: ProductEditFormProps
   const [product, setProduct] = useState<Partial<Product>>({
     images: [],
     currency: 'XAF',
+    status: 'pending', // Set initial status to pending
     ...initialProduct
   });
 
@@ -58,7 +59,7 @@ export const ProductEditForm = ({ initialProduct, onSave }: ProductEditFormProps
       
       const uploadedUrls = await Promise.all(uploadPromises || []);
       
-      // Update product with new image URLs
+      // Update product with new image URLs and ensure status is 'pending'
       const updatedImages = product.images?.map((img, index) => ({
         ...img,
         url: img.file ? uploadedUrls[index] : img.url
@@ -66,14 +67,53 @@ export const ProductEditForm = ({ initialProduct, onSave }: ProductEditFormProps
 
       const finalProduct = {
         ...product,
+        status: 'pending', // Ensure status is set to pending
         images: updatedImages
       } as Product;
+
+      // Get the current user's ID
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error('User not authenticated');
+
+      // Insert the product with seller_id and pending status
+      const { data, error } = await supabase
+        .from('products')
+        .insert({
+          title: finalProduct.title,
+          description: finalProduct.description,
+          price: finalProduct.price,
+          currency: finalProduct.currency,
+          quantity: finalProduct.quantity,
+          seller_id: user.id,
+          status: 'pending',
+          promotion_range: finalProduct.promotionRange || 'local'
+        })
+        .select()
+        .single();
+
+      if (error) throw error;
+
+      // Insert product images
+      if (updatedImages && updatedImages.length > 0) {
+        const { error: imageError } = await supabase
+          .from('product_images')
+          .insert(
+            updatedImages.map((img, index) => ({
+              product_id: data.id,
+              url: img.url,
+              alt: img.alt || finalProduct.title,
+              order_number: index + 1
+            }))
+          );
+
+        if (imageError) throw imageError;
+      }
 
       onSave?.(finalProduct);
       
       toast({
         title: "Success",
-        description: "Product updated successfully",
+        description: "Product submitted for approval",
       });
     } catch (error) {
       console.error('Error saving product:', error);

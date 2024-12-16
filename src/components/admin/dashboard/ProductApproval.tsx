@@ -19,6 +19,8 @@ export const ProductApproval = () => {
   const fetchPendingProducts = async () => {
     try {
       setIsLoading(true);
+      console.log('Fetching pending products...'); // Debug log
+
       const { data, error } = await supabase
         .from('products')
         .select(`
@@ -32,7 +34,12 @@ export const ProductApproval = () => {
         .eq('status', 'pending')
         .order('created_at', { ascending: false });
 
-      if (error) throw error;
+      if (error) {
+        console.error('Error fetching products:', error); // Debug log
+        throw error;
+      }
+
+      console.log('Fetched products:', data); // Debug log
 
       const mappedProducts = (data || []).map(dbProduct => mapDbProductToProduct(dbProduct));
       setPendingProducts(mappedProducts);
@@ -125,6 +132,15 @@ export const ProductApproval = () => {
                         <p className="text-sm">WhatsApp: {product.sellerWhatsApp}</p>
                       )}
                     </div>
+                    {product.images && product.images.length > 0 && (
+                      <div className="mt-2">
+                        <img
+                          src={product.images[0].url}
+                          alt={product.images[0].alt}
+                          className="w-24 h-24 object-cover rounded"
+                        />
+                      </div>
+                    )}
                   </div>
                   <div className="flex gap-2">
                     <Button

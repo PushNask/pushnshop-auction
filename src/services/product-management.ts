@@ -16,6 +16,7 @@ export const fetchUserProducts = async (userId: string): Promise<ManagedProduct[
       price,
       currency,
       quantity,
+      status,
       listings (
         status,
         end_time
@@ -31,33 +32,19 @@ export const fetchUserProducts = async (userId: string): Promise<ManagedProduct[
   if (error) throw error;
 
   return data.map(product => {
-    const analytics = product.analytics?.[0];
-    let views = 0;
-    let whatsappClicks = 0;
-
-    if (analytics && typeof analytics === 'object') {
-      const typedAnalytics = analytics as unknown as ProductAnalytics;
-      views = typedAnalytics.views || 0;
-      whatsappClicks = typedAnalytics.whatsapp_clicks || 0;
-    }
-
-    const listingStatus = product.listings?.[0]?.status || 'pending';
-    // Ensure the status is one of the allowed values in ManagedProduct
-    const mappedStatus: ManagedProduct['status'] = 
-      listingStatus === 'draft' || listingStatus === 'pending' ? 'pending' :
-      listingStatus === 'active' ? 'active' :
-      'expired';
-
+    const analytics = product.analytics?.[0] as ProductAnalytics | undefined;
+    
     return {
       id: product.id,
       title: product.title,
       price: product.price,
       currency: product.currency as Currency,
       quantity: product.quantity,
-      status: mappedStatus,
+      status: product.status === 'active' ? 'active' : 
+             product.status === 'pending' ? 'pending' : 'expired',
       expiresAt: product.listings?.[0]?.end_time || null,
-      views,
-      whatsappClicks
+      views: analytics?.views || 0,
+      whatsappClicks: analytics?.whatsapp_clicks || 0
     };
   });
 };
