@@ -108,7 +108,7 @@ export const BasicInfoSection = ({
             <SelectValue placeholder="Select promotion range" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="local">Local (City)</SelectItem>
+            <SelectItem value="local">Local</SelectItem>
             <SelectItem value="regional">Regional</SelectItem>
             <SelectItem value="national">National</SelectItem>
             <SelectItem value="international">International</SelectItem>

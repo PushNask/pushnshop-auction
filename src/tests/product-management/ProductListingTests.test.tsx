@@ -39,7 +39,7 @@ describe('Product Listing Creation', () => {
   test('validates required fields', async () => {
     render(<ProductListingForm onSubmit={mockSubmit} />);
     
-    const submitButton = screen.getByRole('button', { name: /save/i });
+    const submitButton = screen.getByRole('button', { name: /create listing/i });
     fireEvent.click(submitButton);
 
     await waitFor(() => {

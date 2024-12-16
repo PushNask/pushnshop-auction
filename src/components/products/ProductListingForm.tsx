@@ -1,13 +1,13 @@
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { Loader2 } from 'lucide-react';
+import { Loader2, AlertCircle } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import type { FormData, ApiResponse } from '@/types/product-form';
+import type { FormData, ApiResponse, PromotionRange } from '@/types/product-form';
 import { ImageUploadSection } from '../product-listing/ImageUploadSection';
+import { BasicInfoSection } from '../product-listing/BasicInfoSection';
+import { PriceSection } from '../product-listing/PriceSection';
+import { DurationSection } from '../product-listing/DurationSection';
 
 interface ProductListingFormProps {
   onSubmit: (data: FormData) => Promise<ApiResponse<any>>;
@@ -29,13 +29,12 @@ export const ProductListingForm = ({
     quantity: '1',
     duration: '24',
     whatsappNumber: '',
-    promotionRange: 'local', // new field
+    promotionRange: 'local',
     images: [],
     ...initialData
   });
 
   const validateWhatsappNumber = (number: string) => {
-    // Basic WhatsApp number validation
     const whatsappRegex = /^\+?[1-9]\d{1,14}$/;
     return whatsappRegex.test(number);
   };
@@ -99,77 +98,63 @@ export const ProductListingForm = ({
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
       <div className="space-y-4">
-        <Input
-          placeholder="Title"
-          value={formData.title}
-          onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-          required
-        />
-        
-        <Textarea
-          placeholder="Description"
-          value={formData.description}
-          onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-          required
-        />
-
-        <div className="grid grid-cols-2 gap-4">
-          <Input
-            type="number"
-            placeholder="Price"
-            value={formData.price}
-            onChange={(e) => setFormData({ ...formData, price: e.target.value })}
-            required
-          />
-
-          <Select
-            value={formData.currency}
-            onValueChange={(value) => setFormData({ ...formData, currency: value as 'XAF' | 'USD' })}
-          >
-            <SelectTrigger>
-              <SelectValue placeholder="Currency" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="XAF">XAF</SelectItem>
-              <SelectItem value="USD">USD</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
-
-        <Input
-          placeholder="WhatsApp Number (e.g., +237xxxxxxxxx)"
-          value={formData.whatsappNumber}
-          onChange={(e) => setFormData({ ...formData, whatsappNumber: e.target.value })}
-          required
-        />
-
-        <Select
-          value={formData.promotionRange}
-          onValueChange={(value) => setFormData({ ...formData, promotionRange: value })}
-        >
-          <SelectTrigger>
-            <SelectValue placeholder="Promotion Range" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="local">Local (City)</SelectItem>
-            <SelectItem value="regional">Regional</SelectItem>
-            <SelectItem value="national">National</SelectItem>
-            <SelectItem value="international">International</SelectItem>
-          </SelectContent>
-        </Select>
-
         <ImageUploadSection
           images={formData.images}
           onImagesChange={(images) => setFormData({ ...formData, images })}
         />
 
+        <BasicInfoSection
+          title={formData.title}
+          description={formData.description}
+          quantity={formData.quantity}
+          whatsappNumber={formData.whatsappNumber}
+          promotionRange={formData.promotionRange as PromotionRange}
+          onChange={(e) => {
+            const { name, value } = e.target;
+            setFormData(prev => ({
+              ...prev,
+              [name]: value
+            }));
+          }}
+          errors={{}}
+        />
+
+        <div className="grid grid-cols-2 gap-4">
+          <PriceSection
+            price={formData.price}
+            currency={formData.currency}
+            onPriceChange={(e) => setFormData(prev => ({
+              ...prev,
+              price: e.target.value
+            }))}
+            onCurrencyChange={(value) => setFormData(prev => ({
+              ...prev,
+              currency: value
+            }))}
+          />
+
+          <DurationSection
+            duration={formData.duration as '24' | '48' | '72' | '96' | '120'}
+            currency={formData.currency}
+            onDurationChange={(value) => setFormData(prev => ({
+              ...prev,
+              duration: value
+            }))}
+          />
+        </div>
+
         {error && (
           <Alert variant="destructive">
+            <AlertCircle className="h-4 w-4" />
             <AlertDescription>{error}</AlertDescription>
           </Alert>
         )}
 
-        <Button type="submit" disabled={loading} className="w-full">
+        <Button 
+          type="submit" 
+          disabled={loading}
+          className="w-full"
+        >
           {loading ? (
             <>
               <Loader2 className="mr-2 h-4 w-4 animate-spin" />

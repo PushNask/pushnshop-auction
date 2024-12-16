@@ -42,7 +42,7 @@ export const DurationSection = ({
           {(Object.keys(DURATION_PRICES) as Duration[]).map((hours) => (
             <SelectItem key={hours} value={hours}>
               {hours} hours - {currency === 'XAF' 
-                ? `XAF ${DURATION_PRICES[hours].XAF.toLocaleString()}`
+                ? `${DURATION_PRICES[hours].XAF.toLocaleString()} XAF`
                 : `$${DURATION_PRICES[hours].USD}`
               }
             </SelectItem>
