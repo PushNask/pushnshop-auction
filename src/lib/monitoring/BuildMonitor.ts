@@ -28,20 +28,22 @@ export class BuildMonitor {
 
   private setupErrorHandlers() {
     if (typeof window !== 'undefined') {
-      window.addEventListener('error', (event: ErrorEvent) => {
+      window.addEventListener('error', (event: Event) => {
+        const errorEvent = event as ErrorEvent;
         this.logBuildError({
           type: 'runtime',
-          message: event.error.message,
-          stack: event.error.stack,
+          message: errorEvent.error.message,
+          stack: errorEvent.error.stack,
           timestamp: new Date().toISOString()
         });
       });
 
-      window.addEventListener('unhandledrejection', (event: PromiseRejectionEvent) => {
+      window.addEventListener('unhandledrejection', (event: Event) => {
+        const promiseEvent = event as PromiseRejectionEvent;
         this.logBuildError({
           type: 'promise',
-          message: event.reason.message,
-          stack: event.reason.stack,
+          message: promiseEvent.reason.message,
+          stack: promiseEvent.reason.stack,
           timestamp: new Date().toISOString()
         });
       });

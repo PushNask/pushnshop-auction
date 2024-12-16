@@ -2,10 +2,28 @@ import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react-swc";
 import path from "path";
 import { componentTagger } from "lovable-tagger";
-import type { ConfigEnv, UserConfig } from 'vite';
+import type { ConfigEnv, UserConfig, Plugin, PluginOption } from 'vite';
 import { BuildMonitor } from './src/lib/monitoring/BuildMonitor';
 
 const buildMonitor = BuildMonitor.getInstance();
+
+const buildMonitorPlugin: Plugin = {
+  name: 'build-monitor',
+  buildStart() {
+    buildMonitor.startBuild();
+  },
+  buildEnd(error?: Error) {
+    if (error) {
+      buildMonitor.logBuildError({
+        type: 'compile',
+        message: error.message,
+        stack: error.stack,
+        timestamp: new Date().toISOString()
+      });
+    }
+    buildMonitor.endBuild(!error);
+  }
+};
 
 export default defineConfig(({ mode }: ConfigEnv): UserConfig => ({
   server: {
@@ -15,24 +33,8 @@ export default defineConfig(({ mode }: ConfigEnv): UserConfig => ({
   plugins: [
     react(),
     mode === 'development' && componentTagger(),
-    {
-      name: 'build-monitor',
-      buildStart() {
-        buildMonitor.startBuild();
-      },
-      buildEnd(error: Error | null) {
-        if (error) {
-          buildMonitor.logBuildError({
-            type: 'compile',
-            message: error.message,
-            stack: error.stack,
-            timestamp: new Date().toISOString()
-          });
-        }
-        buildMonitor.endBuild(!error);
-      }
-    }
-  ].filter(Boolean),
+    buildMonitorPlugin
+  ].filter(Boolean as unknown as (<T>(x: T | false) => x is T)),
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./src"),

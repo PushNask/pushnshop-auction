@@ -32,7 +32,7 @@ export interface SystemMetrics {
 }
 
 export interface Alert {
-  metric: string;
+  metric: keyof SystemMetrics;
   value: number;
   threshold: number;
   severity: 'high' | 'medium' | 'low';
