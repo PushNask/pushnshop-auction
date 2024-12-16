@@ -24,12 +24,17 @@ export class BuildMonitor {
     warningCount: 0
   };
 
-  private constructor(config: BuildConfig) {
+  private constructor(config: BuildConfig = {
+    environment: 'development',
+    verbose: true,
+    errorReporting: true,
+    metrics: true
+  }) {
     this.config = config;
     this.setupErrorHandlers();
   }
 
-  public static getInstance(config: BuildConfig): BuildMonitor {
+  public static getInstance(config?: BuildConfig): BuildMonitor {
     if (!BuildMonitor.instance) {
       BuildMonitor.instance = new BuildMonitor(config);
     }
@@ -66,7 +71,27 @@ export class BuildMonitor {
     }
   }
 
-  private logBuildError(error: BuildError) {
+  public startBuild(): void {
+    this.metrics.startTime = Date.now();
+    this.metrics.success = true;
+    this.metrics.errorCount = 0;
+    this.metrics.warningCount = 0;
+    logger.info('Build started');
+  }
+
+  public endBuild(success: boolean): void {
+    this.metrics.endTime = Date.now();
+    this.metrics.duration = this.metrics.endTime - this.metrics.startTime;
+    this.metrics.success = success;
+    
+    logger.info('Build completed', {
+      success,
+      duration: this.metrics.duration,
+      errorCount: this.metrics.errorCount
+    });
+  }
+
+  public logBuildError(error: BuildError): void {
     this.metrics.errorCount++;
     this.metrics.success = false;
     
@@ -83,6 +108,6 @@ export class BuildMonitor {
   public getMetrics(): BuildMetrics {
     this.metrics.endTime = Date.now();
     this.metrics.duration = this.metrics.endTime - this.metrics.startTime;
-    return this.metrics;
+    return { ...this.metrics };
   }
 }

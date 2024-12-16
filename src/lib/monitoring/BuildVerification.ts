@@ -7,8 +7,8 @@ export class BuildVerification {
   private config: BuildConfig;
 
   constructor(config: BuildConfig) {
-    this.monitor = BuildMonitor.getInstance();
     this.config = config;
+    this.monitor = BuildMonitor.getInstance(config);
   }
 
   async verifyBuild(): Promise<boolean> {

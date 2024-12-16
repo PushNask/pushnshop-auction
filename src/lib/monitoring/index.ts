@@ -2,9 +2,14 @@ export * from './BuildMonitor';
 export * from './BuildVerification';
 export * from './types';
 
-// Initialize build monitoring
+// Initialize build monitoring with default config
 import { BuildMonitor } from './BuildMonitor';
-const buildMonitor = BuildMonitor.getInstance();
+const buildMonitor = BuildMonitor.getInstance({
+  environment: 'development',
+  verbose: true,
+  errorReporting: true,
+  metrics: true
+});
 
 // Export a convenience function for logging build errors
 export const logBuildError = (error: Error, metadata?: Record<string, any>) => {
