@@ -1,72 +1,74 @@
-import { Suspense, lazy } from "react";
-import { Toaster } from "@/components/ui/toaster";
-import { Toaster as Sonner } from "@/components/ui/sonner";
-import { TooltipProvider } from "@/components/ui/tooltip";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
-import { ErrorBoundaryWrapper } from "@/components/monitoring/ErrorBoundaryWrapper";
-import { ThemeProvider } from "next-themes";
-import { Header } from "@/components/Header";
-import "@/i18n/config";
+import { Routes, Route } from 'react-router-dom';
+import { Toaster } from '@/components/ui/toaster';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
+import { AuthProvider } from '@/providers/AuthProvider';
+import { ThemeProvider } from '@/providers/ThemeProvider';
+import { LayoutProvider } from '@/providers/LayoutProvider';
+import { ErrorBoundary } from '@/components/error/ErrorBoundary';
+import { Layout } from '@/components/layout/Layout';
+import { ProtectedRoute } from '@/components/auth/ProtectedRoute';
+import { AdminRoute } from '@/components/admin/AdminRoute';
 
-// Lazy load route components
-const HomePage = lazy(() => import("@/pages/HomePage"));
-const AuthForm = lazy(() => import("@/components/auth/AuthForm"));
-const AboutPage = lazy(() => import("@/pages/AboutPage"));
-const ProductsPage = lazy(() => import("@/pages/ProductsPage"));
-const DashboardPage = lazy(() => import("@/pages/DashboardPage"));
-const AdminDashboard = lazy(() => import("@/components/admin/dashboard/AdminDashboard"));
-const UserManagement = lazy(() => import("@/components/admin/users/UserManagement"));
-const SystemMonitoring = lazy(() => import("@/components/admin/monitoring/SystemMonitoring"));
-const ProfilePage = lazy(() => import("@/pages/ProfilePage"));
-const SellPage = lazy(() => import("@/pages/SellPage"));
+// Pages
+import Home from '@/pages/Home';
+import Login from '@/pages/auth/Login';
+import Register from '@/pages/auth/Register';
+import Profile from '@/pages/Profile';
+import Products from '@/pages/Products';
+import ProductDetails from '@/pages/ProductDetails';
+import CreateProduct from '@/pages/CreateProduct';
+import EditProduct from '@/pages/EditProduct';
+import AdminDashboard from '@/pages/admin/AdminDashboard';
+import PermanentLinks from '@/pages/PermanentLinks';
+import NotFound from '@/pages/NotFound';
 
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
+      staleTime: 1000 * 60 * 5,
       retry: 1,
-      refetchOnWindowFocus: false,
-      staleTime: 5 * 60 * 1000, // 5 minutes
     },
   },
 });
 
-const App = () => (
-  <QueryClientProvider client={queryClient}>
-    <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
-      <TooltipProvider>
-        <ErrorBoundaryWrapper>
-          <div className="min-h-screen bg-background">
-            <Toaster />
-            <Sonner />
-            <BrowserRouter>
-              <Header />
-              <div className="pt-16">
-                <Suspense fallback={
-                  <div className="flex items-center justify-center min-h-screen">
-                    <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
-                  </div>
-                }>
-                  <Routes>
-                    <Route path="/" element={<HomePage />} />
-                    <Route path="/auth" element={<AuthForm />} />
-                    <Route path="/about" element={<AboutPage />} />
-                    <Route path="/products" element={<ProductsPage />} />
-                    <Route path="/dashboard" element={<DashboardPage />} />
+const App = () => {
+  return (
+    <ErrorBoundary>
+      <QueryClientProvider client={queryClient}>
+        <ThemeProvider>
+          <AuthProvider>
+            <LayoutProvider>
+              <Layout>
+                <Routes>
+                  <Route path="/" element={<Home />} />
+                  <Route path="/login" element={<Login />} />
+                  <Route path="/register" element={<Register />} />
+                  
+                  <Route element={<ProtectedRoute />}>
+                    <Route path="/profile" element={<Profile />} />
+                    <Route path="/products" element={<Products />} />
+                    <Route path="/products/:id" element={<ProductDetails />} />
+                    <Route path="/products/create" element={<CreateProduct />} />
+                    <Route path="/products/edit/:id" element={<EditProduct />} />
+                  </Route>
+
+                  <Route element={<AdminRoute />}>
                     <Route path="/admin" element={<AdminDashboard />} />
-                    <Route path="/admin/users" element={<UserManagement />} />
-                    <Route path="/admin/monitoring" element={<SystemMonitoring />} />
-                    <Route path="/profile" element={<ProfilePage />} />
-                    <Route path="/sell" element={<SellPage />} />
-                  </Routes>
-                </Suspense>
-              </div>
-            </BrowserRouter>
-          </div>
-        </ErrorBoundaryWrapper>
-      </TooltipProvider>
-    </ThemeProvider>
-  </QueryClientProvider>
-);
+                    <Route path="/permanent-links" element={<PermanentLinks />} />
+                  </Route>
+
+                  <Route path="*" element={<NotFound />} />
+                </Routes>
+              </Layout>
+            </LayoutProvider>
+          </AuthProvider>
+          <Toaster />
+        </ThemeProvider>
+        <ReactQueryDevtools initialIsOpen={false} />
+      </QueryClientProvider>
+    </ErrorBoundary>
+  );
+};
 
 export default App;
