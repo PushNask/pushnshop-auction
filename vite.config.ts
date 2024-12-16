@@ -11,6 +11,10 @@ const buildMonitorPlugin: Plugin = {
   name: 'build-monitor',
   buildStart() {
     buildMonitor.startBuild();
+    console.log('Build started with environment variables:', {
+      VITE_SUPABASE_URL: process.env.VITE_SUPABASE_URL ? 'set' : 'not set',
+      VITE_SUPABASE_ANON_KEY: process.env.VITE_SUPABASE_ANON_KEY ? 'set' : 'not set',
+    });
   },
   buildEnd(error?: Error) {
     if (error) {
@@ -43,10 +47,17 @@ export default defineConfig(({ mode }: ConfigEnv): UserConfig => ({
   build: {
     outDir: 'dist',
     sourcemap: true,
+    // Ensure clean builds
+    emptyOutDir: true,
+    // Improve caching
+    manifest: true,
+    // Optimize chunks
     rollupOptions: {
       output: {
         manualChunks: {
           vendor: ['react', 'react-dom', 'react-router-dom'],
+          ui: ['@radix-ui/react-dialog', '@radix-ui/react-slot'],
+          supabase: ['@supabase/supabase-js']
         },
         chunkFileNames: 'assets/js/[name].[hash].js',
         entryFileNames: 'assets/js/[name].[hash].js',
@@ -70,5 +81,12 @@ export default defineConfig(({ mode }: ConfigEnv): UserConfig => ({
         },
       },
     },
+    // Add build time environment validation
+    assetsInlineLimit: 4096,
   },
+  // Add environment variable validation
+  define: {
+    __VITE_SUPABASE_URL__: JSON.stringify(process.env.VITE_SUPABASE_URL),
+    __VITE_SUPABASE_ANON_KEY__: JSON.stringify(process.env.VITE_SUPABASE_ANON_KEY),
+  }
 }));

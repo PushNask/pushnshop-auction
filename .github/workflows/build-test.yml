@@ -23,6 +23,16 @@ jobs:
         node-version: ${{ matrix.node-version }}
         cache: 'npm'
 
+    - name: Cache dependencies
+      uses: actions/cache@v3
+      with:
+        path: |
+          **/node_modules
+          ~/.npm
+        key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+        restore-keys: |
+          ${{ runner.os }}-node-
+
     - name: Install dependencies
       run: npm ci
 
@@ -33,6 +43,9 @@ jobs:
 
     - name: Run Tests
       run: npm run test
+
+    - name: Clear dist directory
+      run: rm -rf dist || true
 
     - name: Run Build
       run: npm run build
@@ -63,3 +76,8 @@ jobs:
             title: `Build Failed: ${new Date().toISOString()}`,
             body: 'Build or tests failed. Please check the workflow logs for details.'
           });
+
+    - name: Cache Invalidation Check
+      run: |
+        echo "Checking for cached files..."
+        find dist -type f -exec sha256sum {} \;
