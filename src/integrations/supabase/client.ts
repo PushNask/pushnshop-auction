@@ -22,6 +22,20 @@ export const supabase = createClient<Database>(
       headers: {
         'X-Client-Info': 'pushnshop-web'
       }
+    },
+    db: {
+      schema: 'public'
     }
   }
 );
+
+// Add error handling for failed requests
+supabase.auth.onAuthStateChange((event, session) => {
+  if (event === 'SIGNED_OUT') {
+    console.log('User signed out');
+  } else if (event === 'SIGNED_IN') {
+    console.log('User signed in');
+  } else if (event === 'TOKEN_REFRESHED') {
+    console.log('Token refreshed');
+  }
+});

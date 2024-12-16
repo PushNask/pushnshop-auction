@@ -13,6 +13,18 @@ export class PermanentLinkManager {
   static getProductByLink = ProductLinkResolver.getProductByLink;
   static getNextAvailableLink = ProductLinkResolver.getNextAvailableLink;
 
+  static async releaseLink(listingId: string): Promise<void> {
+    return await this.linkManagementService.releaseLink(listingId);
+  }
+
+  static async recycleExpiredLinks(): Promise<void> {
+    return await this.linkManagementService.recycleExpiredLinks();
+  }
+
+  static async recycleLink(linkId: number): Promise<void> {
+    return await this.linkManagementService.recycleLink(linkId);
+  }
+
   static async assignLinkToListing(linkId: number, listingId: string): Promise<boolean> {
     return await this.linkManagementService.assignLinkToListing(linkId, listingId);
   }

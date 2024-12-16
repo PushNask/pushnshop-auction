@@ -98,6 +98,52 @@ export class LinkManagementService {
     return true;
   }
 
+  public async releaseLink(listingId: string): Promise<void> {
+    const { error } = await supabase
+      .from('permanent_links')
+      .update({
+        current_listing_id: null,
+        status: 'available'
+      })
+      .eq('current_listing_id', listingId);
+
+    if (error) {
+      console.error('Error releasing link:', error);
+      throw error;
+    }
+  }
+
+  public async recycleExpiredLinks(): Promise<void> {
+    const { error } = await supabase
+      .from('permanent_links')
+      .update({
+        current_listing_id: null,
+        status: 'available'
+      })
+      .eq('status', 'active')
+      .lt('last_assigned_at', new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString());
+
+    if (error) {
+      console.error('Error recycling expired links:', error);
+      throw error;
+    }
+  }
+
+  public async recycleLink(linkId: number): Promise<void> {
+    const { error } = await supabase
+      .from('permanent_links')
+      .update({
+        current_listing_id: null,
+        status: 'available'
+      })
+      .eq('id', linkId);
+
+    if (error) {
+      console.error('Error recycling link:', error);
+      throw error;
+    }
+  }
+
   private async incrementRotationCount(linkId: number): Promise<void> {
     const { error } = await supabase.rpc('increment_rotation_count', {
       link_id: linkId
