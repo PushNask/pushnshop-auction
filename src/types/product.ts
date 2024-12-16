@@ -6,6 +6,8 @@ export type ProductStatus = 'draft' | 'pending' | 'active' | 'expired';
 
 export type ListingStatus = ProductStatus;
 
+export type PromotionRange = 'local' | 'regional' | 'national' | 'international';
+
 export interface ProductImage {
   id: string;
   url: string;
@@ -34,6 +36,7 @@ export interface Product {
   createdAt?: string;
   expiresAt?: string;
   paymentStatus?: string;
+  promotionRange?: PromotionRange;
 }
 
 export interface DbProduct {
@@ -49,6 +52,7 @@ export interface DbProduct {
   created_at: string;
   updated_at: string;
   end_time?: string;
+  promotion_range?: string;
   product_images: {
     id: string;
     url: string;

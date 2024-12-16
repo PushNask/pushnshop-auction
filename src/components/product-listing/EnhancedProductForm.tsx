@@ -76,7 +76,9 @@ export const EnhancedProductForm = () => {
         price: '',
         currency: 'XAF',
         quantity: '1',
-        duration: '24' as Duration,
+        duration: '24',
+        whatsappNumber: '',
+        promotionRange: 'local',
         images: []
       });
       setImages([]);
@@ -140,7 +142,7 @@ export const EnhancedProductForm = () => {
                 }))}
                 onCurrencyChange={(value) => setFormData(prev => ({
                   ...prev,
-                  currency: value as 'XAF' | 'USD'
+                  currency: value
                 }))}
               />
 
