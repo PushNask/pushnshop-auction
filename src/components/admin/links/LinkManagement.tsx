@@ -16,7 +16,7 @@ interface PermanentLink {
   rotation_count: number;
   performance_score: number;
   last_assigned_at: string | null;
-  listings: {
+  listings: Array<{
     id: string;
     product: {
       title: string;
@@ -24,7 +24,7 @@ interface PermanentLink {
         full_name: string;
       };
     };
-  }[];
+  }>;
 }
 
 export function LinkManagement() {
