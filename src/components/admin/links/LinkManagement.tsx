@@ -20,7 +20,7 @@ interface ListingWithProduct {
   };
 }
 
-interface PermanentLink extends PermanentLinkRow {
+interface PermanentLink extends Omit<PermanentLinkRow, 'current_listing_id'> {
   current_listing?: ListingWithProduct | null;
 }
 
