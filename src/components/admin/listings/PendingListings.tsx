@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { LoadingSpinner } from "@/components/loading/LoadingSpinner";
 import { Badge } from "@/components/ui/badge";
+import { CheckCircle2, XCircle } from "lucide-react";
 
 export function PendingListings() {
   const { toast } = useToast();
@@ -13,18 +14,19 @@ export function PendingListings() {
     queryKey: ['pending-listings'],
     queryFn: async () => {
       const { data, error } = await supabase
-        .from('listings')
+        .from('products')
         .select(`
           *,
-          products (
-            title,
-            description,
-            price,
-            currency,
-            seller_id
+          product_images (
+            url,
+            alt
+          ),
+          users!products_seller_id_fkey (
+            full_name,
+            whatsapp_number
           )
         `)
-        .eq('status', 'pending_approval')
+        .eq('status', 'pending')
         .order('created_at', { ascending: false });
 
       if (error) throw error;
@@ -32,91 +34,140 @@ export function PendingListings() {
     }
   });
 
-  const handleApprove = async (listingId: string) => {
-    const { error } = await supabase
-      .from('listings')
-      .update({ status: 'active' })
-      .eq('id', listingId);
+  const handleApprove = async (productId: string) => {
+    try {
+      const { error } = await supabase
+        .from('products')
+        .update({ status: 'active' })
+        .eq('id', productId);
 
-    if (error) {
+      if (error) throw error;
+
+      // Create notification for seller
+      const product = pendingListings?.find(p => p.id === productId);
+      if (product?.seller_id) {
+        await supabase
+          .from('notifications')
+          .insert({
+            user_id: product.seller_id,
+            type: 'product_status',
+            title: 'Product Approved',
+            message: 'Your product listing has been approved.'
+          });
+      }
+
       toast({
-        title: "Error",
-        description: "Failed to approve listing",
-        variant: "destructive",
+        title: "Success",
+        description: "Product approved successfully",
       });
-      return;
+      refetch();
+    } catch (error) {
+      console.error('Error approving product:', error);
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "Failed to approve product"
+      });
     }
-
-    toast({
-      title: "Success",
-      description: "Listing approved successfully",
-    });
-    refetch();
   };
 
-  const handleReject = async (listingId: string) => {
-    const { error } = await supabase
-      .from('listings')
-      .update({ status: 'rejected' })
-      .eq('id', listingId);
+  const handleReject = async (productId: string) => {
+    try {
+      const { error } = await supabase
+        .from('products')
+        .update({ status: 'rejected' })
+        .eq('id', productId);
 
-    if (error) {
+      if (error) throw error;
+
+      // Create notification for seller
+      const product = pendingListings?.find(p => p.id === productId);
+      if (product?.seller_id) {
+        await supabase
+          .from('notifications')
+          .insert({
+            user_id: product.seller_id,
+            type: 'product_status',
+            title: 'Product Rejected',
+            message: 'Your product listing has been rejected.'
+          });
+      }
+
       toast({
-        title: "Error",
-        description: "Failed to reject listing",
-        variant: "destructive",
+        title: "Success",
+        description: "Product rejected successfully",
       });
-      return;
+      refetch();
+    } catch (error) {
+      console.error('Error rejecting product:', error);
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "Failed to reject product"
+      });
     }
-
-    toast({
-      title: "Success",
-      description: "Listing rejected successfully",
-    });
-    refetch();
   };
 
   if (isLoading) return <LoadingSpinner />;
 
   return (
     <div className="space-y-6">
-      <h2 className="text-2xl font-bold">Pending Listings</h2>
-      {pendingListings?.length === 0 ? (
+      <div className="flex justify-between items-center">
+        <h2 className="text-2xl font-bold">Pending Listings</h2>
+      </div>
+
+      {!pendingListings?.length ? (
         <Card>
           <CardContent className="p-6">
             <p className="text-center text-muted-foreground">No pending listings</p>
           </CardContent>
         </Card>
       ) : (
-        pendingListings?.map((listing) => (
-          <Card key={listing.id}>
-            <CardHeader>
-              <CardTitle>{listing.products.title}</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                <div>
-                  <p className="text-sm text-muted-foreground">Description</p>
-                  <p>{listing.products.description}</p>
-                </div>
-                <div className="flex items-center gap-2">
-                  <p className="text-sm text-muted-foreground">Price:</p>
-                  <Badge>
-                    {listing.products.price} {listing.products.currency}
+        <div className="grid gap-4">
+          {pendingListings.map((product) => (
+            <Card key={product.id}>
+              <CardHeader>
+                <div className="flex justify-between items-start">
+                  <div>
+                    <CardTitle>{product.title}</CardTitle>
+                    <p className="text-sm text-muted-foreground mt-1">
+                      by {product.users?.full_name || 'Unknown Seller'}
+                    </p>
+                  </div>
+                  <Badge variant="secondary">
+                    {product.currency} {product.price.toLocaleString()}
                   </Badge>
                 </div>
-                <div className="flex gap-2">
-                  <Button onClick={() => handleApprove(listing.id)}>
-                    Approve
-                  </Button>
-                  <Button variant="destructive" onClick={() => handleReject(listing.id)}>
-                    Reject
-                  </Button>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  <p className="text-sm">{product.description}</p>
+                  {product.users?.whatsapp_number && (
+                    <p className="text-sm text-muted-foreground">
+                      WhatsApp: {product.users.whatsapp_number}
+                    </p>
+                  )}
+                  <div className="flex gap-2">
+                    <Button
+                      onClick={() => handleApprove(product.id)}
+                      className="bg-green-600 hover:bg-green-700"
+                    >
+                      <CheckCircle2 className="w-4 h-4 mr-2" />
+                      Approve
+                    </Button>
+                    <Button
+                      variant="destructive"
+                      onClick={() => handleReject(product.id)}
+                    >
+                      <XCircle className="w-4 h-4 mr-2" />
+                      Reject
+                    </Button>
+                  </div>
                 </div>
-              </div>
-            </CardContent>
-          </Card>
-        ))
+              </CardContent>
+            </Card>
+          ))}
+        </div>
       )}
     </div>
   );
