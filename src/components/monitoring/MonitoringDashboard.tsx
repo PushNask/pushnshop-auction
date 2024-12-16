@@ -14,7 +14,7 @@ export function MonitoringDashboard() {
     const fetchMetrics = async () => {
       try {
         const currentMetrics = await MonitoringService.collectMetrics();
-        const metricsWithTimestamp = {
+        const metricsWithTimestamp: SystemMetrics & { created_at: string } = {
           ...currentMetrics,
           created_at: new Date().toISOString()
         };

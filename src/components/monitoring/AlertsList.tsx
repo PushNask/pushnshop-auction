@@ -1,4 +1,4 @@
-import { Alert } from "@/lib/monitoring/types";
+import { Alert } from "@/types/analytics";
 
 interface AlertsListProps {
   alerts: Alert[];

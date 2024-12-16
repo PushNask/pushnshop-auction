@@ -35,11 +35,11 @@ const SystemMonitoring = () => {
         </Card>
         <Card className="p-4">
           <h3 className="font-semibold">Memory Usage</h3>
-          <p>{metrics?.memory_usage} MB</p>
+          <p>{metrics?.memory}%</p>
         </Card>
         <Card className="p-4">
           <h3 className="font-semibold">CPU Usage</h3>
-          <p>{metrics?.cpu_usage}%</p>
+          <p>{metrics?.cpu}%</p>
         </Card>
         <Card className="p-4">
           <h3 className="font-semibold">Database Connections</h3>
