@@ -1,6 +1,12 @@
 import { logger } from './logger';
 import type { BuildError, BuildMetrics, BuildConfig } from './types';
 
+declare global {
+  interface Window {
+    addEventListener: (type: string, listener: EventListener) => void;
+  }
+}
+
 export class BuildMonitor {
   private static instance: BuildMonitor;
   private errors: BuildError[] = [];
@@ -29,22 +35,20 @@ export class BuildMonitor {
 
   private setupErrorHandlers() {
     if (typeof window !== 'undefined') {
-      window.addEventListener('error', (event: Event) => {
-        const errorEvent = event as ErrorEvent;
+      window.addEventListener('error', (event: ErrorEvent) => {
         this.logBuildError({
           type: 'runtime',
-          message: errorEvent.error?.message || 'Unknown error',
-          stack: errorEvent.error?.stack,
+          message: event.error?.message || 'Unknown error',
+          stack: event.error?.stack,
           timestamp: new Date().toISOString()
         });
       });
 
-      window.addEventListener('unhandledrejection', (event: Event) => {
-        const promiseEvent = event as PromiseRejectionEvent;
+      window.addEventListener('unhandledrejection', (event: PromiseRejectionEvent) => {
         this.logBuildError({
           type: 'promise',
-          message: promiseEvent.reason?.message || 'Unhandled Promise rejection',
-          stack: promiseEvent.reason?.stack,
+          message: event.reason?.message || 'Unhandled Promise rejection',
+          stack: event.reason?.stack,
           timestamp: new Date().toISOString()
         });
       });
