@@ -36,12 +36,17 @@ export const fetchUserProducts = async (userId: string): Promise<ManagedProduct[
     let whatsappClicks = 0;
 
     if (analytics && typeof analytics === 'object') {
-      views = (analytics as ProductAnalytics).views || 0;
-      whatsappClicks = (analytics as ProductAnalytics).whatsapp_clicks || 0;
+      const typedAnalytics = analytics as unknown as ProductAnalytics;
+      views = typedAnalytics.views || 0;
+      whatsappClicks = typedAnalytics.whatsapp_clicks || 0;
     }
 
     const listingStatus = product.listings?.[0]?.status || 'pending';
-    const mappedStatus = listingStatus === 'draft' ? 'pending' : listingStatus as ManagedProduct['status'];
+    // Ensure the status is one of the allowed values in ManagedProduct
+    const mappedStatus: ManagedProduct['status'] = 
+      listingStatus === 'draft' || listingStatus === 'pending' ? 'pending' :
+      listingStatus === 'active' ? 'active' :
+      'expired';
 
     return {
       id: product.id,
