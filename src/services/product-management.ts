@@ -24,10 +24,7 @@ interface DbProductResponse {
   quantity: number;
   status: string;
   listings: DbListingResponse[];
-  analytics: {
-    views: number;
-    whatsapp_clicks: number;
-  }[];
+  analytics: ProductAnalytics[];
 }
 
 export const fetchUserProducts = async (userId: string): Promise<ManagedProduct[]> => {
@@ -54,11 +51,13 @@ export const fetchUserProducts = async (userId: string): Promise<ManagedProduct[
 
   if (error) throw error;
 
-  // Safe type assertion after validating the shape of the data
-  const products = data as unknown as DbProductResponse[];
+  // Ensure data is properly typed before mapping
+  const products = (data || []) as unknown as DbProductResponse[];
 
   return products.map(product => {
-    const analytics = product.analytics?.[0] || { views: 0, whatsapp_clicks: 0 };
+    const analytics = Array.isArray(product.analytics) && product.analytics.length > 0
+      ? product.analytics[0]
+      : { views: 0, whatsapp_clicks: 0 };
     
     return {
       id: product.id,
