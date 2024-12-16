@@ -21,3 +21,27 @@ export interface BuildConfig {
   errorReporting: boolean;
   metrics: boolean;
 }
+
+export interface SystemMetrics {
+  response_time: number;
+  error_rate: number;
+  active_users: number;
+  memory_usage: number;
+  cpu_usage: number;
+  database_connections: number;
+}
+
+export interface Alert {
+  metric: string;
+  value: number;
+  threshold: number;
+  severity: 'high' | 'medium' | 'low';
+  timestamp: Date;
+}
+
+export interface AlertConfig {
+  metric: keyof SystemMetrics;
+  threshold: number;
+  condition: 'above' | 'below';
+  severity: 'high' | 'medium' | 'low';
+}

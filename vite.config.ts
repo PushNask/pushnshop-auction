@@ -20,7 +20,7 @@ export default defineConfig(({ mode }: ConfigEnv): UserConfig => ({
       buildStart() {
         buildMonitor.startBuild();
       },
-      buildEnd(error) {
+      buildEnd(error: Error | null) {
         if (error) {
           buildMonitor.logBuildError({
             type: 'compile',

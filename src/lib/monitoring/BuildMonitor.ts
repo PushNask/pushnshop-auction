@@ -14,7 +14,9 @@ export class BuildMonitor {
   };
 
   private constructor() {
-    this.setupErrorHandlers();
+    if (typeof window !== 'undefined') {
+      this.setupErrorHandlers();
+    }
   }
 
   static getInstance(): BuildMonitor {
@@ -26,7 +28,7 @@ export class BuildMonitor {
 
   private setupErrorHandlers() {
     if (typeof window !== 'undefined') {
-      window.addEventListener('error', (event) => {
+      window.addEventListener('error', (event: ErrorEvent) => {
         this.logBuildError({
           type: 'runtime',
           message: event.error.message,
@@ -35,7 +37,7 @@ export class BuildMonitor {
         });
       });
 
-      window.addEventListener('unhandledrejection', (event) => {
+      window.addEventListener('unhandledrejection', (event: PromiseRejectionEvent) => {
         this.logBuildError({
           type: 'promise',
           message: event.reason.message,
