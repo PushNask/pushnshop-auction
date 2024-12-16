@@ -18,7 +18,10 @@ vi.mock('@/integrations/supabase/client', () => ({
             error_rate: 0.5,
             active_users: 100
           },
-          error: null
+          error: null,
+          count: null,
+          status: 200,
+          statusText: 'OK'
         } as PostgrestSingleResponse<any>)
       })
     })
