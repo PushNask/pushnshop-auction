@@ -5,6 +5,9 @@ export interface SystemMetrics {
   response_time: number;
   error_rate: number;
   active_users: number;
+  memory_usage: number;
+  cpu_usage: number;
+  database_connections: number;
 }
 
 export interface SystemAlert {
@@ -16,6 +19,21 @@ export interface SystemAlert {
   value: number;
   threshold: number;
   severity: 'high' | 'medium' | 'low';
+}
+
+export interface AlertConfig {
+  metric: keyof SystemMetrics;
+  threshold: number;
+  condition: 'above' | 'below';
+  severity: 'high' | 'medium' | 'low';
+}
+
+export interface Alert {
+  metric: keyof SystemMetrics;
+  value: number;
+  threshold: number;
+  severity: 'high' | 'medium' | 'low';
+  timestamp: Date;
 }
 
 export interface AnalyticsData {

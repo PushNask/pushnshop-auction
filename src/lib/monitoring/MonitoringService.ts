@@ -27,7 +27,10 @@ export class MonitoringService {
         active_users: userStats.activeUsers,
         memory_usage: resourceStats.memoryUsage,
         cpu_usage: resourceStats.cpuUsage,
-        database_connections: dbStats.connections
+        database_connections: dbStats.connections,
+        cpu: resourceStats.cpuUsage,
+        memory: resourceStats.memoryUsage,
+        disk: 0 // Placeholder as we don't track disk usage yet
       };
 
       await this.saveMetrics(metrics);

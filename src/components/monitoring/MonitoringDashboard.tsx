@@ -3,7 +3,7 @@ import { MonitoringService } from '@/lib/monitoring/MonitoringService';
 import { MetricsChart } from './MetricsChart';
 import { AlertsList } from './AlertsList';
 import { LoadingSpinner } from '@/components/loading/LoadingSpinner';
-import type { SystemMetrics, Alert } from '@/lib/monitoring/types';
+import type { SystemMetrics, Alert } from '@/types/analytics';
 
 export function MonitoringDashboard() {
   const [metrics, setMetrics] = useState<(SystemMetrics & { created_at: string })[]>([]);
@@ -14,7 +14,11 @@ export function MonitoringDashboard() {
     const fetchMetrics = async () => {
       try {
         const currentMetrics = await MonitoringService.collectMetrics();
-        setMetrics(prev => [...prev, { ...currentMetrics, created_at: new Date().toISOString() }].slice(-60));
+        const metricsWithTimestamp = {
+          ...currentMetrics,
+          created_at: new Date().toISOString()
+        };
+        setMetrics(prev => [...prev, metricsWithTimestamp].slice(-60));
         
         const newAlerts = await MonitoringService.checkAlerts(currentMetrics);
         if (newAlerts.length > 0) {
