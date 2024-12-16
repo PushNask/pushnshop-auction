@@ -3,11 +3,37 @@ import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { SystemMonitoring } from '@/components/admin/monitoring/SystemMonitoring';
 import { supabase } from '@/integrations/supabase/client';
 
+// Mock Supabase client
 vi.mock('@/integrations/supabase/client', () => ({
   supabase: {
-    rpc: (functionName: string) => ({
-      select: () => ({
-        single: () => ({
+    rpc: vi.fn(() => ({
+      select: vi.fn(() => ({
+        single: vi.fn(() => ({
+          data: {
+            cpu: 45.5,
+            memory: 60.2,
+            disk: 75.0,
+            response_time: 250,
+            error_rate: 0.5,
+            active_users: 100
+          },
+          error: null
+        }))
+      }))
+    }))
+  }
+}));
+
+describe('System Monitoring Tests', () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
+  it('displays system metrics correctly', async () => {
+    // Mock successful response
+    const mockRpcResponse = {
+      select: vi.fn().mockReturnValue({
+        single: vi.fn().mockResolvedValue({
           data: {
             cpu: 45.5,
             memory: 60.2,
@@ -19,16 +45,9 @@ vi.mock('@/integrations/supabase/client', () => ({
           error: null
         })
       })
-    })
-  }
-}));
+    };
+    vi.mocked(supabase.rpc).mockReturnValue(mockRpcResponse as any);
 
-describe('System Monitoring Tests', () => {
-  beforeEach(() => {
-    vi.clearAllMocks();
-  });
-
-  it('displays system metrics correctly', async () => {
     render(<SystemMonitoring />);
 
     await waitFor(() => {
@@ -39,22 +58,26 @@ describe('System Monitoring Tests', () => {
   });
 
   it('handles loading state', () => {
-    vi.mocked(supabase.rpc).mockImplementationOnce(() => ({
-      select: () => ({
-        single: () => new Promise(() => {})
+    // Mock pending response
+    const mockPendingResponse = {
+      select: vi.fn().mockReturnValue({
+        single: vi.fn().mockReturnValue(new Promise(() => {}))
       })
-    }));
+    };
+    vi.mocked(supabase.rpc).mockReturnValue(mockPendingResponse as any);
 
     render(<SystemMonitoring />);
     expect(screen.getByText(/Loading/i)).toBeInTheDocument();
   });
 
   it('handles error state', async () => {
-    vi.mocked(supabase.rpc).mockImplementationOnce(() => ({
-      select: () => ({
-        single: () => Promise.reject(new Error('Failed to fetch metrics'))
+    // Mock error response
+    const mockErrorResponse = {
+      select: vi.fn().mockReturnValue({
+        single: vi.fn().mockRejectedValue(new Error('Failed to fetch metrics'))
       })
-    }));
+    };
+    vi.mocked(supabase.rpc).mockReturnValue(mockErrorResponse as any);
 
     render(<SystemMonitoring />);
 

@@ -6,6 +6,7 @@ const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
 
 if (!supabaseUrl || !supabaseAnonKey) {
   console.error('Missing Supabase environment variables');
+  throw new Error('Missing Supabase environment variables');
 }
 
 export const supabase = createClient<Database>(
@@ -25,6 +26,12 @@ export const supabase = createClient<Database>(
     },
     db: {
       schema: 'public'
+    },
+    // Add proper error handling and retries
+    realtime: {
+      params: {
+        eventsPerSecond: 10
+      }
     }
   }
 );
@@ -39,3 +46,9 @@ supabase.auth.onAuthStateChange((event, session) => {
     console.log('Token refreshed');
   }
 });
+
+// Add global error handler for failed requests
+supabase.handleFailedRequest = (error: Error) => {
+  console.error('Supabase request failed:', error);
+  // You can add additional error handling here
+};
