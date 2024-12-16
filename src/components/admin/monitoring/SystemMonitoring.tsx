@@ -9,7 +9,20 @@ const SystemMonitoring = () => {
     queryFn: async () => {
       const { data, error } = await supabase.rpc("get_system_metrics");
       if (error) throw error;
-      return data as SystemMetrics;
+      // Type assertion after validating the shape of the data
+      const metricsData = data as unknown as SystemMetrics;
+      // Validate that the required properties exist
+      if (
+        typeof metricsData.cpu !== 'number' ||
+        typeof metricsData.memory !== 'number' ||
+        typeof metricsData.disk !== 'number' ||
+        typeof metricsData.response_time !== 'number' ||
+        typeof metricsData.error_rate !== 'number' ||
+        typeof metricsData.active_users !== 'number'
+      ) {
+        throw new Error('Invalid metrics data structure');
+      }
+      return metricsData;
     }
   });
 
