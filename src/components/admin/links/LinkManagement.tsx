@@ -21,7 +21,7 @@ interface ListingWithProduct {
 }
 
 interface PermanentLink extends PermanentLinkRow {
-  current_listing?: ListingWithProduct;
+  current_listing?: ListingWithProduct | null;
 }
 
 export function LinkManagement() {
@@ -42,7 +42,7 @@ export function LinkManagement() {
       const linksWithListings = await Promise.all(
         permanentLinks.map(async (link) => {
           if (!link.current_listing_id) {
-            return { ...link, current_listing: undefined };
+            return { ...link, current_listing: null };
           }
 
           const { data: listing, error: listingError } = await supabase
@@ -61,7 +61,7 @@ export function LinkManagement() {
 
           if (listingError) {
             console.error('Error fetching listing:', listingError);
-            return { ...link, current_listing: undefined };
+            return { ...link, current_listing: null };
           }
 
           return {
@@ -71,7 +71,7 @@ export function LinkManagement() {
         })
       );
 
-      return linksWithListings as PermanentLink[];
+      return linksWithListings;
     }
   });
 
