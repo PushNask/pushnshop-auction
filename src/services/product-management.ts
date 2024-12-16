@@ -2,6 +2,11 @@ import { supabase } from '@/integrations/supabase/client';
 import type { ManagedProduct } from '@/types/product-management';
 import type { Currency, ListingStatus } from '@/types/product';
 
+interface ProductAnalytics {
+  views: number;
+  whatsapp_clicks: number;
+}
+
 export const fetchUserProducts = async (userId: string): Promise<ManagedProduct[]> => {
   const { data, error } = await supabase
     .from('products')
@@ -31,10 +36,10 @@ export const fetchUserProducts = async (userId: string): Promise<ManagedProduct[
     price: product.price,
     currency: product.currency as Currency,
     quantity: product.quantity,
-    status: (product.listings?.[0]?.status || 'pending') as 'active' | 'pending' | 'expired',
+    status: (product.listings?.[0]?.status || 'pending') as ListingStatus,
     expiresAt: product.listings?.[0]?.end_time || null,
-    views: product.analytics?.[0]?.views || 0,
-    whatsappClicks: product.analytics?.[0]?.whatsapp_clicks || 0
+    views: (product.analytics?.[0] as ProductAnalytics)?.views || 0,
+    whatsappClicks: (product.analytics?.[0] as ProductAnalytics)?.whatsapp_clicks || 0
   }));
 };
 
