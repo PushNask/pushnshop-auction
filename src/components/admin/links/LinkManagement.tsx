@@ -27,7 +27,7 @@ interface PermanentLink extends PermanentLinkRow {
 export function LinkManagement() {
   const { toast } = useToast();
 
-  const { data: links, isLoading, refetch } = useQuery({
+  const { data: links, isLoading, refetch } = useQuery<PermanentLink[]>({
     queryKey: ['permanent-links'],
     queryFn: async () => {
       // First get all permanent links
