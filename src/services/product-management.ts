@@ -54,8 +54,8 @@ export const fetchUserProducts = async (userId: string): Promise<ManagedProduct[
 
   if (error) throw error;
 
-  // Type assertion after validating the shape of the data
-  const products = (data || []) as unknown as DbProductResponse[];
+  // Safe type assertion after validating the shape of the data
+  const products = data as unknown as DbProductResponse[];
 
   return products.map(product => {
     const analytics = product.analytics?.[0] || { views: 0, whatsapp_clicks: 0 };
