@@ -16,6 +16,15 @@ interface PermanentLink {
   rotation_count: number;
   performance_score: number;
   last_assigned_at: string | null;
+  listings?: {
+    id: string;
+    product: {
+      title: string;
+      seller: {
+        full_name: string;
+      };
+    };
+  }[];
 }
 
 export function LinkManagement() {
@@ -28,11 +37,11 @@ export function LinkManagement() {
         .from('permanent_links')
         .select(`
           *,
-          listings!permanent_links_current_listing_id_fkey (
+          listings(
             id,
-            products (
+            product:products(
               title,
-              seller:users!products_seller_id_fkey (
+              seller:users(
                 full_name
               )
             )
@@ -110,14 +119,14 @@ export function LinkManagement() {
                     <p className="font-medium">{link.performance_score.toFixed(2)}</p>
                   </div>
                 </div>
-                {link.current_listing_id && (
+                {link.listings?.[0] && (
                   <div className="pt-2 border-t">
                     <p className="text-sm text-muted-foreground">Current Product</p>
                     <p className="font-medium">
-                      {(link as any).listings?.products?.title || 'Unknown Product'}
+                      {link.listings[0].product?.title || 'Unknown Product'}
                     </p>
                     <p className="text-sm text-muted-foreground">
-                      by {(link as any).listings?.products?.seller?.full_name || 'Unknown Seller'}
+                      by {link.listings[0].product?.seller?.full_name || 'Unknown Seller'}
                     </p>
                   </div>
                 )}
