@@ -1,11 +1,16 @@
 import { logger } from './logger';
 import type { BuildError, BuildMetrics, BuildConfig } from './types';
 
-declare global {
-  interface Window {
-    addEventListener: (type: string, listener: EventListener) => void;
-  }
-}
+// Import required DOM types
+type WindowWithEvents = {
+  addEventListener: (
+    type: string,
+    listener: (event: Event) => void,
+    options?: boolean | AddEventListenerOptions
+  ) => void;
+};
+
+declare const window: WindowWithEvents | undefined;
 
 export class BuildMonitor {
   private static instance: BuildMonitor;
@@ -35,20 +40,28 @@ export class BuildMonitor {
 
   private setupErrorHandlers() {
     if (typeof window !== 'undefined') {
-      window.addEventListener('error', (event: ErrorEvent) => {
+      window.addEventListener('error', (event: Event) => {
+        const errorEvent = event as unknown as { 
+          error?: { message: string; stack?: string } 
+        };
+        
         this.logBuildError({
           type: 'runtime',
-          message: event.error?.message || 'Unknown error',
-          stack: event.error?.stack,
+          message: errorEvent.error?.message || 'Unknown error',
+          stack: errorEvent.error?.stack,
           timestamp: new Date().toISOString()
         });
       });
 
-      window.addEventListener('unhandledrejection', (event: PromiseRejectionEvent) => {
+      window.addEventListener('unhandledrejection', (event: Event) => {
+        const promiseEvent = event as unknown as { 
+          reason?: { message: string; stack?: string } 
+        };
+        
         this.logBuildError({
           type: 'promise',
-          message: event.reason?.message || 'Unhandled Promise rejection',
-          stack: event.reason?.stack,
+          message: promiseEvent.reason?.message || 'Unhandled Promise rejection',
+          stack: promiseEvent.reason?.stack,
           timestamp: new Date().toISOString()
         });
       });
