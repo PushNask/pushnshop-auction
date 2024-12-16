@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -109,7 +109,17 @@ export const ProductEditForm = ({ initialProduct, onSave }: ProductEditFormProps
         if (imageError) throw imageError;
       }
 
-      onSave?.(finalProduct);
+      // Create notification for admin
+      await supabase
+        .from('notifications')
+        .insert({
+          type: 'product_pending',
+          title: 'New Product Pending Review',
+          message: `New product "${finalProduct.title}" requires approval`,
+          user_id: user.id
+        });
+
+      onSave?.(data as Product);
       
       toast({
         title: "Success",

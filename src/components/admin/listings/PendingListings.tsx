@@ -13,6 +13,7 @@ export function PendingListings() {
   const { data: pendingListings, isLoading, refetch } = useQuery({
     queryKey: ['pending-listings'],
     queryFn: async () => {
+      console.log('Fetching pending listings...'); // Debug log
       const { data, error } = await supabase
         .from('products')
         .select(`
@@ -29,7 +30,12 @@ export function PendingListings() {
         .eq('status', 'pending')
         .order('created_at', { ascending: false });
 
-      if (error) throw error;
+      if (error) {
+        console.error('Error fetching pending listings:', error);
+        throw error;
+      }
+
+      console.log('Fetched pending listings:', data); // Debug log
       return data;
     }
   });

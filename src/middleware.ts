@@ -33,6 +33,21 @@ export async function middleware(req: NextRequest) {
       .single();
 
     if (error || userData?.role !== 'admin') {
+      console.log('Access denied: User is not an admin'); // Debug log
+      return NextResponse.redirect(new URL('/', req.url));
+    }
+  }
+
+  // Enhanced seller route protection
+  if (path.startsWith('/sell')) {
+    const { data: userData, error } = await supabase
+      .from('users')
+      .select('role')
+      .eq('id', session?.user?.id)
+      .single();
+
+    if (error || (userData?.role !== 'seller' && userData?.role !== 'admin')) {
+      console.log('Access denied: User is not a seller'); // Debug log
       return NextResponse.redirect(new URL('/', req.url));
     }
   }
