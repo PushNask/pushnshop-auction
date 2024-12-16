@@ -35,7 +35,7 @@ export const supabase = createClient<Database>(
   }
 );
 
-// Add error handling for failed requests
+// Add error handling and logging for connection issues
 supabase.auth.onAuthStateChange((event, session) => {
   if (event === 'SIGNED_OUT') {
     console.log('User signed out');
@@ -45,3 +45,19 @@ supabase.auth.onAuthStateChange((event, session) => {
     console.log('Token refreshed');
   }
 });
+
+// Add a simple health check function
+export const checkSupabaseConnection = async () => {
+  try {
+    const { data, error } = await supabase.from('system_settings').select('site_name').limit(1);
+    if (error) throw error;
+    console.log('Supabase connection successful');
+    return true;
+  } catch (error) {
+    console.error('Supabase connection failed:', error);
+    return false;
+  }
+};
+
+// Initialize connection check
+checkSupabaseConnection().catch(console.error);
