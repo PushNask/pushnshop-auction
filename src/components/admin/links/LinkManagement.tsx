@@ -40,7 +40,7 @@ export function LinkManagement() {
 
       // Then for each link with a current_listing_id, fetch the listing details
       const linksWithListings = await Promise.all(
-        permanentLinks.map(async (link) => {
+        (permanentLinks || []).map(async (link) => {
           if (!link.current_listing_id) {
             return { ...link, current_listing: null };
           }
