@@ -1,69 +1,227 @@
-# Welcome to your Lovable project
+# PushNshop - E-commerce Platform Documentation
 
-## Project info
+## Overview
+PushNshop is a mobile-first e-commerce platform featuring permanent product links, seller listing management, and direct buyer-seller communication via WhatsApp. The platform supports 120 concurrent product listings with automatic rotation.
 
-**URL**: https://lovable.dev/projects/21f62c60-1e70-4d48-ad3f-11c86614fd8d
+## Core Features
 
-## How can I edit this code?
+### 1. Authentication System
+✅ Implemented:
+- Login/Signup forms with email/password
+- Form validation
+- WhatsApp number integration
+- Role-based access (Admin, Seller, Buyer)
+- Protected routes
+- Session management
 
-There are several ways of editing your application.
+🚧 Pending:
+- Password reset functionality
+- Email verification
+- Two-factor authentication
+- OAuth integration
+- Account deletion
 
-**Use Lovable**
+### 2. Product Management
+✅ Implemented:
+- Product listing form with image upload (max 7 images)
+- Currency selection (XAF/USD)
+- Duration selection with pricing tiers:
+  - 24 hours: $10/XAF 5000
+  - 48 hours: $15/XAF 7500
+  - 72 hours: $20/XAF 10000
+  - 96 hours: $25/XAF 12500
+  - 120 hours: $30/XAF 15000
+- Basic product status management
+- Image validation and preview
+- WhatsApp integration for buyer-seller communication
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/21f62c60-1e70-4d48-ad3f-11c86614fd8d) and start prompting.
+🚧 Pending:
+- Rich text product descriptions
+- Image optimization and CDN integration
+- Product analytics dashboard
+- Bulk product management
+- Advanced filters and search
+- Category management
 
-Changes made via Lovable will be committed automatically to this repo.
+### 3. Permanent Link System
+✅ Implemented:
+- 120 fixed URL management
+- Link status tracking
+- Basic assignment system
+- Link rotation
 
-**Use your preferred IDE**
+🚧 Pending:
+- Advanced link analytics
+- SEO optimization
+- Link performance metrics
+- Historical data tracking
+- Automatic optimization based on performance
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+### 4. Admin Dashboard
+✅ Implemented:
+- Product approval interface
+- Payment verification
+- Basic analytics tracking
+- User management
+- System monitoring
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+🚧 Pending:
+- Advanced analytics and reporting
+- Bulk actions for products/users
+- System logs viewer
+- Performance optimization tools
+- Custom admin roles
 
-Follow these steps:
+### 5. Payment System
+✅ Implemented:
+- Basic payment tracking
+- Manual payment verification
+- Multiple currency support (XAF/USD)
 
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
+🚧 Pending:
+- Automated payment processing
+- Payment gateway integration
+- Invoice generation
+- Refund management
+- Payment analytics
 
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
+## Technical Architecture
 
-# Step 3: Install the necessary dependencies.
-npm i
+### Frontend
+- React + TypeScript
+- Tailwind CSS + shadcn/ui
+- Mobile-first responsive design
+- Form validation with React Hook Form
+- State management with React Query
+- Real-time updates with Supabase
 
-# Step 4: Start the development server with auto-reloading and an instant preview.
-npm run dev
-```
+### Backend (Supabase)
+- PostgreSQL database
+- Row Level Security (RLS)
+- Real-time subscriptions
+- File storage for images
+- Edge Functions for custom logic
 
-**Edit a file directly in GitHub**
+## Database Schema
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+### Core Tables
+- users: User profiles and authentication
+- products: Product listings and details
+- listings: Active product listings
+- permanent_links: URL management
+- payments: Payment tracking
+- analytics: Usage statistics
 
-**Use GitHub Codespaces**
+### Supporting Tables
+- product_images: Product image management
+- notifications: System notifications
+- system_metrics: Performance monitoring
+- system_settings: Platform configuration
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+## API Integration Points
 
-## What technologies are used for this project?
+### External Services
+- WhatsApp Business API (pending)
+- Payment gateways (pending)
+- Email service (pending)
+- SMS notifications (pending)
 
-This project is built with .
+### Internal APIs
+- Product management
+- User management
+- Analytics
+- Payment processing
+- File storage
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
+## Development Guidelines
 
-## How can I deploy this project?
+### Code Structure
+- Components follow atomic design principles
+- Shared UI components in /components/ui
+- Feature-specific components in feature directories
+- Hooks for reusable logic
+- Types and interfaces in dedicated files
 
-Simply open [Lovable](https://lovable.dev/projects/21f62c60-1e70-4d48-ad3f-11c86614fd8d) and click on Share -> Publish.
+### Best Practices
+- Mobile-first responsive design
+- Progressive enhancement
+- Error boundary implementation
+- Loading state handling
+- Form validation
+- Type safety
 
-## I want to use a custom domain - is that possible?
+## Deployment
 
-We don't support custom domains (yet). If you want to deploy your project under your own domain then we recommend using Netlify. Visit our docs for more details: [Custom domains](https://docs.lovable.dev/tips-tricks/custom-domain/)
+### Current Setup
+- Frontend: Netlify
+- Backend: Supabase
+- File Storage: Supabase Storage
+
+### Environment Configuration
+- Development
+- Staging (pending)
+- Production
+
+## Testing Strategy
+
+### Implemented
+- Basic component testing
+- Form validation testing
+- Route protection testing
+
+### Pending
+- E2E testing
+- Integration testing
+- Performance testing
+- Security testing
+- Load testing
+
+## Security Measures
+
+### Implemented
+- Authentication
+- Protected routes
+- Input validation
+- XSS protection
+- RLS policies
+
+### Pending
+- Rate limiting
+- CSRF protection
+- Security headers
+- Regular security audits
+- Penetration testing
+
+## Performance Optimization
+
+### Implemented
+- Code splitting
+- Lazy loading
+- Image optimization
+
+### Pending
+- Caching strategy
+- CDN integration
+- Database optimization
+- API response optimization
+- Bundle size optimization
+
+## Monitoring
+
+### Implemented
+- Basic error tracking
+- System metrics
+- User analytics
+
+### Pending
+- Advanced error tracking
+- Performance monitoring
+- User behavior analytics
+- Real-time alerting
+- Custom dashboards
+
+## Contributing
+Please refer to CONTRIBUTING.md (pending) for development guidelines and contribution process.
+
+## License
+This project is proprietary and confidential.
